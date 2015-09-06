@@ -1,23 +1,50 @@
 import React from 'react';
 import color from 'color';
+import Radium from 'radium';
 
+@Radium
 export class Fade extends React.Component {
+  componentDidMount() {
+    var reactId = React.findDOMNode(this.refs.gradient).getAttribute('data-reactid');
+    this.setState({ reactId: reactId + 'gradient' });
+  }
   render() {
-    let fgTransparent = color(this.props.theme.bg).alpha(0).hslString();
-    let fadeStyle = {
-        background: `linear-gradient(${fgTransparent}, ${this.props.theme.bg})`,
-        content: '',
-        width: '100%',
-        height: '100%',
-        top: 0,
-        left: 0,
-        position: 'absolute'
+    let styles = {
+      pointerEvents: 'none',
+      content: '',
+      width: '100%',
+      height: '100%',
+      top: 0,
+      left: 0,
+      position: 'absolute'
     };
+    // We need this for text descenders
+    if (this.props.overshoot) {
+      styles.height = '110%';
+      styles.left = '-10%';
+      styles.width = '120%';
+    }
+    let reactId = this.state.reactId;
     return (
-      <div style={{ position: 'relative' }}>
-        {this.props.children}
-        <div style={fadeStyle} />
-      </div>
+      <svg style={styles}>
+        <defs>
+          <linearGradient ref="gradient" id={reactId} x1="0%" y1="0%" x2="0%" y2="99%">
+            <stop offset="0%" style={{
+              transitionProperty: 'all',
+              transitionDuration: this.props.theme.longTime,
+              stopColor: this.props.theme.bg,
+              stopOpacity:0
+            }} />
+            <stop offset="100%" style={{
+              transitionProperty: 'all',
+              transitionDuration: this.props.theme.longTime,
+              stopColor: this.props.theme.bg,
+              stopOpacity:1
+            }} />
+          </linearGradient>
+        </defs>
+        <rect id="rect1" x="0" y="0" width="100%" height="101%" fill={`url(#${reactId})`} />
+      </svg>
     );
   }
 }

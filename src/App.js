@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { NICE, SUPER_NICE } from './colors';
-import { Button } from './Button';
 import { ArticlePreview } from './ArticlePreview';
 
 class Counter extends Component {

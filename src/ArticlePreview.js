@@ -4,43 +4,6 @@ import React from 'react';
 import {vmin} from './Size';
 import {Fade} from './Fade';
 
-window.deorphanize = function (text) {
-  return text.replace(/ (?=\S+$)/, '\u00a0');
-}
-
-@Radium
-class Fade2 extends React.Component {
-  render() {
-    let styler = styles(this.props.theme);
-    if (this.props.overshoot) {
-      styler.overlay.height = '110%';
-      styler.overlay.left = '-10%';
-      styler.overlay.width = '120%';
-    }
-    return (
-      <svg style={styler.overlay}>
-        <defs>
-          <linearGradient id="fadeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style={{
-              transitionProperty: 'all',
-              transitionDuration: this.props.theme.longTime,
-              stopColor: this.props.theme.bg,
-              stopOpacity:0
-            }} />
-            <stop offset="100%" style={{
-              transitionProperty: 'all',
-              transitionDuration: this.props.theme.longTime,
-              stopColor: this.props.theme.bg,
-              stopOpacity:1
-            }} />
-          </linearGradient>
-        </defs>
-        <rect id="rect1" x="0" y="0" width="100%" height="100%" fill="url(#fadeGradient)" />
-      </svg>
-    );
-  }
-}
-
 @Radium
 export class Image extends React.Component {
   render() {
@@ -72,7 +35,7 @@ export class BackgroundImage extends React.Component {
         overflow: 'hidden'
       }}>
         <img src={this.props.src} style={{ width: '100%', filter: 'saturate(0)' }} />
-        <Fade2 theme={this.props.theme} />
+        <Fade theme={this.props.theme} />
       </div>
     );
   }
@@ -84,80 +47,73 @@ export class ArticlePreview extends React.Component {
     this.setState({ active: true});
   }
   componentDidMount() {
-    console.log(React.findDOMNode(this.refs.content).clientHeight);
+    /*console.log(React.findDOMNode(this.refs.content).clientHeight);*/
   }
   _inactivate() {
     this.setState({ active: false});
   }
   render() {
     let theme = {...this.props.theme};
-    theme.bg = this.state.active ? color(this.props.theme.bg).darken(0.8).desaturate(0.5).hexString() : this.props.theme.bg;
+    theme.bg = this.state.active ? color(this.props.theme.bg).darken(0.5).desaturate(0.8).hexString() : this.props.theme.bg;
+    theme.fg = this.state.active ? '#fffeda' : this.props.theme.fg;
     let styler = styles(theme);
-    let titleStyle = {
-      fontFamily: "'Oswald', 'Helvetica Neue', 'Helvetica'",
-      fontWeight: 700,
-      fontSize: vmin(7),
-      marginBottom: vmin(1),
-      /*textTransform: 'uppercase',*/
-      lineHeight: 1.2
-    };
     return (
       <div style={styler.base} onMouseEnter={this._activate.bind(this)} onMouseLeave={this._inactivate.bind(this)}>
         { this.props.img ?
           <BackgroundImage src={this.props.img} theme={theme} />
           : null
         }
-        <div style={{
-          paddingRight: vmin(15),
-          paddingLeft: vmin(15),
-          paddingTop: this.props.img ? vmin(40) : vmin(15),
-          paddingBottom: vmin(15),
-          position: 'relative',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          maxWidth: 1000
-        }}>
-          <div style={titleStyle}>
+        <div style={[styler.body, { paddingTop: this.props.img ? vmin(40) : vmin(10),}]}>
+          <div style={styler.title}>
             {deorphanize(this.props.title)}
           </div>
-          <p style={{ position: 'relative' }}>
+          <p style={styler.content}>
             {deorphanize(this.props.content)}
-            <Fade2 theme={theme} overshoot={true} />
+            <Fade theme={theme} overshoot={true} />
           </p>
-          <a href="#" style={styler.button}>
-            Read
-          </a>
+          <div style={{ textAlign: 'right' }}>
+            <a href="#" style={styler.button}>
+              Read
+            </a>
+          </div>
         </div>
       </div>
     );
   }
 }
 
-// You can create your style objects dynamically or share them for
-// every instance of the component.
-var styles = (theme) => {
+let styles = (theme) => {
   return {
     base: {
-      fontFamily: 'Roboto Condensed',
+      fontFamily: "'Roboto Condensed', 'Helvetica Neue', 'Helvetica'",
       color: theme.fg,
       background: theme.bg,
       transitionProperty: 'all',
       transitionDuration: theme.longTime,
       position: 'relative',
-      fontSize: vmin(3),
-      /*maxWidth: 900,*/
-      /*float: 'left',*/
+      fontSize: vmin(3.5),
+      lineHeight: 1.15,
       marginLeft: 'auto',
       marginRight: 'auto'
     },
-    overlay: {
-      pointerEvents: 'none',
-      content: '',
-      width: '100%',
-      height: '100%',
-      top: 0,
-      left: 0,
-      position: 'absolute'
+    body: {
+      paddingRight: vmin(10),
+      paddingLeft: vmin(10),
+      paddingBottom: vmin(10),
+      paddingTop: vmin(10),
+      position: 'relative',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      maxWidth: 1000
+    },
+    title: {
+      fontFamily: "'Oswald', 'Helvetica Neue', 'Helvetica'",
+      fontSize: vmin(7),
+      marginBottom: vmin(1),
+      lineHeight: 1.2
+    },
+    content: {
+      position: 'relative'
     },
     fade: {
       pointerEvents: 'none',
@@ -174,12 +130,14 @@ var styles = (theme) => {
       display: 'inline-block',
       transitionProperty: 'all',
       transitionDuration: '0.2s',
-      float: 'right',
       color: theme.fg,
-      borderWidth: 2,
+      borderWidth: vmin(0.4),
       borderStyle: 'solid',
       borderColor: theme.fg,
-      padding: vmin(1.5),
+      paddingLeft: vmin(2),
+      paddingRight: vmin(2),
+      paddingTop: vmin(1.5),
+      paddingBottom: vmin(1.5),
       textTransform: 'uppercase',
       textDecoration: 'none',
       ':hover': {
@@ -189,3 +147,8 @@ var styles = (theme) => {
     }
   }
 };
+
+
+function deorphanize (text) {
+  return text.replace(/ (?=\S+$)/, '\u00a0');
+}
