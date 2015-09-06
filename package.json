@@ -50,6 +50,7 @@
   "dependencies": {
     "color": "^0.10.1",
     "radium": "^0.13.8",
-    "react": "^0.13.0"
+    "react": "^0.13.0",
+    "reset": "^0.1.0"
   }
 }

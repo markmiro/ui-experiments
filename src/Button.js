@@ -1,7 +1,3 @@
-/*var Radium = require('radium');*/
-/*var React = require('react');
-var color = require('color');*/
-
 import Radium from 'radium';
 import color from 'color';
 import React from 'react';
