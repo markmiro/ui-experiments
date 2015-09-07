@@ -46,9 +46,6 @@ export class ArticlePreview extends React.Component {
   _activate() {
     this.setState({ active: true});
   }
-  componentDidMount() {
-    /*console.log(React.findDOMNode(this.refs.content).clientHeight);*/
-  }
   _inactivate() {
     this.setState({ active: false});
   }
@@ -56,9 +53,6 @@ export class ArticlePreview extends React.Component {
     let theme = {...this.props.theme};
     theme.bg = this.state.active ? color(this.props.theme.bg).lighten(0.7).desaturate(0.5).hexString() : this.props.theme.bg;
     theme.fg = this.state.active ? color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString() : this.props.theme.fg;
-    /*theme.bg = this.state.active ? color(this.props.theme.bg).darken(0.5).desaturate(0.8).hexString() : this.props.theme.bg;
-    theme.fg = this.state.active ? color(this.props.theme.bg).lighten(0.3).desaturate(0.8).hexString() : this.props.theme.fg;*/
-    /*theme.fg = this.state.active ? '#fffeda' : this.props.theme.fg;*/
     let styler = styles(theme);
     return (
       <div style={styler.base}>
@@ -161,7 +155,6 @@ let styles = (theme) => {
       paddingTop: vmin(1.5),
       paddingBottom: vmin(1.5),
       transform: `translateY(${vmin(1.5 + 0.4)})`,
-      /*textTransform: 'uppercase',*/
       textDecoration: 'none',
       ':hover': {
         color: theme.bg,
