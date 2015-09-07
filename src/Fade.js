@@ -28,7 +28,7 @@ export class Fade extends React.Component {
     return (
       <svg style={styles}>
         <defs>
-          <linearGradient ref="gradient" id={reactId} x1="0%" y1="0%" x2="0%" y2="99%">
+          <linearGradient ref="gradient" id={reactId} x1="0%" y1="0%" x2={this.props.swing || '0%'} y2="90%">
             <stop offset="0%" style={{
               transitionProperty: 'all',
               transitionDuration: this.props.theme.longTime,

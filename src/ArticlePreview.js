@@ -54,11 +54,14 @@ export class ArticlePreview extends React.Component {
   }
   render() {
     let theme = {...this.props.theme};
-    theme.bg = this.state.active ? color(this.props.theme.bg).darken(0.5).desaturate(0.8).hexString() : this.props.theme.bg;
-    theme.fg = this.state.active ? '#fffeda' : this.props.theme.fg;
+    theme.bg = this.state.active ? color(this.props.theme.bg).lighten(0.7).desaturate(0.5).hexString() : this.props.theme.bg;
+    theme.fg = this.state.active ? color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString() : this.props.theme.fg;
+    /*theme.bg = this.state.active ? color(this.props.theme.bg).darken(0.5).desaturate(0.8).hexString() : this.props.theme.bg;
+    theme.fg = this.state.active ? color(this.props.theme.bg).lighten(0.3).desaturate(0.8).hexString() : this.props.theme.fg;*/
+    /*theme.fg = this.state.active ? '#fffeda' : this.props.theme.fg;*/
     let styler = styles(theme);
     return (
-      <div style={styler.base} onMouseEnter={this._activate.bind(this)} onMouseLeave={this._inactivate.bind(this)}>
+      <div style={styler.base}>
         { this.props.img ?
           <BackgroundImage src={this.props.img} theme={theme} />
           : null
@@ -68,21 +71,39 @@ export class ArticlePreview extends React.Component {
             {deorphanize(this.props.title)}
           </div>
           <p style={styler.content}>
-            {deorphanize(this.props.content)}
-            <Fade theme={theme} overshoot={true} />
-          </p>
-          <div style={{ textAlign: 'right' }}>
-            <a href="#" style={styler.button}>
-              Read
+            <span style={{
+              display: 'block',
+              maxHeight: vmin(3.5 * 1.15 * 3),
+              overflow: 'hidden'
+            }}>
+              {deorphanize(this.props.content)}
+            </span>
+            <Fade theme={theme} overshoot={true} swing="80%" />
+            <a href="#" onMouseEnter={this._activate.bind(this)} onMouseLeave={this._inactivate.bind(this)} style={[styler.button, {
+                position: 'absolute',
+                bottom: 0,
+                right: 0
+              }]}>
+              Read More »
             </a>
-          </div>
+          </p>
         </div>
+        {/*<div style={styler.innerShadow} />*/}
       </div>
     );
   }
 }
 
 let styles = (theme) => {
+  let overlay = {
+    pointerEvents: 'none',
+    content: '',
+    bottom: 0,
+    right: 0,
+    top: 0,
+    left: 0,
+    position: 'absolute'
+  };
   return {
     base: {
       fontFamily: "'Roboto Condensed', 'Helvetica Neue', 'Helvetica'",
@@ -91,20 +112,21 @@ let styles = (theme) => {
       transitionProperty: 'all',
       transitionDuration: theme.longTime,
       position: 'relative',
-      fontSize: vmin(3.5),
-      lineHeight: 1.15,
       marginLeft: 'auto',
       marginRight: 'auto'
     },
     body: {
-      paddingRight: vmin(10),
-      paddingLeft: vmin(10),
-      paddingBottom: vmin(10),
+      overflow: 'hidden',
+      paddingRight: vmin(7),
+      paddingLeft: vmin(7),
+      paddingBottom: vmin(12),
       paddingTop: vmin(10),
       position: 'relative',
       marginLeft: 'auto',
       marginRight: 'auto',
-      maxWidth: 1000
+      maxWidth: 1000,
+      lineHeight: 1.15,
+      fontSize: vmin(3.5)
     },
     title: {
       fontFamily: "'Oswald', 'Helvetica Neue', 'Helvetica'",
@@ -129,26 +151,38 @@ let styles = (theme) => {
       position: 'relative',
       display: 'inline-block',
       transitionProperty: 'all',
-      transitionDuration: '0.2s',
+      transitionDuration: theme.longTime,
       color: theme.fg,
       borderWidth: vmin(0.4),
       borderStyle: 'solid',
-      borderColor: theme.fg,
+      borderColor: 'transparent',
       paddingLeft: vmin(2),
       paddingRight: vmin(2),
       paddingTop: vmin(1.5),
       paddingBottom: vmin(1.5),
-      textTransform: 'uppercase',
+      transform: `translateY(${vmin(1.5 + 0.4)})`,
+      /*textTransform: 'uppercase',*/
       textDecoration: 'none',
       ':hover': {
         color: theme.bg,
         backgroundColor: theme.fg
       }
+    },
+    innerShadow: {
+      pointerEvents: 'none',
+      content: '',
+      bottom: 0,
+      right: 0,
+      height: '10%',
+      left: 0,
+      position: 'absolute',
+      background: `linear-gradient(transparent, rgba(0,0,0, 0.2))`
     }
   }
 };
 
-
 function deorphanize (text) {
-  return text.replace(/ (?=\S+$)/, '\u00a0');
+  let nonBreakingSpace = '\u00a0';
+  let lastSpaceInString = / (?=\S+$)/;
+  return text.replace(lastSpaceInString, nonBreakingSpace);
 }
