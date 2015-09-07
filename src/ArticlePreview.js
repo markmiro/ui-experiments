@@ -3,6 +3,7 @@ import color from 'color';
 import React from 'react';
 import {vmin} from './Size';
 import {Fade} from './Fade';
+import {Morph} from './Morph';
 
 @Radium
 export class Image extends React.Component {
@@ -46,46 +47,77 @@ export class ArticlePreview extends React.Component {
   _activate() {
     this.setState({ active: true});
   }
-  componentDidMount() {
-    /*console.log(React.findDOMNode(this.refs.content).clientHeight);*/
-  }
   _inactivate() {
     this.setState({ active: false});
   }
+  _open(e) {
+    e.preventDefault();
+    this.setState({
+      open: true,
+      textHeight: React.findDOMNode(this.refs.textNode).offsetHeight
+    });
+  }
+  _close() {
+    this.setState({ open: false});
+  }
   render() {
-    let theme = {...this.props.theme};
-    theme.bg = this.state.active ? color(this.props.theme.bg).lighten(0.7).desaturate(0.5).hexString() : this.props.theme.bg;
-    theme.fg = this.state.active ? color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString() : this.props.theme.fg;
-    /*theme.bg = this.state.active ? color(this.props.theme.bg).darken(0.5).desaturate(0.8).hexString() : this.props.theme.bg;
-    theme.fg = this.state.active ? color(this.props.theme.bg).lighten(0.3).desaturate(0.8).hexString() : this.props.theme.fg;*/
-    /*theme.fg = this.state.active ? '#fffeda' : this.props.theme.fg;*/
+    let theme = {...this.props.theme,
+      fontSize: this.state.open ? vmin(3) : vmin(3.5),
+      lineHeight: this.state.open ? 1.3 : 1.15
+    };
+    if (this.state.open) {
+      theme.fg = 'black';
+      theme.bg = 'white';
+    } else {
+      theme.fg = this.state.active ? color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString() : this.props.theme.fg;
+      theme.bg = this.state.active ? color(this.props.theme.bg).mix(color('white'), 0.3).desaturate(0.5).hexString() : this.props.theme.bg;
+    }
     let styler = styles(theme);
     return (
       <div style={styler.base}>
-        { this.props.img ?
+        <Morph when={this.props.img && !this.state.open} id="img" style={{ width: '100%', height: '100%', position: 'absolute' }}>
           <BackgroundImage src={this.props.img} theme={theme} />
-          : null
-        }
-        <div style={[styler.body, { paddingTop: this.props.img ? vmin(40) : vmin(10),}]}>
+        </Morph>
+        <div style={[styler.body, { paddingTop: this.props.img && !this.state.open ? vmin(40) : vmin(10),}]}>
+          <Morph when={this.props.img && this.state.open} id="img">
+            <img src={this.props.img} style={{ width: '100%' }} />
+          </Morph>
           <div style={styler.title}>
             {deorphanize(this.props.title)}
           </div>
           <p style={styler.content}>
-            <span style={{
-              display: 'block',
-              maxHeight: vmin(3.5 * 1.15 * 3),
-              overflow: 'hidden'
+            <span style={this.state.open ? {
+                display: 'block',
+                transitionProperty: 'height',
+                transitionDuration: theme.longTime,
+                height: this.state.textHeight,
+                overflow: 'hidden'
+              } : {
+                display: 'block',
+                transitionProperty: 'height',
+                transitionDuration: theme.longTime,
+                height: vmin(3.5 * 1.15 * 3),
+                overflow: 'hidden'
             }}>
-              {deorphanize(this.props.content)}
+              <span ref="textNode">
+                {deorphanize(this.props.content)}
+              </span>
             </span>
-            <Fade theme={theme} overshoot={true} swing="80%" />
-            <a href="#" onMouseEnter={this._activate.bind(this)} onMouseLeave={this._inactivate.bind(this)} style={[styler.button, {
-                position: 'absolute',
-                bottom: 0,
-                right: 0
-              }]}>
-              Read More »
-            </a>
+            { this.state.open ? null : <Fade theme={theme} overshoot={true} swing="80%" /> }
+            { this.state.open ? null :
+              <a
+                href="#"
+                onMouseEnter={this._activate.bind(this)}
+                onMouseLeave={this._inactivate.bind(this)}
+                onClick={this._open.bind(this)}
+                style={[styler.button, {
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0
+                }]}>
+                Read More »
+              </a>
+            }
           </p>
         </div>
         {/*<div style={styler.innerShadow} />*/}
@@ -125,8 +157,8 @@ let styles = (theme) => {
       marginLeft: 'auto',
       marginRight: 'auto',
       maxWidth: 1000,
-      lineHeight: 1.15,
-      fontSize: vmin(3.5)
+      lineHeight: theme.lineHeight,
+      fontSize: theme.fontSize
     },
     title: {
       fontFamily: "'Oswald', 'Helvetica Neue', 'Helvetica'",
