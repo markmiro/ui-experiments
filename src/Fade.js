@@ -2,7 +2,6 @@ import React from 'react';
 import color from 'color';
 import Radium from 'radium';
 
-@Radium
 export class Fade extends React.Component {
   componentDidMount() {
     var reactId = React.findDOMNode(this.refs.gradient).getAttribute('data-reactid');
@@ -30,14 +29,14 @@ export class Fade extends React.Component {
         <defs>
           <linearGradient ref="gradient" id={reactId} x1="0%" y1="0%" x2={this.props.swing || '0%'} y2="90%">
             <stop offset="0%" style={{
-              transitionProperty: 'all',
-              transitionDuration: this.props.theme.longTime,
+              // transitionProperty: 'all',
+              // transitionDuration: this.props.theme.longTime,
               stopColor: this.props.theme.bg,
               stopOpacity:0
             }} />
             <stop offset="100%" style={{
-              transitionProperty: 'all',
-              transitionDuration: this.props.theme.longTime,
+              // transitionProperty: 'all',
+              // transitionDuration: this.props.theme.longTime,
               stopColor: this.props.theme.bg,
               stopOpacity:1
             }} />
@@ -48,3 +47,5 @@ export class Fade extends React.Component {
     );
   }
 }
+
+Fade = Radium(Fade);
