@@ -4,24 +4,6 @@ import React from 'react';
 import {vmin} from './Size';
 import {Fade} from './Fade';
 
-@Radium
-export class Image extends React.Component {
-  render() {
-    return (
-      <div style={{
-        marginBottom: '-50%',
-        position: 'relative',
-        opacity: 0.2,
-        overflow: 'hidden'
-      }}>
-        <img src={this.props.src} style={{ width: '100%', filter: 'saturate(0)' }} />
-        <div style={this.props.style} />
-      </div>
-    );
-  }
-}
-
-@Radium
 export class BackgroundImage extends React.Component {
   render() {
     return (
@@ -40,8 +22,8 @@ export class BackgroundImage extends React.Component {
     );
   }
 }
+BackgroundImage = Radium(BackgroundImage);
 
-@Radium
 export class ArticlePreview extends React.Component {
   _activate() {
     this.setState({ active: true});
@@ -87,6 +69,7 @@ export class ArticlePreview extends React.Component {
     );
   }
 }
+ArticlePreview = Radium(ArticlePreview);
 
 let styles = (theme) => {
   let overlay = {

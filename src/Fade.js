@@ -2,7 +2,6 @@ import React from 'react';
 import color from 'color';
 import Radium from 'radium';
 
-@Radium
 export class Fade extends React.Component {
   componentDidMount() {
     var reactId = React.findDOMNode(this.refs.gradient).getAttribute('data-reactid');
@@ -48,3 +47,5 @@ export class Fade extends React.Component {
     );
   }
 }
+
+Fade = Radium(Fade);
