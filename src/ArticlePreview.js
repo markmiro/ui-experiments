@@ -27,7 +27,20 @@ export class BackgroundImage extends React.Component {
 export class ArticlePreview extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {open: false};
+    this.state = {
+      open: false,
+      contentWidth: window.innerWidth
+    };
+    // this._handleResize.bind(this);
+  }
+  componentDidMount() {
+    window.addEventListener('resize', this._handleResize.bind(this));
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._handleResize.bind(this));
+  }
+  _handleResize(e) {
+    this.setState({contentWidth: React.findDOMNode(this.refs.content).offsetWidth});
   }
   _activate() {
     this.setState({ active: true});
@@ -44,38 +57,33 @@ export class ArticlePreview extends React.Component {
     e.preventDefault();
     this.setState({open: true});
   }
-  _renderThing(theme, styler, interpolated) {
+  _renderThing(theme, styler) {
     return (
-      <div style={styler.base}>
+      <div style={styler.base} ref="content">
         <input type="checkbox" checked={this.state.open} onChange={this._handleChange.bind(this)} style={{zIndex: 9000, position: 'absolute'}}/>
         { this.props.img ?
           <div style={styler.imgContainer}>
-            <img src={this.props.img} style={{ width: '100%', WebkitFilter: `saturate(${this.state.open ? 1 : 0})` }} />
-            <div style={{opacity: theme.fadeOpacity}}>
-              <Fade theme={theme} />
-            </div>
+            <img src={this.props.img} style={{ width: '100%' }} />
+            <Fade theme={theme} style={{opacity: theme.fadeOpacity}} />
           </div>
           : null
         }
-        <div style={{ ...styler.body, paddingTop: this.props.img && !this.state.open ? vmin(40) : vmin(10)}}>
+        <div style={styler.body}>
           <div style={styler.title}>
             {deorphanize(this.props.title)}
           </div>
           <p style={styler.content}>
-            <span style={{
-              display: 'block',
-              maxHeight: this.state.open ? '100%' : vmin(3.5 * 1.15 * 3),
-              overflow: 'hidden'
-            }}>
+            <span style={styler.contentClamp}>
               {deorphanize(this.props.content)}
             </span>
-            <Fade theme={theme} overshoot={true} swing="80%" />
-            <a href="#" onMouseEnter={this._activate.bind(this)} onMouseLeave={this._inactivate.bind(this)} onClick={this._open.bind(this)} style={{
-                ...styler.button,
-                position: 'absolute',
-                bottom: 0,
-                right: 0
-              }}>
+            <Fade theme={theme} style={{ opacity: theme.fadeOpacity }} overshoot={true} swing="80%" />
+            <a
+              href="#"
+              onMouseEnter={this._activate.bind(this)}
+              onMouseLeave={this._inactivate.bind(this)}
+              onClick={this._open.bind(this)}
+              style={{...styler.button, ...styler.readMoreButton, opacity: theme.fadeOpacity}}
+            >
               Read More »
             </a>
           </p>
@@ -85,86 +93,57 @@ export class ArticlePreview extends React.Component {
     );
   }
   render() {
-    let endValue = {
-      val: {
-        ...this.props.theme,
-        imgOpacity: this.state.open ? 1 : 0.5,
-        fadeOpacity: this.state.open ? 0 : 1,
-        paddingV: this.state.open ? 10 : 0,
-        paddingH: this.state.open ? 7 : 0,
-        height: this.state.open ? 100 : 80,
-        bg: this.state.active || this.state.open ?
-          color(this.props.theme.bg).lighten(0.7).desaturate(0.5).hexString()
-          : this.props.theme.bg,
-        fg: this.state.active || this.state.open ?
-          color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString()
-          : this.props.theme.fg
-      }
+    let openValue = {
+      imgOpacity: 1,
+      fadeOpacity: 0,
+      paddingV: 10,
+      paddingH: 7,
+      contentMarginTop: -8,
+      height: 100,
+      bg: 'white',
+      fg: color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString(),
+      maxWidth: 1000
     };
-    /*let styler = this.styles(endValue.val);*/
-    /*return this._renderThing(theme, styler, endValue);*/
-    /*return (
-      <div>
-        <input type="checkbox" checked={this.state.open} onChange={this._handleChange.bind(this)} style={{
-          position: 'relative',
-          zIndex: 999
-        }} />
-        <div style={[styler.base, {height: 500}]}>
-          { this.props.img ?
-            <Spring endValue={endValue}>
-              { interpolated =>
-                <div style={{
-                  position: this.state.open ? 'relative' : 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  paddingTop: interpolated.val.paddingV,
-                  paddingLeft: interpolated.val.paddingH,
-                  paddingRight: interpolated.val.paddingH,
-                  opacity: interpolated.val.imgOpacity,
-                  maxHeight: '80%',
-                  overflow: 'hidden'
-                }}>
-                  <img src={this.props.img} style={{ width: '100%', filter: 'saturate(0)' }} />
-                  <div style={{opacity: interpolated.val.fadeOpacity}}>
-                    <Fade theme={theme} />
-                  </div>
-                </div>
-              }
-            </Spring>
-            : null
-          }
-        </div>
-      </div>
-    );*/
+    let activeValue = {
+      bg: 'white',
+      fg: color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString(),
+    };
+    let closedValue = {
+      imgOpacity: 0.5,
+      fadeOpacity: 1,
+      paddingV: 0,
+      paddingH: 0,
+      contentMarginTop: -50,
+      height: 80,
+      bg: this.props.theme.bg,
+      fg: this.props.theme.fg,
+      maxWidth: this.state.contentWidth
+    };
+    let theme = {
+      ...this.props.theme,
+      ...(this.state.open ? openValue : closedValue),
+      ...(this.state.active && activeValue)
+    }
     return (
-      <Spring endValue={endValue}>
+      <Spring endValue={{val: theme}}>
         { interpolated => this._renderThing(interpolated.val, this.styles(interpolated.val)) }
       </Spring>
     );
   }
   styles(theme) {
-    let overlay = {
-      pointerEvents: 'none',
-      content: '',
-      bottom: 0,
-      right: 0,
-      top: 0,
-      left: 0,
-      position: 'absolute'
-    };
     return {
       base: {
         fontFamily: "'Roboto Condensed', 'Helvetica Neue', 'Helvetica'",
         color: theme.fg,
         background: theme.bg,
-        /*transitionProperty: 'all',*/
-        /*transitionDuration: theme.longTime,*/
+        transitionProperty: 'all',
+        transitionDuration: theme.longTime,
         position: 'relative',
         marginLeft: 'auto',
         marginRight: 'auto'
       },
       body: {
+        marginTop: this.props.img ? vmin(theme.contentMarginTop) : vmin(0),
         overflow: 'hidden',
         paddingRight: vmin(7),
         paddingLeft: vmin(7),
@@ -178,7 +157,8 @@ export class ArticlePreview extends React.Component {
         fontSize: vmin(3.5)
       },
       imgContainer: {
-        position: this.state.open ? 'relative' : 'absolute',
+        position: 'relative',
+        overflow: 'hidden',
         top: 0,
         left: 0,
         right: 0,
@@ -187,10 +167,9 @@ export class ArticlePreview extends React.Component {
         paddingRight: vmin(theme.paddingH),
         opacity: theme.imgOpacity,
         maxHeight: theme.height + '%',
-        overflow: 'hidden',
         marginLeft: 'auto',
         marginRight: 'auto',
-        maxWidth: this.state.open ? 1000 : '100%',
+        maxWidth: theme.maxWidth,
       },
       title: {
         fontFamily: "'Oswald', 'Helvetica Neue', 'Helvetica'",
@@ -201,21 +180,14 @@ export class ArticlePreview extends React.Component {
       content: {
         position: 'relative'
       },
-      fade: {
-        pointerEvents: 'none',
-        background: `linear-gradient(transparent, ${theme.bg})`,
-        content: '',
-        width: '100%',
-        height: '100%',
-        top: 0,
-        left: 0,
-        position: 'absolute'
+      contentClamp: {
+        display: 'block',
+        maxHeight: this.state.open ? '100%' : vmin(3.5 * 1.15 * 3),
+        overflow: 'hidden'
       },
       button: {
         position: 'relative',
         display: 'inline-block',
-        /*transitionProperty: 'all',
-        transitionDuration: theme.longTime,*/
         color: theme.fg,
         borderWidth: vmin(0.4),
         borderStyle: 'solid',
@@ -226,10 +198,15 @@ export class ArticlePreview extends React.Component {
         paddingBottom: vmin(1.5),
         transform: `translateY(${vmin(1.5 + 0.4)})`,
         textDecoration: 'none',
-        ':hover': {
+        ...(this.state.active && {
           color: theme.bg,
           backgroundColor: theme.fg
-        }
+        })
+      },
+      readMoreButton: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0
       },
       innerShadow: {
         pointerEvents: 'none',

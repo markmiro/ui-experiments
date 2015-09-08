@@ -9,7 +9,7 @@ export class App extends Component {
       longTime: '0.5s'
     };
     let moneyTheme = { ...baseTheme, bg: '#63a863'};
-    let buzzfeedTheme = { ...baseTheme, bg: '#d53434'};
+    let buzzfeedTheme = { ...baseTheme, bg: 'black'};
     let aeonTheme = { ...baseTheme, bg: '#d6a788' };
     return (
       <div>
@@ -17,7 +17,7 @@ export class App extends Component {
           theme={buzzfeedTheme}
           img="https://img.readitlater.com/i/recodetech.files.wordpress.com/2015/06/20150527-code-conference1/QS/quality%253D80%2526strip%253Dinfo/EQS/RS/w1280.jpg?&ssl=1"
           title="BuzzFeed’s Jonah Peretti and Ben Smith Explain How They Turned a ‘Great Cat Site’ Into a Powerful Publisher"
-          content="During their interview with Peter Kafka — which you can watch here in its entirety, or read in the transcript below — Peretti and Smith talked about BuzzFeed’s rapid evolution from “a great cat site,” into a site that still gets lots of traffic from cats — and dresses — and is increasingly doing high-impact journalism, and distributing it to multiple platforms."
+          content="During their interview with Peter Kafka — which you can watch here in its entirety, or read in the transcript below — Peretti and Smith talked about BuzzFeed’s rapid evolution from “a great cat site,” into a site that still gets lots of traffic from cats — and dresses — and is increasingly doing high-impact journalism, and distributing it to multiple platforms. During their interview with Peter Kafka — which you can watch here in its entirety, or read in the transcript below — Peretti and Smith talked about BuzzFeed’s rapid evolution from “a great cat site,” into a site that still gets lots of traffic from cats — and dresses — and is increasingly doing high-impact journalism, and distributing it to multiple platforms. During their interview with Peter Kafka — which you can watch here in its entirety, or read in the transcript below — Peretti and Smith talked about BuzzFeed’s rapid evolution from “a great cat site,” into a site that still gets lots of traffic from cats — and dresses — and is increasingly doing high-impact journalism, and distributing it to multiple platforms."
         />
         <ArticlePreview
           theme={aeonTheme}
