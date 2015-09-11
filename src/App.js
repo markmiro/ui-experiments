@@ -9,7 +9,7 @@ export class App extends Component {
       longTime: '0.5s'
     };
     let moneyTheme = { ...baseTheme, bg: '#63a863'};
-    let buzzfeedTheme = { ...baseTheme, bg: 'black'};
+    let buzzfeedTheme = { ...baseTheme, fg: '#f03232', bg: 'black'};
     let aeonTheme = { ...baseTheme, bg: '#d6a788' };
     return (
       <div>
