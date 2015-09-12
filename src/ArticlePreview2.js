@@ -5,33 +5,13 @@ import {vmin} from './Size';
 import {Fade} from './Fade';
 const {Spring} = require('react-motion');
 
-export class BackgroundImage extends React.Component {
-  render() {
-    return (
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        opacity: 0.5,
-        maxHeight: '80%',
-        overflow: 'hidden'
-      }}>
-        <img src={this.props.src} style={{ width: '100%', filter: 'saturate(0)' }} />
-        <Fade theme={this.props.theme} />
-      </div>
-    );
-  }
-}
-
-export class ArticlePreview extends React.Component {
+export class ArticlePreview2 extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       open: false,
       contentWidth: window.innerWidth
     };
-    // this._handleResize.bind(this);
   }
   componentDidMount() {
     window.addEventListener('resize', this._handleResize.bind(this));
@@ -59,7 +39,7 @@ export class ArticlePreview extends React.Component {
   }
   _renderThing(theme, styler) {
     return (
-      <div style={{...this.props.style, ...styler.base}} ref="content">
+      <div style={styler.base} ref="content">
         <input type="checkbox" checked={this.state.open} onChange={this._handleChange.bind(this)} style={{zIndex: 9000, position: 'absolute'}}/>
         { this.props.img ?
           <div style={styler.imgContainer}>
@@ -94,6 +74,7 @@ export class ArticlePreview extends React.Component {
   }
   render() {
     let openValue = {
+      imgOpacity: 1,
       fadeOpacity: 0,
       paddingV: 10,
       paddingH: 7,
@@ -109,6 +90,7 @@ export class ArticlePreview extends React.Component {
       fg: color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString(),
     };
     let closedValue = {
+      imgOpacity: 0.5,
       fadeOpacity: 1,
       paddingV: 0,
       paddingH: 0,
@@ -159,13 +141,16 @@ export class ArticlePreview extends React.Component {
       imgContainer: {
         position: 'relative',
         overflow: 'hidden',
+        top: 0,
+        left: 0,
+        right: 0,
         paddingTop: vmin(theme.paddingV),
         paddingLeft: vmin(theme.paddingH),
         paddingRight: vmin(theme.paddingH),
-        maxHeight: theme.height + '%',
+        opacity: theme.imgOpacity,
         marginLeft: 'auto',
         marginRight: 'auto',
-        maxWidth: theme.maxWidth,
+        maxWidth: theme.maxWidth/2,
       },
       title: {
         fontFamily: "'Oswald', 'Helvetica Neue', 'Helvetica'",

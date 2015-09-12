@@ -13,8 +13,12 @@ app.use(require('webpack-dev-middleware')(compiler, {
 
 app.use(require('webpack-hot-middleware')(compiler));
 
-app.get('*', function(req, res) {
+app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/tetris', function(req, res) {
+  res.sendFile(path.join(__dirname, 'tetris.html'));
 });
 
 app.listen(3000, 'localhost', function (err) {

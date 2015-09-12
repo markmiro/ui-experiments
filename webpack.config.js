@@ -3,13 +3,19 @@ var webpack = require('webpack');
 
 module.exports = {
   devtool: 'eval',
-  entry: [
-    'webpack-hot-middleware/client',
-    './src/index'
-  ],
+  entry: {
+    index: [
+      'webpack-hot-middleware/client',
+      './src/index'
+    ],
+    tetris: [
+      'webpack-hot-middleware/client',
+      './src/tetris'
+    ]
+  },
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'bundle.js',
+    filename: '[name].bundle.js',
     publicPath: '/static/'
   },
   plugins: [
