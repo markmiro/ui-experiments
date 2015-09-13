@@ -19,16 +19,11 @@ class Box extends Component {
   render () {
     return (
       <div style={{
-        display: 'block',
         background: this.state.bg,
         flexGrow: 1,
         height: this.state.height,
-        fontFamily: 'sans-serif',
-        lineHeight: this.state.height + 'px',
-        textAlign: 'center',
         color: 'white'
-      }}>
-      </div>
+      }}/>
     );
   }
 }

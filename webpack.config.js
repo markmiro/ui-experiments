@@ -11,6 +11,10 @@ module.exports = {
     tetris: [
       'webpack-hot-middleware/client',
       './src/tetris'
+    ],
+    layouts: [
+      'webpack-hot-middleware/client',
+      './src/layouts'
     ]
   },
   output: {
