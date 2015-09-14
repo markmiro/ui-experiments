@@ -13,13 +13,12 @@ class Header extends Component {
   }
 }
 
-// Check if margins, padding, floats, and transform, or setting position affects this
 class HeaderLayout extends Component {
   constructor(props) {
     super(props);
     this.state = {
       scrollPosForHeader: [],
-      boundsForHeader: [],
+      headerHeights: [],
       boundsForHeaderBlock: [],
       scrollTop: 0,
       parentTop: 0
@@ -29,21 +28,21 @@ class HeaderLayout extends Component {
     let parentTop = React.findDOMNode(this).getBoundingClientRect().top;
     let i = 0;
     let scrollPosForHeader = [];
-    let boundsForHeader = [];
     let boundsForHeaderBlock = [];
+    let headerHeights = [];
     React.Children.forEach(this.props.children, (child) => {
       if (child.type === Header) {
         let headerBlockBoundingRect = React.findDOMNode(this.refs['block'+i]).getBoundingClientRect();
         let headerBoundingRect = React.findDOMNode(this.refs['header'+i]).getBoundingClientRect();
         let scrollPos = headerBlockBoundingRect.top - parentTop;
         scrollPosForHeader[i] = scrollPos;
-        boundsForHeader[i] = headerBoundingRect;
+        headerHeights[i] = headerBoundingRect.height;
         boundsForHeaderBlock[i] = headerBlockBoundingRect;
         i++;
       }
     });
     let scrollTop = React.findDOMNode(this).scrollTop;
-    this.setState({scrollPosForHeader, scrollTop, parentTop, boundsForHeader, boundsForHeaderBlock});
+    this.setState({scrollPosForHeader, scrollTop, parentTop, headerHeights, boundsForHeaderBlock});
   }
   componentDidMount() {
     React.findDOMNode(this.refs.root).addEventListener('scroll', this._handleScroll.bind(this));
@@ -56,14 +55,14 @@ class HeaderLayout extends Component {
   }
   _wrapHeader (reactElement, i) {
       let scrollPos = this.state.scrollPosForHeader[i];
-      let boundsForHeader = this.state.boundsForHeader[i];
+      let headerHeight = this.state.headerHeights[i];
       let boundsForHeaderBlock = this.state.boundsForHeaderBlock[i];
       let shouldAttach = scrollPos <= 0;
-      let scrolledPastHeaderBlock = boundsForHeaderBlock && boundsForHeader ? (-scrollPos) > boundsForHeaderBlock.height - boundsForHeader.height : false;
+      let scrolledPastHeaderBlock = boundsForHeaderBlock ? (-scrollPos) > boundsForHeaderBlock.height - headerHeight : false;
       let refName = 'header'+i;
       return (
         <div style={{
-          height: boundsForHeader ? boundsForHeader.height : null
+          height: headerHeight
           // opacity: scrolledPastHeaderBlock ? 0.5 : 1,
         }}>
           <div ref={refName} style={{
