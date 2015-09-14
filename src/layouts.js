@@ -76,7 +76,7 @@ class HeaderLayout extends Component {
         }
       }
       return (
-        <div style={{
+        <div key={refName} style={{
           height: headerHeight
         }}>
           <div ref={refName} style={{
@@ -119,7 +119,7 @@ class HeaderLayout extends Component {
             // console.log('BLOCK', 'block'+i);
             // Relative position so header can be positioned to bottom when it's
             // on its way out
-            return <div ref={'block'+i} style={{position: 'relative'}}>{child}</div>;
+            return <div key={'block'+i} ref={'block'+i} style={{position: 'relative'}}>{child}</div>;
           })}
         </div>
       </div>
