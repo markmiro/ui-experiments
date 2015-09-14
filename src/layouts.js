@@ -131,7 +131,8 @@ class HeaderLayout extends Component {
         background: '#ddd',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'scroll',
+        overflowY: 'scroll',
+        overflowX: 'hidden',
         ...this.props.style
       }
     };
