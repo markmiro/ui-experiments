@@ -13,19 +13,6 @@ class Header extends Component {
   }
 }
 
-/*
-Maybe the way to make this work is to take each header component and replace it with a copy that is wrapped in a container with the visibility set to invisible
-
-Set position to absolute or fixed when scrolled past the component. But we need:
-  - distance from top (of each header component)
-  - height of each header component
-
-Copy width and height from original element for the fixed one
-Create container for each header and it's content
-  - relative positioning
-
-If start scrolling HeaderGroup, then take Header and make it {position: fixed, top: parentTop}
-*/
 class HeaderLayout extends Component {
   constructor(props) {
     super(props);
@@ -51,7 +38,6 @@ class HeaderLayout extends Component {
         scrollPosForHeader[i] = scrollPos;
         boundsForHeader[i] = headerBoundingRect;
         boundsForHeaderBlock[i] = headerBlockBoundingRect;
-        // console.log('header'+i, headerBoundingRect);
         i++;
       }
     });
@@ -59,11 +45,13 @@ class HeaderLayout extends Component {
     this.setState({scrollPosForHeader, scrollTop, parentTop, boundsForHeader, boundsForHeaderBlock});
   }
   componentDidMount() {
-    React.findDOMNode(this).addEventListener('scroll', this._handleScroll.bind(this));
+    React.findDOMNode(this.refs.root).addEventListener('scroll', this._handleScroll.bind(this));
+    window.addEventListener('resize', this._handleScroll.bind(this));
     this._handleScroll();
   }
   componentWillUnmount() {
-    React.findDOMNode(this).removeEventListener('scroll', this._handleScroll.bind(this));
+    React.findDOMNode(this.refs.root).removeEventListener('scroll', this._handleScroll.bind(this));
+    window.addEventListener('resize', this._handleScroll.bind(this));
   }
   _wrapHeader (reactElement, i) {
       let scrollPos = this.state.scrollPosForHeader[i];
@@ -78,9 +66,9 @@ class HeaderLayout extends Component {
           // opacity: scrolledPastHeaderBlock ? 0.5 : 1,
         }}>
           <div style={{
-            width: boundsForHeaderBlock ? boundsForHeaderBlock.width : null,
+            width: boundsForHeaderBlock ? '100%' : null,
             position: shouldAttach && scrolledPastHeaderBlock ? 'absolute' : (shouldAttach ? 'fixed' : null),
-            top: scrolledPastHeaderBlock ? null : this.state.parentTop,
+            top: scrolledPastHeaderBlock ? null : 0,
             bottom: scrolledPastHeaderBlock ? 0 : null
           }}>
             {reactElement}
@@ -109,11 +97,13 @@ class HeaderLayout extends Component {
     // console.log('FINAL', reduced);
     let style = this.styler();
     return (
-      <div ref="root" style={style.root}>
-        {reduced.map((child, i) => {
-          // console.log('BLOCK', 'block'+i);
-          return <div ref={'block'+i} style={{position: 'relative'}}>{child}</div>;
-        })}
+      <div style={{transform: 'translateZ(0)'}}>
+        <div ref="root" style={style.root}>
+          {reduced.map((child, i) => {
+            // console.log('BLOCK', 'block'+i);
+            return <div ref={'block'+i} style={{position: 'relative'}}>{child}</div>;
+          })}
+        </div>
       </div>
     );
   }
@@ -202,6 +192,9 @@ class App extends Component {
               </p>
             </HeaderLayout>
             <div>Something</div>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
           </div>
           <div style={{background: '#eee', width: 200, flexShrink: 0}}>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
         </Layout>
