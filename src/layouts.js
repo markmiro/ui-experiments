@@ -13,6 +13,12 @@ class Header extends Component {
   }
 }
 
+/*
+Known issues:
+  - Header doesn't support top or bottom margins because it messes up the calculations
+  - Does not support Header instances larger than the viewport
+  - Does not work in Safari
+*/
 class HeaderLayout extends Component {
   constructor(props) {
     super(props);
@@ -20,12 +26,12 @@ class HeaderLayout extends Component {
       scrollPosForHeader: [],
       headerHeights: [],
       headerContainerHeights: [],
-      scrollTop: 0,
-      parentTop: 0
+      height: null
     };
   }
   _handleScroll () {
-    let parentTop = React.findDOMNode(this).getBoundingClientRect().top;
+    let rootBoundingRect = React.findDOMNode(this).getBoundingClientRect();
+    let parentTop = rootBoundingRect.top;
     let i = 0;
     let scrollPosForHeader = [];
     let headerContainerHeights = [];
@@ -42,7 +48,7 @@ class HeaderLayout extends Component {
       }
     });
     let scrollTop = React.findDOMNode(this).scrollTop;
-    this.setState({scrollPosForHeader, scrollTop, parentTop, headerHeights, headerContainerHeights});
+    this.setState({height: rootBoundingRect.height, scrollPosForHeader, headerHeights, headerContainerHeights});
   }
   componentDidMount() {
     React.findDOMNode(this.refs.root).addEventListener('scroll', this._handleScroll.bind(this));
@@ -59,14 +65,23 @@ class HeaderLayout extends Component {
       let headerContainerHeight = this.state.headerContainerHeights[i];
       let shouldAttach = scrollPos <= 0;
       let scrolledPastHeaderBlock = -scrollPos > headerContainerHeight - headerHeight;
+      let isShorterThanRoot = headerHeight < this.state.height;
       let refName = 'header'+i;
+      let position = null;
+      if (isShorterThanRoot && shouldAttach) {
+        if (scrolledPastHeaderBlock) {
+          position = 'absolute'
+        } else {
+          position = 'fixed';
+        }
+      }
       return (
         <div style={{
           height: headerHeight
         }}>
           <div ref={refName} style={{
             width: '100%',
-            position: shouldAttach && scrolledPastHeaderBlock ? 'absolute' : (shouldAttach ? 'fixed' : null),
+            position,
             top: scrolledPastHeaderBlock ? null : 0,
             bottom: scrolledPastHeaderBlock ? 0 : null
           }}>
@@ -96,10 +111,14 @@ class HeaderLayout extends Component {
     // console.log('FINAL', reduced);
     let style = this.styler();
     return (
-      <div style={{transform: 'translateZ(0)'}}>
+      // Doing overflow hidden because we don't want 'transform' CSS to cause item to
+      // jump out when it gets a fixed position
+      <div style={{transform: 'translateZ(0)', overflow: 'hidden'}}>
         <div ref="root" style={style.root}>
           {reduced.map((child, i) => {
             // console.log('BLOCK', 'block'+i);
+            // Relative position so header can be positioned to bottom when it's
+            // on its way out
             return <div ref={'block'+i} style={{position: 'relative'}}>{child}</div>;
           })}
         </div>
@@ -109,7 +128,6 @@ class HeaderLayout extends Component {
   styler () {
     return {
       root: {
-        position: 'relative',
         background: '#ddd',
         display: 'flex',
         flexDirection: 'column',
@@ -180,13 +198,24 @@ class App extends Component {
               <p>
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
               </p>
-              <Header style={{background: 'red', color: 'white', fontSize: 80}}>Header 2</Header>
+              <Header style={{background: 'red', color: 'white', fontSize: 80, padding: 20, marginLeft: 20}}>Too big to attach</Header>
               <p>
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
               </p>
-              <Header style={{background: 'blue', color: 'white', fontSize: 30}}>Header 3</Header>
+              <Header style={{background: 'blue', color: 'white', fontSize: 20}}>
+                <div>Works with children in "Header" component</div>
+                <div>This is header 3</div>
+              </Header>
+              <Header style={{background: 'yellow', color: 'black', fontSize: 20, width: '50%'}}>
+                <div>Works with children in "Header" component</div>
+                <div>This is header 3</div>
+              </Header>
               <p>
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              </p>
+              <Header style={{background: 'green', color: 'white', fontSize: 30, transform: 'translateX(20px)'}}>Header 4</Header>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
               </p>
             </HeaderLayout>
             <div>Something</div>
