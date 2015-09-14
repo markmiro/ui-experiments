@@ -19,7 +19,7 @@ class HeaderLayout extends Component {
     this.state = {
       scrollPosForHeader: [],
       headerHeights: [],
-      boundsForHeaderBlock: [],
+      headerContainerHeights: [],
       scrollTop: 0,
       parentTop: 0
     };
@@ -28,7 +28,7 @@ class HeaderLayout extends Component {
     let parentTop = React.findDOMNode(this).getBoundingClientRect().top;
     let i = 0;
     let scrollPosForHeader = [];
-    let boundsForHeaderBlock = [];
+    let headerContainerHeights = [];
     let headerHeights = [];
     React.Children.forEach(this.props.children, (child) => {
       if (child.type === Header) {
@@ -37,12 +37,12 @@ class HeaderLayout extends Component {
         let scrollPos = headerBlockBoundingRect.top - parentTop;
         scrollPosForHeader[i] = scrollPos;
         headerHeights[i] = headerBoundingRect.height;
-        boundsForHeaderBlock[i] = headerBlockBoundingRect;
+        headerContainerHeights[i] = headerBlockBoundingRect.height;
         i++;
       }
     });
     let scrollTop = React.findDOMNode(this).scrollTop;
-    this.setState({scrollPosForHeader, scrollTop, parentTop, headerHeights, boundsForHeaderBlock});
+    this.setState({scrollPosForHeader, scrollTop, parentTop, headerHeights, headerContainerHeights});
   }
   componentDidMount() {
     React.findDOMNode(this.refs.root).addEventListener('scroll', this._handleScroll.bind(this));
@@ -56,17 +56,16 @@ class HeaderLayout extends Component {
   _wrapHeader (reactElement, i) {
       let scrollPos = this.state.scrollPosForHeader[i];
       let headerHeight = this.state.headerHeights[i];
-      let boundsForHeaderBlock = this.state.boundsForHeaderBlock[i];
+      let headerContainerHeight = this.state.headerContainerHeights[i];
       let shouldAttach = scrollPos <= 0;
-      let scrolledPastHeaderBlock = boundsForHeaderBlock ? (-scrollPos) > boundsForHeaderBlock.height - headerHeight : false;
+      let scrolledPastHeaderBlock = -scrollPos > headerContainerHeight - headerHeight;
       let refName = 'header'+i;
       return (
         <div style={{
           height: headerHeight
-          // opacity: scrolledPastHeaderBlock ? 0.5 : 1,
         }}>
           <div ref={refName} style={{
-            width: boundsForHeaderBlock ? '100%' : null,
+            width: '100%',
             position: shouldAttach && scrolledPastHeaderBlock ? 'absolute' : (shouldAttach ? 'fixed' : null),
             top: scrolledPastHeaderBlock ? null : 0,
             bottom: scrolledPastHeaderBlock ? 0 : null
@@ -115,7 +114,6 @@ class HeaderLayout extends Component {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'scroll',
-        // flexWrap: 'wrap',
         ...this.props.style
       }
     };
