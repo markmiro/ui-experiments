@@ -17,6 +17,10 @@ app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/tetris', function(req, res) {
+  res.sendFile(path.join(__dirname, 'tetris.html'));
+});
+
 app.get('/layouts', function(req, res) {
   res.sendFile(path.join(__dirname, 'layouts.html'));
 });
