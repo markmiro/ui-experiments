@@ -13,6 +13,7 @@ class Header extends Component {
   }
 }
 
+// Check if margins, padding, floats, and transform, or setting position affects this
 class HeaderLayout extends Component {
   constructor(props) {
     super(props);
@@ -34,7 +35,7 @@ class HeaderLayout extends Component {
       if (child.type === Header) {
         let headerBlockBoundingRect = React.findDOMNode(this.refs['block'+i]).getBoundingClientRect();
         let headerBoundingRect = React.findDOMNode(this.refs['header'+i]).getBoundingClientRect();
-        let scrollPos = headerBoundingRect.top - parentTop;
+        let scrollPos = headerBlockBoundingRect.top - parentTop;
         scrollPosForHeader[i] = scrollPos;
         boundsForHeader[i] = headerBoundingRect;
         boundsForHeaderBlock[i] = headerBlockBoundingRect;
@@ -61,11 +62,11 @@ class HeaderLayout extends Component {
       let scrolledPastHeaderBlock = boundsForHeaderBlock && boundsForHeader ? (-scrollPos) > boundsForHeaderBlock.height - boundsForHeader.height : false;
       let refName = 'header'+i;
       return (
-        <div ref={refName} style={{
+        <div style={{
           height: boundsForHeader ? boundsForHeader.height : null
           // opacity: scrolledPastHeaderBlock ? 0.5 : 1,
         }}>
-          <div style={{
+          <div ref={refName} style={{
             width: boundsForHeaderBlock ? '100%' : null,
             position: shouldAttach && scrolledPastHeaderBlock ? 'absolute' : (shouldAttach ? 'fixed' : null),
             top: scrolledPastHeaderBlock ? null : 0,
