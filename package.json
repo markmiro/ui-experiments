@@ -53,6 +53,7 @@
     "radium": "^0.13.8",
     "react": "^0.13.0",
     "react-motion": "^0.2.7",
-    "reset": "^0.1.0"
+    "reset": "^0.1.0",
+    "underscore": "^1.8.3"
   }
 }

@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import d3 from 'd3';
+import {Layout} from './Layout';
 
 class Header extends Component {
   render () {
@@ -57,38 +58,37 @@ class HeaderLayout extends Component {
   }
   componentWillUnmount() {
     React.findDOMNode(this.refs.root).removeEventListener('scroll', this._handleScroll.bind(this));
-    window.addEventListener('resize', this._handleScroll.bind(this));
   }
   _wrapHeader (reactElement, i) {
-      let scrollPos = this.state.scrollPosForHeader[i];
-      let headerHeight = this.state.headerHeights[i];
-      let headerContainerHeight = this.state.headerContainerHeights[i];
-      let shouldAttach = scrollPos <= 0;
-      let scrolledPastHeaderBlock = -scrollPos > headerContainerHeight - headerHeight;
-      let isShorterThanRoot = headerHeight < this.state.height;
-      let refName = 'header'+i;
-      let position = null;
-      if (isShorterThanRoot && shouldAttach) {
-        if (scrolledPastHeaderBlock) {
-          position = 'absolute'
-        } else {
-          position = 'fixed';
-        }
+    let scrollPos = this.state.scrollPosForHeader[i];
+    let headerHeight = this.state.headerHeights[i];
+    let headerContainerHeight = this.state.headerContainerHeights[i];
+    let shouldAttach = scrollPos <= 0;
+    let scrolledPastHeaderBlock = -scrollPos > headerContainerHeight - headerHeight;
+    let isShorterThanRoot = headerHeight < this.state.height;
+    let refName = 'header'+i;
+    let position = null;
+    if (isShorterThanRoot && shouldAttach) {
+      if (scrolledPastHeaderBlock) {
+        position = 'absolute'
+      } else {
+        position = 'fixed';
       }
-      return (
-        <div key={refName} style={{
-          height: headerHeight
+    }
+    return (
+      <div key={refName} style={{
+        height: headerHeight
+      }}>
+        <div ref={refName} style={{
+          width: '100%',
+          position,
+          top: scrolledPastHeaderBlock ? null : 0,
+          bottom: scrolledPastHeaderBlock ? 0 : null
         }}>
-          <div ref={refName} style={{
-            width: '100%',
-            position,
-            top: scrolledPastHeaderBlock ? null : 0,
-            bottom: scrolledPastHeaderBlock ? 0 : null
-          }}>
-            {reactElement}
-          </div>
+          {reactElement}
         </div>
-      );
+      </div>
+    );
   }
   render () {
     let i = 0;
@@ -134,47 +134,6 @@ class HeaderLayout extends Component {
         overflowY: 'scroll',
         overflowX: 'hidden',
         ...this.props.style
-      }
-    };
-  }
-}
-
-export class Layout extends Component {
-  render () {
-    if (!this.props.children) return null;
-    var frontMatter, middleMatter, lastMatter = null;
-
-    if (React.Children.count(this.props.children) === 1) {
-      middleMatter = this.props.children;
-    } else {
-      [frontMatter, ...middleMatter] = this.props.children;
-      lastMatter = middleMatter.pop();
-    }
-
-    let style = this.styler();
-
-    return (
-      <div ref="root" style={style.root}>
-        {frontMatter}
-        <div style={style.middleMatter}>
-          {middleMatter}
-        </div>
-        {lastMatter}
-      </div>
-    );
-  }
-  styler () {
-    return {
-      root: {
-        background: '#ddd',
-        display: 'flex',
-        flexDirection: 'column',
-        // flexWrap: 'wrap',
-        ...this.props.style
-      },
-      middleMatter: {
-        overflow: 'scroll',
-        flexGrow: 1
       }
     };
   }
