@@ -27,7 +27,6 @@ export class Layout extends Component {
   styler () {
     return {
       root: {
-        background: '#ddd',
         display: 'flex',
         flexDirection: 'column',
         // flexWrap: 'wrap',
