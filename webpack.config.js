@@ -15,6 +15,10 @@ module.exports = {
     layouts: [
       'webpack-hot-middleware/client',
       './src/layouts'
+    ],
+    'layout-test': [
+      'webpack-hot-middleware/client',
+      './src/layout-test'
     ]
   },
   output: {

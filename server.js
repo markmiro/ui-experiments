@@ -25,6 +25,10 @@ app.get('/layouts', function(req, res) {
   res.sendFile(path.join(__dirname, 'layouts.html'));
 });
 
+app.get('/layout-test', function(req, res) {
+  res.sendFile(path.join(__dirname, 'layout-test.html'));
+});
+
 app.listen(3000, 'localhost', function (err) {
   if (err) {
     console.log(err);

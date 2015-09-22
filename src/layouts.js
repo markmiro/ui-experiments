@@ -139,7 +139,7 @@ class HeaderLayout extends Component {
   }
 }
 
-class Layout extends Component {
+export class Layout extends Component {
   render () {
     if (!this.props.children) return null;
     var frontMatter, middleMatter, lastMatter = null;
