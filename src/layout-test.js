@@ -2,15 +2,15 @@ import React, {Component} from 'react';
 import d3 from 'd3-color';
 import {Layout} from './Layout.js';
 
-var bla, bla2;
-// bla = d3.interpolateHsl('rgb(14, 240, 139)', 'black');
-// bla = d3.interpolateHcl('#f2f0e7', '#4d2f34');
-bla = d3.interpolateCubehelix('#4d2f34', '#f2f0e7');
-// bla = d3.interpolateHcl('#f2f19c', '#282c9c');
-// bla = d3.interpolateHcl('#0f1563', '#fbf7ea');
-bla = d3.interpolateHcl('#0f1563', '#cbfafb');
-bla2 = d3.interpolateHcl('#f2f19c', '#282c9c');
-// bla2 = bla;
+var primaryColors, secondaryColors;
+// primaryColors = d3.interpolateHsl('rgb(14, 240, 139)', 'primaryColorsck');
+// primaryColors = d3.interpolateHcl('#f2f0e7', '#4d2f34');
+// primaryColors = d3.interpolateCubehelix('#4d2f34', '#f2f0e7');
+// primaryColors = d3.interpolateHcl('#f2f19c', '#282c9c');
+// primaryColors = d3.interpolateHcl('#0f1563', '#fbf7ea');
+primaryColors = d3.interpolateHcl('#0f1563', '#cbfafb');
+secondaryColors = d3.interpolateHcl('#f2f19c', '#282c9c');
+// secondaryColors = primaryColors;
 
 // Modular scale function for sizing text
 function ms(base, ratio, value) {
@@ -55,9 +55,10 @@ class App extends Component {
     let sizes = [];
     let times = 10;
     for (var i = 0; i < times; i++) { sizes.push(i); }
+    var style = this.styler();
     return (
-      <Layout style={{height: '100%', background: bla(0.9), color: bla(0.6)}}>
-        <Layout style={{flexDirection: 'row', background: bla(0), color: bla(1)}}>
+      <Layout style={style.rootContainer}>
+        <Layout style={style.nav}>
           <div>
             <span style={{padding: size(3)}}>Pocket</span>
             <Link href="http://google.com" onClick={this._goHome}>Home</Link>
@@ -81,8 +82,9 @@ class App extends Component {
             <Link>View Inbox</Link>
             <Link>Mark Miro</Link>
           </div>
-          <div style={{background: bla(1), color: bla(0.2), padding: size(10)}}>
-            <div style={{background: bla(0), color: bla(0.8)}}>
+          <div style={style.content}>
+            <h1 style={style.heading}>React Magic</h1>
+            <div style={style.innerNav}>
               <Link>Search</Link>
               <Link>Add URL</Link>
               <Link>View Inbox</Link>
@@ -91,13 +93,13 @@ class App extends Component {
             <span style={{
               display: 'block',
               padding: size(3),
-              background: bla(0),
-              color: bla(0.5),
+              background: primaryColors(0),
+              color: primaryColors(0.5),
             }}>
               Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </span>
-            { sizes.map(size => <div style={{background: bla(size/10)}}>&nbsp;</div>) }
-            { sizes.map(size => <div style={{padding: 5, background: bla2(size/10), color: bla2(size/10 - 0.5)}}>{size}</div>) }
+            { sizes.map(size => <div style={{background: primaryColors(size/10)}}>&nbsp;</div>) }
+            { sizes.map(size => <div style={{padding: 5, background: secondaryColors(size/10), color: secondaryColors(size/10 - 0.5)}}>{size}</div>) }
             &nbsp;
             { sizes.map(size => <div style={{fontSize: heading(size)}}>{size}. Lorem Ipsum</div>) }
             { sizes.map(size => <div style={{fontSize: tx(size)}}>{size}. Lorem Ipsum</div>) }
@@ -109,6 +111,34 @@ class App extends Component {
         </div>
       </Layout>
     );
+  }
+  styler () {
+    return {
+      rootContainer: {
+        height: '100%',
+        background: primaryColors(0.9),
+        color: primaryColors(0.6)
+      },
+      nav: {
+        flexDirection: 'row',
+        background: primaryColors(0),
+        color: primaryColors(1)
+      },
+      content: {
+        background: primaryColors(1),
+        color: primaryColors(0.2),
+        padding: size(10)
+      },
+      heading: {
+        fontSize: heading(10),
+        fontWeight: 500,
+        paddingBottom: heading(1)
+      },
+      innerNav: {
+        background: primaryColors(0),
+        color: primaryColors(0.8)
+      }
+    };
   }
 }
 
