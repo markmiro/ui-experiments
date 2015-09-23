@@ -48,15 +48,16 @@ window.addEventListener('resize', function (e) {
   // console.log(e.target.innerWidth);
 });
 
+const scale = 1.5;
 function size(n) {
-  return n * 0.5 + 'vw';
+  return n * 0.5 * scale + 'vmin';
 }
 function tx(n) {
-  return ms(16, 1.25, n);
+  return ms(16 * scale, 1.25, n);
 }
 function heading(n) {
   if (window.innerWidth < 600) return '16px';
-  return ms(1, 1.25, n) + 'vw';
+  return ms(1 * scale, 1.25, n) + 'vmin';
 }
 
 class Link extends Component {
@@ -111,6 +112,7 @@ class App extends Component {
     var style = this.styler();
     // var themeScale = this.state.themeColorScale;
     var themeScale = this.colorer();
+    var invertedThemeScale = this.colorer({invert: true});
     // sunsetScale = themeScale;
     return (
       <Layout style={style.rootContainer}>
@@ -144,6 +146,8 @@ class App extends Component {
           <div style={style.content}>
             <span style={{color: themeScale(0.5)}}>About Us › Team › Engineering</span>
             <h1 style={style.heading}>Oleg Gregorianisky</h1>
+            <button style={{...style.btn(), marginRight: size(2)}}>Cancel</button>
+            <button style={style.btn({solid: true})}>Submit</button>
             <div style={{marginBottom: size(1)}}>
               <span>Change color: </span>
               <input
@@ -171,6 +175,12 @@ class App extends Component {
               background: themeScale(0),
               color: themeScale(0.5),
             }}>
+              <button style={style.btn({solid: true, themeScale: invertedThemeScale})}>Submit</button>
+              &nbsp;
+              <button style={style.btn({themeScale: invertedThemeScale})}>Submit</button>
+              &nbsp;
+              <button style={style.btn({themeScale: invertedThemeScale})}>Submit</button>
+              <hr />
               Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </span>
             { sizes.map(size => <div style={{background: themeScale(size/10), height: 40}}></div>) }
@@ -189,8 +199,11 @@ class App extends Component {
       </Layout>
     );
   }
-  colorer () {
+  colorer (opts) {
     let scale = this.state;
+    if (opts && opts.invert === true) {
+      return scale.interpolator.call(null, scale.endColor, scale.startColor);
+    }
     return scale.interpolator.call(null, scale.startColor, scale.endColor);
   }
   styler () {
@@ -234,7 +247,28 @@ class App extends Component {
         border: 'none',
         boxShadow: 'none',
         fontSize: 16,
-        marginRight: size(2)
+        marginRight: size(2),
+        outlineColor: themeScale(0.5)
+      },
+      btn: (opts) => {
+        opts = opts || {};
+        let scale = opts.themeScale ? opts.themeScale : themeScale;
+        return {
+          color: scale(opts.solid ? 1 : 0),
+          background: scale(opts.solid ? 0 : 1),
+          borderColor: scale(0),
+          borderStyle: 'solid',
+          borderWidth: size(0.5),
+          fontSize: '100%',
+          paddingLeft: size(1.5),
+          paddingRight: size(1.5),
+          paddingTop: size(1),
+          paddingBottom: size(1),
+          cursor: 'pointer',
+          fontWeight: 500,
+          textTransform: 'uppercase',
+          outlineColor: themeScale(0.5)
+        }
       }
     };
   }
