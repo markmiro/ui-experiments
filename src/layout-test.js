@@ -104,6 +104,16 @@ class App extends Component {
   _goHome () {
     console.log('going home');
   }
+  // rotateColorToMatch (fromColor, toMatchColor) {
+  //   fromColor = d3.hcl(fromColor);
+  //   toMatchColor = d3.hcl(toMatchColor);
+  //   return d3.hcl(fromColor.h, toMatchColor.c, toMatchColor.l);
+  // }
+  rotateColorToMatch (fromColor, toMatchColor) {
+    fromColor = d3.cubehelix(fromColor);
+    toMatchColor = d3.cubehelix(toMatchColor);
+    return d3.cubehelix(fromColor.h, toMatchColor.s, toMatchColor.l);
+  }
   render () {
     let sizes = [];
     let times = 10;
@@ -114,6 +124,20 @@ class App extends Component {
     var themeScale = this.colorer();
     var invertedThemeScale = this.colorer({invert: true});
     // sunsetScale = themeScale;
+
+    let middleColor = themeScale(0.333);
+    let solidColoredButtonStyle = (color) => style.btn({
+      solid: true,
+      themeScale: d3.interpolateHcl(
+        this.rotateColorToMatch(color, middleColor),
+        this.state.endColor
+      )
+    });
+
+    let blueStyle = solidColoredButtonStyle('blue');
+    let redStyle = solidColoredButtonStyle('red');
+    let greenStyle = solidColoredButtonStyle('green');
+    let yellowStyle = solidColoredButtonStyle('yellow');
     return (
       <Layout style={style.rootContainer}>
         <Layout style={style.nav}>
@@ -146,8 +170,14 @@ class App extends Component {
           <div style={style.content}>
             <span style={{color: themeScale(0.5)}}>About Us › Team › Engineering</span>
             <h1 style={style.heading}>Oleg Gregorianisky</h1>
-            <button style={{...style.btn(), marginRight: size(2)}}>Cancel</button>
+            <button style={style.btn()}>Cancel</button>
+            &nbsp;
             <button style={style.btn({solid: true})}>Submit</button>
+            &nbsp;
+            <button style={blueStyle}>Blue</button>
+            <button style={redStyle}>Red</button>
+            <button style={greenStyle}>Green</button>
+            <button style={yellowStyle}>Yellow</button>
             <div style={{marginBottom: size(1)}}>
               <span>Change color: </span>
               <input
