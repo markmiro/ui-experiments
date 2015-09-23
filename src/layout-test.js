@@ -5,12 +5,36 @@ import {Layout} from './Layout.js';
 var sunsetScale = d3.interpolateHcl('#f2f19c', '#282c9c');
 
 var themeColorScales = {
-  terminal: d3.interpolateHsl('rgb(14, 240, 139)', 'black'),
-  mochaInverted: d3.interpolateHcl('#f2f0e7', '#4d2f34'),
-  mocha: d3.interpolateCubehelix('#4d2f34', '#f2f0e7'),
-  lime: d3.interpolateHclLong('#282c9c', '#f2f19c'),
-  sunset: d3.interpolateHcl('#282c9c', '#f2f19c'),
-  ocean: d3.interpolateHcl('#0f1563', '#cbfafb')
+  terminal: {
+    interpolator: d3.interpolateHsl,
+    start: '#0ef08b',
+    end:  'black'
+  },
+  mochaInverted: {
+    interpolator: d3.interpolateHcl,
+    start: '#f2f0e7',
+    end:  '#4d2f34'
+  },
+  mocha: {
+    interpolator: d3.interpolateCubehelix,
+    start: '#4d2f34',
+    end:  '#f2f0e7'
+  },
+  lime: {
+    interpolator: d3.interpolateHclLong,
+    start: '#282c9c',
+    end:  '#f2f19c'
+  },
+  sunset: {
+    interpolator: d3.interpolateHcl,
+    start: '#282c9c',
+    end:  '#f2f19c'
+  },
+  ocean: {
+    interpolator: d3.interpolateHcl,
+    start: '#0f1563',
+    end:  '#cbfafb'
+  }
 };
 
 // Modular scale function for sizing text
@@ -51,16 +75,30 @@ class Link extends Component {
 class App extends Component {
   constructor(props) {
     super(props);
+    let theme = themeColorScales.mocha;
     this.state = {
-      themeColorScale: themeColorScales.ocean
+      interpolator: theme.interpolator,
+      startColor: theme.start,
+      endColor: theme.end
     };
   }
   _changeTheme (themeColorScale) {
     var _this = this;
     return function (e) {
       e.preventDefault();
-      this.setState({themeColorScale: themeColorScales[themeColorScale]});
+      let theme = themeColorScales[themeColorScale];
+      this.setState({
+        interpolator: theme.interpolator,
+        startColor: theme.start,
+        endColor: theme.end
+      });
     }
+  }
+  _handleChangeStartColor (e) {
+    this.setState({startColor: e.target.value});
+  }
+  _handleChangeEndColor (e) {
+    this.setState({endColor: e.target.value});
   }
   _goHome () {
     console.log('going home');
@@ -71,7 +109,8 @@ class App extends Component {
     for (var i = 0; i < times; i++) { sizes.push(i); }
 
     var style = this.styler();
-    var themeScale = this.state.themeColorScale;
+    // var themeScale = this.state.themeColorScale;
+    var themeScale = this.colorer();
     // sunsetScale = themeScale;
     return (
       <Layout style={style.rootContainer}>
@@ -83,6 +122,7 @@ class App extends Component {
           </div>
           <div>
             Themes:
+            <Link onClick={this._changeTheme('terminal').bind(this)}>Terminal</Link>
             <Link onClick={this._changeTheme('ocean').bind(this)}>Ocean</Link>
             <Link onClick={this._changeTheme('mocha').bind(this)}>Mocha</Link>
             <Link onClick={this._changeTheme('mochaInverted').bind(this)}>Mocha Inverted</Link>
@@ -104,9 +144,21 @@ class App extends Component {
           <div style={style.content}>
             <span style={{color: themeScale(0.5)}}>About Us › Team › Engineering</span>
             <h1 style={style.heading}>Oleg Gregorianisky</h1>
-            <span>Change color: </span>
-            <input style={style.input} value="Color 1" />
-            <input style={style.input} value="Color 2" />
+            <div style={{marginBottom: size(1)}}>
+              <span>Change color: </span>
+              <input
+                style={style.input}
+                type="color"
+                value={this.state.startColor}
+                onChange={this._handleChangeStartColor.bind(this)}
+              />
+              <input
+                style={style.input}
+                type="color"
+                value={this.state.endColor}
+                onChange={this._handleChangeEndColor.bind(this)}
+              />
+            </div>
             <div style={style.innerNav}>
               <Link>Search</Link>
               <Link>Add URL</Link>
@@ -123,7 +175,7 @@ class App extends Component {
             </span>
             { sizes.map(size => <div style={{background: themeScale(size/10), height: 40}}></div>) }
             {
-              // sizes.map(size => <div style={{padding: 5, background: sunsetScale(size/10), color: sunsetScale(size/10 - 0.5)}}>{size}</div>)
+              sizes.map(size => <div style={{padding: 5, background: sunsetScale(size/10), color: sunsetScale(size/10 - 0.5)}}>{size}</div>)
             }
             &nbsp;
             { sizes.map(size => <div style={{fontSize: heading(size)}}>{size}. Lorem Ipsum</div>) }
@@ -137,8 +189,12 @@ class App extends Component {
       </Layout>
     );
   }
+  colorer () {
+    let scale = this.state;
+    return scale.interpolator.call(null, scale.startColor, scale.endColor);
+  }
   styler () {
-    var themeScale = this.state.themeColorScale;
+    var themeScale = this.colorer();
     return {
       rootContainer: {
         height: '100%',
@@ -178,7 +234,6 @@ class App extends Component {
         border: 'none',
         boxShadow: 'none',
         fontSize: 16,
-        padding: size(1),
         marginRight: size(2)
       }
     };
