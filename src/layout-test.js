@@ -2,15 +2,16 @@ import React, {Component} from 'react';
 import d3 from 'd3-color';
 import {Layout} from './Layout.js';
 
-var primaryColors, secondaryColors;
-// primaryColors = d3.interpolateHsl('rgb(14, 240, 139)', 'primaryColorsck');
-// primaryColors = d3.interpolateHcl('#f2f0e7', '#4d2f34');
-// primaryColors = d3.interpolateCubehelix('#4d2f34', '#f2f0e7');
-// primaryColors = d3.interpolateHcl('#f2f19c', '#282c9c');
-// primaryColors = d3.interpolateHcl('#0f1563', '#fbf7ea');
-primaryColors = d3.interpolateHcl('#0f1563', '#cbfafb');
-secondaryColors = d3.interpolateHcl('#f2f19c', '#282c9c');
-// secondaryColors = primaryColors;
+var sunsetScale = d3.interpolateHcl('#f2f19c', '#282c9c');
+
+var themeColorScales = {
+  terminal: d3.interpolateHsl('rgb(14, 240, 139)', 'black'),
+  mochaInverted: d3.interpolateHcl('#f2f0e7', '#4d2f34'),
+  mocha: d3.interpolateCubehelix('#4d2f34', '#f2f0e7'),
+  lime: d3.interpolateHclLong('#282c9c', '#f2f19c'),
+  sunset: d3.interpolateHcl('#282c9c', '#f2f19c'),
+  ocean: d3.interpolateHcl('#0f1563', '#cbfafb')
+};
 
 // Modular scale function for sizing text
 function ms(base, ratio, value) {
@@ -48,6 +49,19 @@ class Link extends Component {
 }
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      themeColorScale: themeColorScales.ocean
+    };
+  }
+  _changeTheme (themeColorScale) {
+    var _this = this;
+    return function (e) {
+      e.preventDefault();
+      this.setState({themeColorScale: themeColorScales[themeColorScale]});
+    }
+  }
   _goHome () {
     console.log('going home');
   }
@@ -55,20 +69,25 @@ class App extends Component {
     let sizes = [];
     let times = 10;
     for (var i = 0; i < times; i++) { sizes.push(i); }
+
     var style = this.styler();
+    var themeScale = this.state.themeColorScale;
+    // sunsetScale = themeScale;
     return (
       <Layout style={style.rootContainer}>
         <Layout style={style.nav}>
           <div>
-            <span style={{padding: size(3)}}>Pocket</span>
+            <span style={{padding: size(3)}}>Lorem My Ipsum</span>
             <Link href="http://google.com" onClick={this._goHome}>Home</Link>
             <Link>Recommended</Link>
           </div>
           <div>
-            <Link>Search</Link>
-            <Link>Add URL</Link>
-            <Link>View Inbox</Link>
-            <Link>Mark Miro</Link>
+            Themes:
+            <Link onClick={this._changeTheme('ocean').bind(this)}>Ocean</Link>
+            <Link onClick={this._changeTheme('mocha').bind(this)}>Mocha</Link>
+            <Link onClick={this._changeTheme('mochaInverted').bind(this)}>Mocha Inverted</Link>
+            <Link onClick={this._changeTheme('sunset').bind(this)}>Sunset</Link>
+            <Link onClick={this._changeTheme('lime').bind(this)}>Lime</Link>
           </div>
         </Layout>
         <Layout style={{flexDirection: 'row'}}>
@@ -80,63 +99,87 @@ class App extends Component {
             <Link>Search</Link>
             <Link>Add URL</Link>
             <Link>View Inbox</Link>
-            <Link>Mark Miro</Link>
+            <Link>More...</Link>
           </div>
           <div style={style.content}>
-            <h1 style={style.heading}>React Magic</h1>
+            <span style={{color: themeScale(0.5)}}>About Us › Team › Engineering</span>
+            <h1 style={style.heading}>Oleg Gregorianisky</h1>
+            <span>Change color: </span>
+            <input style={style.input} value="Color 1" />
+            <input style={style.input} value="Color 2" />
             <div style={style.innerNav}>
               <Link>Search</Link>
               <Link>Add URL</Link>
               <Link>View Inbox</Link>
-              <Link>Mark Miro</Link>
+              <Link>More...</Link>
             </div>
             <span style={{
               display: 'block',
               padding: size(3),
-              background: primaryColors(0),
-              color: primaryColors(0.5),
+              background: themeScale(0),
+              color: themeScale(0.5),
             }}>
               Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </span>
-            { sizes.map(size => <div style={{background: primaryColors(size/10)}}>&nbsp;</div>) }
-            { sizes.map(size => <div style={{padding: 5, background: secondaryColors(size/10), color: secondaryColors(size/10 - 0.5)}}>{size}</div>) }
+            { sizes.map(size => <div style={{background: themeScale(size/10), height: 40}}></div>) }
+            {
+              // sizes.map(size => <div style={{padding: 5, background: sunsetScale(size/10), color: sunsetScale(size/10 - 0.5)}}>{size}</div>)
+            }
             &nbsp;
             { sizes.map(size => <div style={{fontSize: heading(size)}}>{size}. Lorem Ipsum</div>) }
             { sizes.map(size => <div style={{fontSize: tx(size)}}>{size}. Lorem Ipsum</div>) }
             Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </div>
         </Layout>
-        <div>
+        <div style={style.footer}>
           Footer
         </div>
       </Layout>
     );
   }
   styler () {
+    var themeScale = this.state.themeColorScale;
     return {
       rootContainer: {
         height: '100%',
-        background: primaryColors(0.9),
-        color: primaryColors(0.6)
+        background: themeScale(0.9),
+        color: themeScale(0.6)
       },
       nav: {
         flexDirection: 'row',
-        background: primaryColors(0),
-        color: primaryColors(1)
+        background: themeScale(0),
+        color: themeScale(1)
       },
       content: {
-        background: primaryColors(1),
-        color: primaryColors(0.2),
+        background: themeScale(1),
+        color: themeScale(0.2),
         padding: size(10)
       },
       heading: {
-        fontSize: heading(10),
+        fontSize: heading(8),
         fontWeight: 500,
-        paddingBottom: heading(1)
+        paddingTop: heading(0.5),
+        paddingBottom: heading(1),
+        letterSpacing: size(-0.5)
       },
       innerNav: {
-        background: primaryColors(0),
-        color: primaryColors(0.8)
+        background: themeScale(0),
+        color: themeScale(0.8)
+      },
+      footer: {
+        flexShrink: 0,
+        background: themeScale(0.8),
+        color: themeScale(0.5),
+        padding: size(3)
+      },
+      input: {
+        background: themeScale(0.9),
+        color: themeScale(0.5),
+        border: 'none',
+        boxShadow: 'none',
+        fontSize: 16,
+        padding: size(1),
+        marginRight: size(2)
       }
     };
   }

@@ -3,7 +3,10 @@
     <title>React Transform Boilerplate</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" rel="stylesheet">
     <style>
-      * { box-sizing: border-box }
+      * {
+        box-sizing: border-box;
+        font-family: 'Roboto';
+      }
       body {
         width: 100%; height: 100%; overflow: hidden;
         font-family: 'Roboto';
@@ -16,6 +19,16 @@
       }
       a:hover {
         opacity: 0.5;
+      }
+      @keyframes pulse {
+        from { opacity: 1; } to { opacity: 0.6; }
+      }
+      input:focus {
+        outline-style: solid;
+        outline-color: inherit;
+        outline-offset: 2px;
+        outline-width: 1px;
+        /*animation: pulse 1s ease-in-out 0s infinite alternate;*/
       }
       span {
         /*opacity: 0.6;*/
