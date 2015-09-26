@@ -111,7 +111,7 @@ class App extends Component {
     super(props);
     let theme = themeColorScales.mocha;
     this.state = {
-      invert: true,
+      invert: false,
       interpolator: theme.interpolator,
       startColor: theme.start,
       endColor: theme.end
@@ -145,35 +145,55 @@ class App extends Component {
   // }
   rotateColorToMatch (fromColor, scaleAmount) {
     let luminosityDiffThreshold = 30;
-    let clipThreshold = 15;
+    let luminosityPadThreshold = 20;
+    let chromaPadThreshold = 20;
 
 
-    function clip (l) {
-      var noLowerThanLuminsityThreshold = Math.max(clipThreshold, l);
-      var max = 100 - clipThreshold;
-      var andNoHigherThanMax = Math.min(max, noLowerThanLuminsityThreshold);
-      return andNoHigherThanMax;
+    function createPadFunc (padThreshold, min, max) {
+      return function (numberToPad) {
+        var noLowerThanPadThreshold = Math.max(padThreshold, min + numberToPad);
+        var maxThreshold = max - padThreshold;
+        var andNoHigherThanMax = Math.min(maxThreshold, noLowerThanPadThreshold);
+        return andNoHigherThanMax;
+      }
     }
     fromColor = d3.hcl(fromColor);
     let themeScale = this.colorer();
 
     // Midpoint of luminosity between the two colors;
-    let midL = (d3.hcl(themeScale(0)).l + d3.hcl(themeScale(1)).l) / 2;
     let toMatchColor = d3.hcl(themeScale(scaleAmount));
-    let chroma = (fromColor.c + toMatchColor.c + d3.hcl(themeScale(0)).c) / 3;
+
+    let padC = createPadFunc(chromaPadThreshold, 0, 100);
+
+    let midC = (d3.hcl(themeScale(0)).c + d3.hcl(themeScale(1)).c) / 2;
+
+    // Maximum difference
+    // let maxDiffChroma = toMatchColor.c < midC ? padC(100) : padC(0);
+
+    // Minimal difference
+    let minDiffChroma = padC((toMatchColor.c + midC)/2);
+
+    // let chroma = maxDiffChroma*.4 + minDiffChroma*.6;
+    let chroma = minDiffChroma;
+
+    // let chroma = (fromColor.c + toMatchColor.c + d3.hcl(themeScale(0)).c) / 3;
     // let chroma = (d3.hcl(themeScale(0)).c + d3.hcl(themeScale(1)).c) / 2;
     // if (Math.abs(chroma - toMatchColor.c) < 15) chroma = Math.max(toMatchColor.c + 15, 0);
-    // chroma = toMatchColor.c + 50;
+    // let chroma = toMatchColor.c + 10;
     // chroma = 20;
     // chroma = 0;
 
+    // 150 is the max luminosity
+    let padL = createPadFunc(luminosityPadThreshold, 0, 150);
+
     // let luminosity = 70;
+    let midL = (d3.hcl(themeScale(0)).l + d3.hcl(themeScale(1)).l) / 2;
 
     // Maximum difference
-    let maxDiffluminosity = toMatchColor.l < midL ? clip(100) : clip(0);
+    let maxDiffluminosity = toMatchColor.l < midL ? padL(150) : padL(0);
 
     // Minimal difference
-    let minDiffLuminosity = clip(
+    let minDiffLuminosity = padL(
       toMatchColor.l < midL ?
         luminosityDiffThreshold + toMatchColor.l
         : toMatchColor.l - luminosityDiffThreshold
@@ -186,6 +206,7 @@ class App extends Component {
     if (Math.abs(colorDifference)  < 25) {
       return 'black';
     }
+    // if (!color.displayable()) return 'black';
     return color;
   }
   render () {
