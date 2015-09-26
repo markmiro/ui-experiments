@@ -220,6 +220,16 @@ class App extends Component {
     let times = 11;
     for (var i = 0; i < times; i++) { sizes.push(i); }
 
+    let sizesCopy = sizes.slice();
+    let sizesStiched = [];
+    for (var i = 0; i < times; i++) {
+      if (i % 2 === 0) {
+        sizesStiched.push(sizesCopy.shift());
+      } else {
+        sizesStiched.push(sizesCopy.pop());
+      }
+    }
+
     var style = this.styler();
     var themeScale = this.colorer();
     var invertedThemeScale = this.colorer({invert: true});
@@ -331,12 +341,16 @@ class App extends Component {
               sizes.map(size => <div style={{padding: 5, background: sunsetScale(size/10), color: sunsetScale(size/10 - 0.5)}}>{size}</div>)
             }
             &nbsp;
+            {
+              sizesStiched.map(size => <div style={{padding: 5, background: sunsetScale(size/10), color: sunsetScale(size/10 - 0.5)}}>{size}</div>)
+            }
+            &nbsp;
             { sizes.map(size => <div style={{fontSize: heading(size)}}>{size}. Lorem Ipsum</div>) }
             { sizes.map(size => <div style={{fontSize: tx(size)}}>{size}. Lorem Ipsum</div>) }
             Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </div>
           <div style={{flexShrink: 0}}>
-            { sizes.map(size =>
+            { sizesStiched.map(size =>
               <div style={{background: themeScale(size/10), padding: 10}}>
               {
                 colors.map(color =>
@@ -373,7 +387,7 @@ class App extends Component {
     return {
       rootContainer: {
         height: '100%',
-        background: themeScale(0.9),
+        background: themeScale(1),
         color: themeScale(0.6)
       },
       nav: {
