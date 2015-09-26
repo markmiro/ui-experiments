@@ -68,7 +68,15 @@ var themeColorScales = {
     end:  '#cbfafb'
   }
 };
-window.themeColorScales = themeColorScales;
+let colors = [
+  // 'black',
+  // 'gray',
+  // 'white',
+  '#0088BF',
+  '#C40233',
+  '#00A368',
+  '#FFD300'
+];
 
 // Modular scale function for sizing text
 function ms(base, ratio, value) {
@@ -247,18 +255,21 @@ class App extends Component {
       return style.btn({
         solid: true,
         themeScale: d3.interpolateHcl(middleColor, themeScale(bgScaleAmount))
-      })
+      });
     };
 
-    let colors = [
-      // 'black',
-      // 'gray',
-      // 'white',
-      '#0088BF',
-      '#C40233',
-      '#00A368',
-      '#FFD300'
-    ];
+    let buttons = depth => (
+      <div style={{background: themeScale(depth), padding: 10}}>
+      {
+        colors.map(color =>
+          <span>
+            <button style={solidColoredButtonStyle(color, depth)}>Color</button>
+            &nbsp;
+          </span>
+        )
+      }
+      </div>
+    );
 
     return (
       <Layout style={style.rootContainer}>
@@ -350,18 +361,9 @@ class App extends Component {
             Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </div>
           <div style={{flexShrink: 0}}>
-            { sizesStiched.map(size =>
-              <div style={{background: themeScale(size/10), padding: 10}}>
-              {
-                colors.map(color =>
-                  <span>
-                    <button style={solidColoredButtonStyle(color, size/10)}>Color</button>
-                    &nbsp;
-                  </span>
-                )
-              }
-              </div>
-            ) }
+            { sizes.map(size => size/10).map(buttons) }
+            &nbsp;
+            { sizesStiched.map(size => size/10).map(buttons) }
           </div>
         </Layout>
         <div style={style.footer}>
