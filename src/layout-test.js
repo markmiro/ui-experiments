@@ -144,10 +144,9 @@ class App extends Component {
   //   return d3.hcl(fromColor.h, toMatchColor.c, toMatchColor.l);
   // }
   rotateColorToMatch (fromColor, scaleAmount) {
-    let luminosityDiffThreshold = 30;
-    let luminosityPadThreshold = 20;
-    let chromaPadThreshold = 20;
-
+    let luminosityDiffThreshold = 25; // minimum difference to keep between bg and fg
+    let luminosityPadThreshold = 20; // How much buffer space do we want
+    let chromaPadThreshold = 25; // color buffer space (prevent colors from getting)
 
     function createPadFunc (padThreshold, min, max) {
       return function (numberToPad) {
@@ -163,24 +162,12 @@ class App extends Component {
     // Midpoint of luminosity between the two colors;
     let toMatchColor = d3.hcl(themeScale(scaleAmount));
 
-    let padC = createPadFunc(chromaPadThreshold, 0, 100);
-
-    let midC = (d3.hcl(themeScale(0)).c + d3.hcl(themeScale(1)).c) / 2;
-
-    // Maximum difference
-    // let maxDiffChroma = toMatchColor.c < midC ? padC(100) : padC(0);
-
     // Minimal difference
-    let minDiffChroma = padC((toMatchColor.c + midC)/2);
-
-    // let chroma = maxDiffChroma*.4 + minDiffChroma*.6;
-    let chroma = minDiffChroma;
+    let chroma = Math.max((d3.hcl(themeScale(1)).c + d3.hcl(themeScale(0)).c + toMatchColor.c) / 3, chromaPadThreshold);
 
     // let chroma = (fromColor.c + toMatchColor.c + d3.hcl(themeScale(0)).c) / 3;
     // let chroma = (d3.hcl(themeScale(0)).c + d3.hcl(themeScale(1)).c) / 2;
-    // if (Math.abs(chroma - toMatchColor.c) < 15) chroma = Math.max(toMatchColor.c + 15, 0);
-    // let chroma = toMatchColor.c + 10;
-    // chroma = 20;
+    // chroma = 70;
     // chroma = 0;
 
     // 150 is the max luminosity
