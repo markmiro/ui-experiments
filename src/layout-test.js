@@ -111,7 +111,7 @@ class App extends Component {
     super(props);
     let theme = themeColorScales.mocha;
     this.state = {
-      invert: false,
+      invert: true,
       interpolator: theme.interpolator,
       startColor: theme.start,
       endColor: theme.end
@@ -144,8 +144,8 @@ class App extends Component {
   //   return d3.hcl(fromColor.h, toMatchColor.c, toMatchColor.l);
   // }
   rotateColorToMatch (fromColor, scaleAmount) {
-    let luminosityDiffThreshold = 0;
-    let clipThreshold = luminosityDiffThreshold;
+    let luminosityDiffThreshold = 30;
+    let clipThreshold = 15;
 
 
     function clip (l) {
@@ -160,11 +160,11 @@ class App extends Component {
     // Midpoint of luminosity between the two colors;
     let midL = (d3.hcl(themeScale(0)).l + d3.hcl(themeScale(1)).l) / 2;
     let toMatchColor = d3.hcl(themeScale(scaleAmount));
-    // let chroma = (fromColor.c + toMatchColor.c + d3.hcl(themeScale(0)).c) / 3;
-    let chroma = (d3.hcl(themeScale(0)).c + d3.hcl(themeScale(1)).c + Math.min(d3.hcl(themeScale(0)).c, d3.hcl(themeScale(1)).c)) / 3;
-    if (Math.abs(chroma - toMatchColor.c) < 20) chroma = Math.max(toMatchColor.c + 30, 0);
+    let chroma = (fromColor.c + toMatchColor.c + d3.hcl(themeScale(0)).c) / 3;
+    // let chroma = (d3.hcl(themeScale(0)).c + d3.hcl(themeScale(1)).c) / 2;
+    // if (Math.abs(chroma - toMatchColor.c) < 15) chroma = Math.max(toMatchColor.c + 15, 0);
     // chroma = toMatchColor.c + 50;
-    // let chroma = 30;
+    // chroma = 20;
     // chroma = 0;
 
     // let luminosity = 70;
@@ -174,12 +174,12 @@ class App extends Component {
 
     // Minimal difference
     let minDiffLuminosity = clip(
-      toMatchColor.l < 50 ?
+      toMatchColor.l < midL ?
         luminosityDiffThreshold + toMatchColor.l
         : toMatchColor.l - luminosityDiffThreshold
     );
 
-    let luminosity = maxDiffluminosity*.6 + minDiffLuminosity*.4;
+    let luminosity = maxDiffluminosity*.4 + minDiffLuminosity*.6;
 
     let color =  d3.hcl(fromColor.h, chroma, luminosity);
     let colorDifference = color.l - toMatchColor.l;
