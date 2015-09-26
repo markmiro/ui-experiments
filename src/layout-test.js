@@ -8,41 +8,67 @@ var sunsetScale = d3.interpolateHcl('#f2f19c', '#282c9c');
 
 var themeColorScales = {
   bw: {
+    name: 'Black & White',
     interpolator: d3.interpolateHsl,
     start:  '#010101',
     end: '#fefefe'
   },
+  navy: {
+    name: 'Navy',
+    interpolator: d3.interpolateHsl,
+    start: 'black',
+    end: '#3588FF'
+  },
+  eighties: {
+    name: 'Eighties',
+    interpolator: d3.interpolateHcl,
+    start: '#443C4D',
+    end: '#BDD948'
+  },
+  rose: {
+    name: 'Rose',
+    interpolator: d3.interpolateHcl,
+    start: '#D56B83',
+    end: '#E1FADD'
+  },
   radioactive: {
+    name: 'Radioactive',
     interpolator: d3.interpolateHcl,
     start: '#545561',
     end: '#EAFB5F'
   },
   terminal: {
+    name: 'Terminal',
     interpolator: d3.interpolateHsl,
     start:  'black',
     end: '#0ef08b'
   },
   mocha: {
+    name: 'Mocha',
     interpolator: d3.interpolateCubehelix,
     start: '#4d2f34',
     end:  '#f2f0e7'
   },
   lime: {
+    name: 'Lime',
     interpolator: d3.interpolateHclLong,
     start: '#282c9c',
     end:  '#f2f19c'
   },
   sunset: {
+    name: 'Sunset',
     interpolator: d3.interpolateHcl,
     start: '#282c9c',
     end:  '#f2f19c'
   },
   ocean: {
+    name: 'Ocean',
     interpolator: d3.interpolateHcl,
     start: '#0f1563',
     end:  '#cbfafb'
   }
 };
+window.themeColorScales = themeColorScales;
 
 // Modular scale function for sizing text
 function ms(base, ratio, value) {
@@ -168,29 +194,16 @@ class App extends Component {
     for (var i = 0; i < times; i++) { sizes.push(i); }
 
     var style = this.styler();
-    // var themeScale = this.state.themeColorScale;
     var themeScale = this.colorer();
     var invertedThemeScale = this.colorer({invert: true});
-    // sunsetScale = themeScale;
+    sunsetScale = themeScale;
 
-    // console.log(d3.hcl('white').l, d3.hcl('black').l);
     let startColorLuminosity = d3.hcl(this.state.startColor).l;
     let endColorLuminosity = d3.hcl(this.state.endColor).l;
     let favorStartColor = startColorLuminosity > endColorLuminosity;
     if (favorStartColor) {
       console.log(startColorLuminosity);
     }
-
-    // let solidColoredButtonStyle = (color) => {
-    //   let middleColor = themeScale(0.2);
-    //   return style.btn({
-    //     solid: true,
-    //     themeScale: d3.interpolateHcl(
-    //       this.rotateColorToMatch(color, middleColor),
-    //       this.state.endColor
-    //     )
-    //   })
-    // };
 
     let solidColoredButtonStyle = (color, bgScaleAmount) => {
       let middleColor = this.rotateColorToMatch(color, bgScaleAmount);
@@ -199,17 +212,6 @@ class App extends Component {
         themeScale: d3.interpolateHcl(middleColor, themeScale(bgScaleAmount))
       })
     };
-
-    // let solidColoredButtonStyle = (color) => {
-    //   let middleColor = themeScale(0.8);
-    //   return style.btn({
-    //     solid: true,
-    //     themeScale: d3.interpolateHcl(
-    //       this.rotateColorToMatch(color, middleColor),
-    //       this.state.startColor
-    //     )
-    //   })
-    // };
 
     let colors = [
       // 'black',
@@ -221,17 +223,6 @@ class App extends Component {
       '#FFD300'
     ];
 
-    // let blueStyle = solidColoredButtonStyle('#1c6491');
-    // let redStyle = solidColoredButtonStyle('#c1224d');
-    // let greenStyle = solidColoredButtonStyle('#198c16');
-    // let yellowStyle = solidColoredButtonStyle('#fbdf69');
-    // let blackStyle = solidColoredButtonStyle('black');
-    // let grayStyle = solidColoredButtonStyle('gray');
-    // let whiteStyle = solidColoredButtonStyle('white');
-    // let blueStyle = solidColoredButtonStyle('#0088BF');
-    // let redStyle = solidColoredButtonStyle('#C40233');
-    // let greenStyle = solidColoredButtonStyle('#00A368');
-    // let yellowStyle = solidColoredButtonStyle('#FFD300');
     return (
       <Layout style={style.rootContainer}>
         <Layout style={style.nav}>
@@ -240,15 +231,8 @@ class App extends Component {
             <Link href="http://google.com" onClick={this._goHome}>Home</Link>
             <Link>Recommended</Link>
           </div>
-          <div>
-            Themes:
-            <Link onClick={this._changeTheme('bw').bind(this)}>B & W</Link>
-            <Link onClick={this._changeTheme('radioactive').bind(this)}>Radioactive</Link>
-            <Link onClick={this._changeTheme('terminal').bind(this)}>Terminal</Link>
-            <Link onClick={this._changeTheme('ocean').bind(this)}>Ocean</Link>
-            <Link onClick={this._changeTheme('mocha').bind(this)}>Mocha</Link>
-            <Link onClick={this._changeTheme('sunset').bind(this)}>Sunset</Link>
-            <Link onClick={this._changeTheme('lime').bind(this)}>Lime</Link>
+          <div style={{padding: size(3)}}>
+            Hi this is stuff here
           </div>
         </Layout>
         <Layout style={{flexDirection: 'row'}}>
@@ -257,10 +241,12 @@ class App extends Component {
             flexShrink: 0,
             flexDirection: 'column'
           }}>
-            <Link>Search</Link>
-            <Link>Add URL</Link>
-            <Link>View Inbox</Link>
-            <Link>More...</Link>
+            {
+              Object.keys(themeColorScales).map((key) => {
+                 let name = themeColorScales[key].name;
+                 return <Link onClick={this._changeTheme(key).bind(this)}>{name}</Link>
+              })
+            }
           </div>
           <div style={style.content}>
             <span style={{color: themeScale(0.5)}}>About Us › Team › Engineering</span>
