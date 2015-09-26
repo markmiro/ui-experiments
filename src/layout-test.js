@@ -145,7 +145,7 @@ class App extends Component {
   // }
   rotateColorToMatch (fromColor, scaleAmount) {
     let luminosityDiffThreshold = 25; // minimum difference to keep between bg and fg
-    let luminosityPadThreshold = 20; // How much buffer space do we want
+    let luminosityPadThreshold = 25; // How much buffer space do we want
     let chromaPadThreshold = 25; // color buffer space (prevent colors from getting)
 
     function createPadFunc (padThreshold, min, max) {
@@ -162,8 +162,15 @@ class App extends Component {
     // Midpoint of luminosity between the two colors;
     let toMatchColor = d3.hcl(themeScale(scaleAmount));
 
-    // Minimal difference
-    let chroma = Math.max((d3.hcl(themeScale(1)).c + d3.hcl(themeScale(0)).c + toMatchColor.c) / 3, chromaPadThreshold);
+    let chroma = Math.max(
+      (d3.hcl(themeScale(1)).c + d3.hcl(themeScale(0)).c + toMatchColor.c) / 3,
+      chromaPadThreshold
+    );
+
+    // let chroma = Math.max(
+    //   (d3.hcl(themeScale(1)).c + d3.hcl(themeScale(0)).c) / 2,
+    //   chromaPadThreshold
+    // );
 
     // let chroma = (fromColor.c + toMatchColor.c + d3.hcl(themeScale(0)).c) / 3;
     // let chroma = (d3.hcl(themeScale(0)).c + d3.hcl(themeScale(1)).c) / 2;
@@ -176,8 +183,10 @@ class App extends Component {
     // let luminosity = 70;
     let midL = (d3.hcl(themeScale(0)).l + d3.hcl(themeScale(1)).l) / 2;
 
+    // let diffL = Math.abs(d3.hcl(themeScale(0)).l - d3.hcl(themeScale(1)).l) / 3;
+
     // Maximum difference
-    let maxDiffluminosity = toMatchColor.l < midL ? padL(150) : padL(0);
+    let maxDiffluminosity = toMatchColor.l < midL ? padL(100) : padL(0);
 
     // Minimal difference
     let minDiffLuminosity = padL(
@@ -186,13 +195,23 @@ class App extends Component {
         : toMatchColor.l - luminosityDiffThreshold
     );
 
-    let luminosity = maxDiffluminosity*.4 + minDiffLuminosity*.6;
+    // amount is 0 to 1
+    function mix (a, b, amount) {
+      return a*(1-amount) + b*amount;
+    }
+    let luminosity = mix(maxDiffluminosity, minDiffLuminosity, 0.5);
+
+    let colorDifference = luminosity - toMatchColor.l;
+    if (Math.abs(colorDifference)  < luminosityDiffThreshold) {
+      luminosity = padL(
+        toMatchColor.l < 50 ?
+          minDiffLuminosity + toMatchColor.l
+          : toMatchColor.l - minDiffLuminosity
+      );
+      // return 'black';
+    }
 
     let color =  d3.hcl(fromColor.h, chroma, luminosity);
-    let colorDifference = color.l - toMatchColor.l;
-    if (Math.abs(colorDifference)  < 25) {
-      return 'black';
-    }
     // if (!color.displayable()) return 'black';
     return color;
   }
@@ -308,6 +327,15 @@ class App extends Component {
               <hr />
               Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </span>
+            {
+              sizes.map(size => <div style={{padding: 5, background: sunsetScale(size/10), color: sunsetScale(size/10 - 0.5)}}>{size}</div>)
+            }
+            &nbsp;
+            { sizes.map(size => <div style={{fontSize: heading(size)}}>{size}. Lorem Ipsum</div>) }
+            { sizes.map(size => <div style={{fontSize: tx(size)}}>{size}. Lorem Ipsum</div>) }
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+          </div>
+          <div style={{flexShrink: 0}}>
             { sizes.map(size =>
               <div style={{background: themeScale(size/10), padding: 10}}>
               {
@@ -320,13 +348,6 @@ class App extends Component {
               }
               </div>
             ) }
-            {
-              sizes.map(size => <div style={{padding: 5, background: sunsetScale(size/10), color: sunsetScale(size/10 - 0.5)}}>{size}</div>)
-            }
-            &nbsp;
-            { sizes.map(size => <div style={{fontSize: heading(size)}}>{size}. Lorem Ipsum</div>) }
-            { sizes.map(size => <div style={{fontSize: tx(size)}}>{size}. Lorem Ipsum</div>) }
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </div>
         </Layout>
         <div style={style.footer}>
