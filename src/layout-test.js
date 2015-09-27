@@ -52,9 +52,6 @@ class App extends Component {
   _handleClickInvert (e) {
     this.setState({invert: !this.state.invert});
   }
-  _goHome () {
-    console.log('going home');
-  }
   rotateColorToMatch (fromColor, scaleAmount) {
     let luminosityDiffThreshold = 25; // minimum difference to keep between bg and fg
     let luminosityPadThreshold = 25; // How much buffer space do we want
@@ -170,7 +167,7 @@ class App extends Component {
         <Layout style={style.nav}>
           <div>
             <span style={{padding: size(3)}}>Lorem My Ipsum</span>
-            <Link href="http://google.com" onClick={this._goHome}>Home</Link>
+            <Link href="http://google.com">Google</Link>
             <Link>Recommended</Link>
           </div>
           <div style={{padding: size(3)}}>
