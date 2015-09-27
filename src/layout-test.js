@@ -66,7 +66,25 @@ var themeColorScales = {
     interpolator: d3.interpolateHcl,
     start: '#0f1563',
     end:  '#cbfafb'
-  }
+  },
+  visualAssault: {
+    name: 'Visual Assault',
+    interpolator: d3.interpolateHcl,
+    start: '#FF32A8',
+    end: '#00FA83'
+  },
+  plum: {
+    name: 'Plum',
+    interpolator: d3.interpolateHcl,
+    start: '#330D4B',
+    end: '#C8A2F4'
+  },
+  gold: {
+    name: 'Gold',
+    interpolator: d3.interpolateHcl,
+    start: '#3E3C3B',
+    end: '#EFFAA0'
+  },
 };
 let colors = [
   // 'black',
@@ -106,10 +124,88 @@ class Link extends Component {
     return (
       <a href="/" style={{
         display: 'inline-block',
-        padding: size(3)
+        padding: size(3),
       }} {...this.props}>
         {this.props.children}
       </a>
+    );
+  }
+}
+
+class Checkbox extends Component {
+  render () {
+    return (
+      <span style={{padding: size(3)}}>
+        <input type="checkbox" checked={this.props.checked} style={{display: 'none'}} />
+        <span style={{
+          borderWidth: size(0.5),
+          borderStyle: 'solid',
+          boxSizing: 'content-box',
+          display: 'inline-block',
+          textAlign: 'center',
+          lineHeight: size(2),
+          height: size(2),
+          width: size(2),
+          cursor: 'pointer',
+          verticalAlign: 'middle'
+        }}>
+          {
+            this.props.checked ? '✓' : ''
+          }
+        </span>
+        &nbsp;
+        <a style={{verticalAlign: 'middle'}}>{this.props.children}</a>
+      </span>
+    );
+  }
+}
+
+class Toggle extends Component {
+  render () {
+    let height = size(1);
+    let handleSize = size(4);
+
+    let style = {
+      handle: {
+        transitionProperty: 'left',
+        transitionDuration: '0.2s',
+        borderStyle: 'solid',
+        borderWidth: size(0.5),
+        borderColor:this.props.depthScale(this.props.colorDepth),
+        background: this.props.depthScale(1-this.props.colorDepth),
+        position: 'absolute',
+        display: 'inline-block',
+        top: '50%',
+        left: this.props.checked ? '100%' : '0%',
+        transform: 'translate(-50%, -50%)',
+        width: handleSize,
+        height: handleSize,
+        borderRadius: size(14),
+        cursor: 'pointer'
+      },
+      track: {
+        display: 'inline-block',
+        borderRadius: 999,
+        background: this.props.depthScale(this.props.colorDepth+0.6),
+        height: size(0.5),
+        verticalAlign: 'middle',
+        position: 'relative',
+        width: size(8),
+        marginLeft: handleSize,
+        marginRight: handleSize,
+        marginTop: 20,
+        marginBottom: 20
+      }
+    };
+    return (
+      <span style={style.track} {...this.props}>
+        <span style={style.handle} />
+        <input
+          type="checkbox"
+          checked={this.props.checked}
+          style={{display: 'none'}}
+        />
+      </span>
     );
   }
 }
@@ -142,6 +238,9 @@ class App extends Component {
   }
   _handleChangeEndColor (e) {
     this.setState({endColor: e.target.value});
+  }
+  _handleClickInvert (e) {
+    this.setState({invert: !this.state.invert});
   }
   _goHome () {
     console.log('going home');
@@ -289,6 +388,15 @@ class App extends Component {
             flexShrink: 0,
             flexDirection: 'column'
           }}>
+            <span style={{paddingLeft: size(3), paddingTop: size(3)}}>
+              Invert colors:
+            </span>
+            <Toggle
+              checked={this.state.invert}
+              onClick={this._handleClickInvert.bind(this)}
+              depthScale={themeScale}
+              colorDepth={0}
+            />
             {
               Object.keys(themeColorScales).map((key) => {
                  let name = themeColorScales[key].name;
@@ -362,7 +470,7 @@ class App extends Component {
           </div>
           <div style={{flexShrink: 0}}>
             { sizes.map(size => size/10).map(buttons) }
-            &nbsp;
+            <div style={{height: size(20)}} />
             { sizesStiched.map(size => size/10).map(buttons) }
           </div>
         </Layout>
@@ -445,7 +553,8 @@ class App extends Component {
           cursor: 'pointer',
           fontWeight: 500,
           textTransform: 'uppercase',
-          outlineColor: themeScale(0.5)
+          outlineColor: scale(0.5),
+          lineHeight: size(3)
         }
       }
     };
