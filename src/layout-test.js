@@ -1,9 +1,12 @@
 import React, {Component} from 'react';
 import d3 from 'd3-color';
-import {Layout} from './Layout.js';
-import themeColorScales from './ThemeColorScales.js';
 
-window.d3 = d3;
+import themeColorScales from './ThemeColorScales.js';
+import {size, tx, heading} from './Size.js';
+import {Layout} from './Layout.js';
+import {Checkbox} from './Checkbox.js';
+import {Toggle} from './Toggle.js';
+import {Link} from './Link.js';
 
 var sunsetScale = d3.interpolateHcl('#f2f19c', '#282c9c');
 
@@ -16,120 +19,6 @@ let colors = [
   '#00A368',
   '#FFD300'
 ];
-
-// Modular scale function for sizing text
-function ms(base, ratio, value) {
-  return (Math.pow(ratio, value) * base);
-}
-
-var Sizer = {};
-window.addEventListener('resize', function (e) {
-  Sizer.width = e.target.innerWidth;
-  // console.log(e.target.innerWidth);
-});
-
-const scale = 1.5;
-function size(n) {
-  return n * 0.5 * scale + 'vmin';
-}
-function tx(n) {
-  return ms(16 * scale, 1.25, n);
-}
-function heading(n) {
-  if (window.innerWidth < 600) return '16px';
-  return ms(1 * scale, 1.25, n) + 'vmin';
-}
-
-class Link extends Component {
-  render () {
-    return (
-      <a href="/" style={{
-        display: 'inline-block',
-        padding: size(3),
-      }} {...this.props}>
-        {this.props.children}
-      </a>
-    );
-  }
-}
-
-class Checkbox extends Component {
-  render () {
-    return (
-      <span style={{padding: size(3)}}>
-        <input type="checkbox" checked={this.props.checked} style={{display: 'none'}} />
-        <span style={{
-          borderWidth: size(0.5),
-          borderStyle: 'solid',
-          boxSizing: 'content-box',
-          display: 'inline-block',
-          textAlign: 'center',
-          lineHeight: size(2),
-          height: size(2),
-          width: size(2),
-          cursor: 'pointer',
-          verticalAlign: 'middle'
-        }}>
-          {
-            this.props.checked ? '✓' : ''
-          }
-        </span>
-        &nbsp;
-        <a style={{verticalAlign: 'middle'}}>{this.props.children}</a>
-      </span>
-    );
-  }
-}
-
-class Toggle extends Component {
-  render () {
-    let height = size(1);
-    let handleSize = size(4);
-
-    let style = {
-      handle: {
-        transitionProperty: 'left',
-        transitionDuration: '0.2s',
-        borderStyle: 'solid',
-        borderWidth: size(0.5),
-        borderColor:this.props.depthScale(this.props.colorDepth),
-        background: this.props.depthScale(1-this.props.colorDepth),
-        position: 'absolute',
-        display: 'inline-block',
-        top: '50%',
-        left: this.props.checked ? '100%' : '0%',
-        transform: 'translate(-50%, -50%)',
-        width: handleSize,
-        height: handleSize,
-        borderRadius: size(14),
-        cursor: 'pointer'
-      },
-      track: {
-        display: 'inline-block',
-        borderRadius: 999,
-        background: this.props.depthScale(this.props.colorDepth+0.6),
-        height: size(0.5),
-        verticalAlign: 'middle',
-        position: 'relative',
-        width: size(8),
-        marginLeft: handleSize,
-        marginRight: handleSize,
-        marginTop: 20,
-        marginBottom: 20
-      }
-    };
-    return (
-      <span style={style.track} {...this.props}>
-        <span style={style.handle} />
-        <input
-          type="checkbox"
-          checked={this.props.checked}
-          style={{display: 'none'}}
-        />
-      </span>
-    );
-  }
-}
 
 class App extends Component {
   constructor(props) {
@@ -166,11 +55,6 @@ class App extends Component {
   _goHome () {
     console.log('going home');
   }
-  // rotateColorToMatch (fromColor, toMatchColor) {
-  //   fromColor = d3.hcl(fromColor);
-  //   toMatchColor = d3.hcl(toMatchColor);
-  //   return d3.hcl(fromColor.h, toMatchColor.c, toMatchColor.l);
-  // }
   rotateColorToMatch (fromColor, scaleAmount) {
     let luminosityDiffThreshold = 25; // minimum difference to keep between bg and fg
     let luminosityPadThreshold = 25; // How much buffer space do we want
@@ -194,16 +78,6 @@ class App extends Component {
       (d3.hcl(themeScale(1)).c + d3.hcl(themeScale(0)).c + toMatchColor.c) / 3,
       chromaPadThreshold
     );
-
-    // let chroma = Math.max(
-    //   (d3.hcl(themeScale(1)).c + d3.hcl(themeScale(0)).c) / 2,
-    //   chromaPadThreshold
-    // );
-
-    // let chroma = (fromColor.c + toMatchColor.c + d3.hcl(themeScale(0)).c) / 3;
-    // let chroma = (d3.hcl(themeScale(0)).c + d3.hcl(themeScale(1)).c) / 2;
-    // chroma = 70;
-    // chroma = 0;
 
     // 150 is the max luminosity
     let padL = createPadFunc(luminosityPadThreshold, 0, 150);
