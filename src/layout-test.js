@@ -107,7 +107,7 @@ class App extends Component {
           minDiffLuminosity + toMatchColor.l
           : toMatchColor.l - minDiffLuminosity
       );
-      // return 'black';
+      return 'red';
     }
 
     let color =  d3.hcl(fromColor.h, chroma, luminosity);
