@@ -9,8 +9,6 @@ import {Checkbox} from './Checkbox.js';
 import {Toggle} from './Toggle.js';
 import {Link} from './Link.js';
 
-var sunsetScale = d3.interpolateHcl('#f2f19c', '#282c9c');
-
 let colors = [
   // 'black',
   // 'gray',
@@ -71,7 +69,6 @@ class App extends Component {
     var style = this.styler();
     var themeScale = this.colorer();
     var invertedThemeScale = this.colorer({invert: true});
-    sunsetScale = themeScale;
 
     let solidColoredButtonStyle = (color, bgScaleAmount) => {
       let middleColor = mixer(themeScale, bgScaleAmount, color);
@@ -181,11 +178,11 @@ class App extends Component {
               Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </span>
             {
-              sizes.map(size => <div style={{padding: 5, background: sunsetScale(size/10), color: sunsetScale(size/10 - 0.5)}}>{size}</div>)
+              sizes.map(size => <div style={{padding: 5, background: themeScale(size/10), color: themeScale(size/10 - 0.5)}}>{size}</div>)
             }
             &nbsp;
             {
-              sizesStiched.map(size => <div style={{padding: 5, background: sunsetScale(size/10), color: sunsetScale(size/10 - 0.5)}}>{size}</div>)
+              sizesStiched.map(size => <div style={{padding: 5, background: themeScale(size/10), color: themeScale(size/10 - 0.5)}}>{size}</div>)
             }
             &nbsp;
             { sizes.map(size => <div style={{fontSize: heading(size)}}>{size}. Lorem Ipsum</div>) }
