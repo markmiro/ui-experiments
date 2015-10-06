@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import d3 from 'd3-color';
 
 import themeColorScales from './ThemeColorScales.js';
 import mixer from './ColorMixer.js';
@@ -71,10 +70,10 @@ class App extends Component {
     var invertedThemeScale = this.colorer({invert: true});
 
     let solidColoredButtonStyle = (color, bgScaleAmount) => {
-      let middleColor = mixer(themeScale, bgScaleAmount, color);
+      let middleColor = mixer.mix(themeScale, bgScaleAmount, color);
       return style.btn({
         solid: true,
-        themeScale: d3.interpolateHcl(middleColor, themeScale(bgScaleAmount))
+        themeScale: mixer.createScale(middleColor, themeScale(bgScaleAmount))
       });
     };
 
@@ -204,8 +203,10 @@ class App extends Component {
   colorer (opts = {invert: false}) {
     if (this.state.invert) opts.invert = !opts.invert;
     let scale = this.state;
-    let startColor = d3.hcl(scale.startColor);
-    let endColor = d3.hcl(scale.endColor);
+    let startColor = scale.startColor;
+    let endColor = scale.endColor;
+    // let startColor = d3.hcl(scale.startColor);
+    // let endColor = d3.hcl(scale.endColor);
     // startColor = d3.hcl(startColor.h, 0, startColor.l);
     // endColor = d3.hcl(endColor.h, 0, endColor.l);
     if (opts && opts.invert === true) {

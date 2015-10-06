@@ -1,5 +1,9 @@
 import d3 from 'd3-color';
 
+function createScale (start, end) {
+  return d3.interpolateHcl(start, end);
+}
+
 function rotateColorToMatch (themeScale, scaleAmount, fromColor) {
   let luminosityDiffThreshold = 25; // minimum difference to keep between bg and fg
   let luminosityPadThreshold = 25; // How much buffer space do we want
@@ -62,4 +66,7 @@ function rotateColorToMatch (themeScale, scaleAmount, fromColor) {
   return color;
 }
 
-module.exports = rotateColorToMatch;
+module.exports = {
+  mix: rotateColorToMatch,
+  createScale: createScale
+};
