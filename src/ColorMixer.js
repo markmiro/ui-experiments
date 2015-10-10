@@ -14,7 +14,7 @@ function createInterpolator(interpolatorType, start, end) {
 }
 
 function createScale (start, end) {
-  return d3.interpolateHcl(start, end);
+  return createInterpolator('HCL', start, end);
 }
 
 function mix (themeScale, scaleAmount, fromColor) {
