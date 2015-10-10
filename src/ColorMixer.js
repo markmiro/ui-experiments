@@ -1,10 +1,23 @@
 import d3 from 'd3-color';
 
+let interpolators = {
+  RGB: d3.interpolateRgb,
+  HSL: d3.interpolateHsl,
+  HCL: d3.interpolateHcl,
+  HCL_LONG: d3.interpolateHclLong,
+  CUBEHELIX: d3.interpolateCubehelix
+};
+
+// Returns a function that takes a value from 0 to 1
+function createInterpolator(interpolatorType, start, end) {
+  return interpolators[interpolatorType](start, end);
+}
+
 function createScale (start, end) {
   return d3.interpolateHcl(start, end);
 }
 
-function rotateColorToMatch (themeScale, scaleAmount, fromColor) {
+function mix (themeScale, scaleAmount, fromColor) {
   let luminosityDiffThreshold = 25; // minimum difference to keep between bg and fg
   let luminosityPadThreshold = 25; // How much buffer space do we want
   let chromaPadThreshold = 25; // color buffer space (prevent colors from getting)
@@ -67,6 +80,7 @@ function rotateColorToMatch (themeScale, scaleAmount, fromColor) {
 }
 
 module.exports = {
-  mix: rotateColorToMatch,
-  createScale: createScale
+  createInterpolator,
+  mix,
+  createScale
 };

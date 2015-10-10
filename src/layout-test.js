@@ -189,9 +189,9 @@ class App extends Component {
             Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </div>
           <div style={{flexShrink: 0}}>
-            { sizes.map(size => size/10).map(buttons) }
+            { /* sizes.map(size => size/10).map(buttons) */ }
             <div style={{height: size(20)}} />
-            { sizesStiched.map(size => size/10).map(buttons) }
+            { /* sizesStiched.map(size => size/10).map(buttons) */ }
           </div>
         </Layout>
         <div style={style.footer}>
@@ -210,9 +210,9 @@ class App extends Component {
     // startColor = d3.hcl(startColor.h, 0, startColor.l);
     // endColor = d3.hcl(endColor.h, 0, endColor.l);
     if (opts && opts.invert === true) {
-      return scale.interpolator.call(null, endColor, startColor);
+      return  mixer.createInterpolator(scale.interpolator, endColor, startColor);
     }
-    return scale.interpolator.call(null, startColor, endColor);
+    return mixer.createInterpolator(scale.interpolator, startColor, endColor);
   }
   styler () {
     var themeScale = this.colorer();
