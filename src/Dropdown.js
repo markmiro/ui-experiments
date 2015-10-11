@@ -34,7 +34,9 @@ export class Dropdown extends React.Component {
           paddingRight: size(3*2 + arrowSize),
           borderColor: 'transparent',
           // http://stackoverflow.com/questions/20477823/select-html-element-with-height
-          background: 'inherit', // because otherwise can't set height
+          // because otherwise can't set height
+          // ..and without setting a solid color old value is visible
+          background: 'inherit',
           WebkitAppearance: 'none',
           borderRadius: 0,
         }} {...this.props}>

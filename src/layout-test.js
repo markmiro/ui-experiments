@@ -8,6 +8,7 @@ import {Checkbox} from './Checkbox.js';
 import {Dropdown} from './Dropdown.js';
 import {Toggle} from './Toggle.js';
 import {Link} from './Link.js';
+import {ColorChart} from './ColorChart.js';
 
 let colors = [
   // 'black',
@@ -94,6 +95,11 @@ class App extends Component {
 
     return (
       <div style={style.rootContainer}>
+        <ColorChart
+          themeScale={themeScale}
+          startColor={this.state.startColor}
+          endColor={this.state.endColor}
+        />
         <input
           style={style.input}
           type="color"
