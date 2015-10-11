@@ -126,7 +126,7 @@ class App extends Component {
           </div>
           <div style={style.content}>
             <span style={{color: themeScale(0.5)}}>About Us › Team › Engineering</span>
-            <h1 style={style.heading}>Oleg Gregorianisky</h1>
+            <h1 style={style.heading}>John Smith</h1>
             <button style={style.btn()}>Cancel</button>
             &nbsp;
             <button style={style.btn({solid: true})}>Submit</button>
@@ -189,7 +189,7 @@ class App extends Component {
             Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </div>
           <div style={{flexShrink: 0}}>
-            { /* sizes.map(size => size/10).map(buttons) */ }
+            { sizes.map(size => size/10).map(buttons) }
             <div style={{height: size(20)}} />
             { /* sizesStiched.map(size => size/10).map(buttons) */ }
           </div>

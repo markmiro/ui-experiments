@@ -1,14 +1,11 @@
-import d3 from 'd3-color';
 const themeColorScales = {
   bw: {
     name: 'Grayscale',
-    interpolator: 'HSL',
     start:  '#010101',
     end: '#fefefe'
   },
   navy: {
     name: 'Navy',
-    interpolator: 'HSL',
     start: 'black',
     end: '#3588FF'
   },
@@ -32,19 +29,18 @@ const themeColorScales = {
   },
   terminal: {
     name: 'Terminal',
-    interpolator: 'HSL',
     start:  'black',
     end: '#0ef08b'
   },
   mocha: {
     name: 'Mocha',
-    interpolator: 'CUBEHELIX',
+    interpolator: 'BEZIER',
     start: '#4d2f34',
     end:  '#f2f0e7'
   },
   lime: {
     name: 'Lime',
-    interpolator: 'HCL_LONG',
+    interpolator: 'HCL',
     start: '#282c9c',
     end:  '#f2f19c'
   },

@@ -1,16 +1,37 @@
-import d3 from 'd3-color';
+import chroma from 'chroma-js';
 
-let interpolators = {
-  RGB: d3.interpolateRgb,
-  HSL: d3.interpolateHsl,
-  HCL: d3.interpolateHcl,
-  HCL_LONG: d3.interpolateHclLong,
-  CUBEHELIX: d3.interpolateCubehelix
-};
+// let interpolators = {
+//   RGB: d3.interpolateRgb,
+//   HSL: d3.interpolateHsl,
+//   HCL: d3.interpolateHcl,
+//   HCL_LONG: d3.interpolateHclLong,
+//   CUBEHELIX: d3.interpolateCubehelix
+// };
+
+function interpolator(type) {
+  switch (type) {
+    case 'HCL': return (start, end) => chroma.scale([start, end])
+      .mode('hcl')
+      .correctLightness();
+    case 'BEZIER':
+    default: return (start, end) => chroma.bezier([start, end])
+      .scale()
+      .correctLightness();
+  }
+}
+
+// let interpolators = {
+//   RGB: interpolator('RGB'),
+//   HSL: interpolator('HSL'),
+//   HCL: interpolator('HCL'),
+//   HCL_LONG: interpolator('HCL_LONG'),
+//   CUBEHELIX: interpolator('CUBEHELIX')
+// };
 
 // Returns a function that takes a value from 0 to 1
 function createInterpolator(interpolatorType, start, end) {
-  return interpolators[interpolatorType](start, end);
+  if (!interpolatorType) return interpolator()(start, end);
+  return interpolator(interpolatorType)(start, end);
 }
 
 function createScale (start, end) {
@@ -18,6 +39,8 @@ function createScale (start, end) {
 }
 
 function mix (themeScale, scaleAmount, fromColor) {
+  // return 'red';
+  // debugger;
   let luminosityDiffThreshold = 25; // minimum difference to keep between bg and fg
   let luminosityPadThreshold = 25; // How much buffer space do we want
   let chromaPadThreshold = 25; // color buffer space (prevent colors from getting)
@@ -30,13 +53,12 @@ function mix (themeScale, scaleAmount, fromColor) {
       return andNoHigherThanMax;
     }
   }
-  fromColor = d3.hcl(fromColor);
 
   // Midpoint of luminosity between the two colors;
-  let toMatchColor = d3.hcl(themeScale(scaleAmount));
+  let toMatchColor = chroma(themeScale(scaleAmount));
 
-  let chroma = Math.max(
-    (d3.hcl(themeScale(1)).c + d3.hcl(themeScale(0)).c + toMatchColor.c) / 3,
+  let c = Math.max(
+    (chroma(themeScale(1)).get('hcl.c') + chroma(themeScale(0)).get('hcl.c') + toMatchColor.get('hcl.c')) / 3,
     chromaPadThreshold
   );
 
@@ -44,18 +66,20 @@ function mix (themeScale, scaleAmount, fromColor) {
   let padL = createPadFunc(luminosityPadThreshold, 0, 150);
 
   // let luminosity = 70;
-  let midL = (d3.hcl(themeScale(0)).l + d3.hcl(themeScale(1)).l) / 2;
+  let midL = (chroma(themeScale(0)).get('hcl.l') + chroma(themeScale(1)).get('hcl.l')) / 2;
 
-  // let diffL = Math.abs(d3.hcl(themeScale(0)).l - d3.hcl(themeScale(1)).l) / 3;
+  // let diffL = Math.abs(chroma.hcl(themeScale(0)).l - chroma.hcl(themeScale(1)).l) / 3;
+
+  let toMatchL = toMatchColor.get('hcl.l');
 
   // Maximum difference
-  let maxDiffluminosity = toMatchColor.l < midL ? padL(100) : padL(0);
+  let maxDiffluminosity = toMatchL < midL ? padL(100) : padL(0);
 
   // Minimal difference
   let minDiffLuminosity = padL(
-    toMatchColor.l < midL ?
-      luminosityDiffThreshold + toMatchColor.l
-      : toMatchColor.l - luminosityDiffThreshold
+    toMatchL < midL ?
+      luminosityDiffThreshold + toMatchL
+      : toMatchL - luminosityDiffThreshold
   );
 
   // amount is 0 to 1
@@ -64,17 +88,17 @@ function mix (themeScale, scaleAmount, fromColor) {
   }
   let luminosity = mix(maxDiffluminosity, minDiffLuminosity, 0.5);
 
-  let colorDifference = luminosity - toMatchColor.l;
+  let colorDifference = luminosity - toMatchL;
   if (Math.abs(colorDifference)  < luminosityDiffThreshold) {
     luminosity = padL(
-      toMatchColor.l < 50 ?
-        minDiffLuminosity + toMatchColor.l
-        : toMatchColor.l - minDiffLuminosity
+      toMatchL < 50 ?
+        minDiffLuminosity + toMatchL
+        : toMatchL - minDiffLuminosity
     );
     return 'red';
   }
 
-  let color =  d3.hcl(fromColor.h, chroma, luminosity);
+  let color =  chroma.hcl(chroma(fromColor).get('hcl.h'), c, luminosity);
   // if (!color.displayable()) return 'black';
   return color;
 }
