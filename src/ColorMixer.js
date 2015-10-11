@@ -3,12 +3,10 @@ import chroma from 'chroma-js';
 function interpolator(type) {
   switch (type) {
     case 'HCL': return (start, end) => chroma.scale([start, end])
-      .mode('hcl')
-      .correctLightness();
+      .mode('hcl');
     case 'BEZIER':
     default: return (start, end) => chroma.bezier([start, end])
-      .scale()
-      .correctLightness();
+      .scale();
   }
 }
 
@@ -22,68 +20,53 @@ function createScale (start, end) {
   return createInterpolator(null , start, end);
 }
 
-function mix (themeScale, scaleAmount, fromColor) {
-  // return 'red';
-  // debugger;
-  let luminosityDiffThreshold = 25; // minimum difference to keep between bg and fg
-  let luminosityPadThreshold = 25; // How much buffer space do we want
-  let chromaPadThreshold = 25; // color buffer space (prevent colors from getting)
+// amount is 0 to 1
+// function mix (a, b, amount) {
+//   return a*(1-amount) + b*amount;
+// }
 
-  function createPadFunc (padThreshold, min, max) {
-    return function (numberToPad) {
-      var noLowerThanPadThreshold = Math.max(padThreshold, min + numberToPad);
-      var maxThreshold = max - padThreshold;
-      var andNoHigherThanMax = Math.min(maxThreshold, noLowerThanPadThreshold);
-      return andNoHigherThanMax;
-    }
-  }
+function mix (themeScale, scaleAmount, fromColor) {
+  let luminosityDiffThreshold = 20; // minimum difference to keep between bg and fg
+  let minChroma = 25;
+
+  let startL = chroma(themeScale(0)).get('hcl.l');
+  let endL = chroma(themeScale(1)).get('hcl.l');
+  let minL = Math.min(startL, endL);
+  let maxL = Math.max(startL, endL);
+
+  luminosityDiffThreshold = Math.max(Math.abs(startL - endL) / 2, luminosityDiffThreshold);
 
   // Midpoint of luminosity between the two colors;
   let toMatchColor = chroma(themeScale(scaleAmount));
 
   let c = Math.max(
-    (chroma(themeScale(1)).get('hcl.c') + chroma(themeScale(0)).get('hcl.c') + toMatchColor.get('hcl.c')) / 3,
-    chromaPadThreshold
+    (
+      chroma(themeScale(0)).get('hcl.c') +
+      chroma(themeScale(1)).get('hcl.c') +
+      chroma(fromColor).get('hcl.c') +
+      toMatchColor.get('hcl.c')
+    ) / 4,
+    minChroma
   );
-
-  // 150 is the max luminosity
-  let padL = createPadFunc(luminosityPadThreshold, 0, 150);
-
-  // let luminosity = 70;
-  let midL = (chroma(themeScale(0)).get('hcl.l') + chroma(themeScale(1)).get('hcl.l')) / 2;
-
-  // let diffL = Math.abs(chroma.hcl(themeScale(0)).l - chroma.hcl(themeScale(1)).l) / 3;
+  // c = 40;
 
   let toMatchL = toMatchColor.get('hcl.l');
 
-  // Maximum difference
-  let maxDiffluminosity = toMatchL < midL ? padL(100) : padL(0);
+  // if (minL - luminosityDiffThreshold <= 0) {
+  if (toMatchL - luminosityDiffThreshold <= minL) {
+    // Mininal difference (prefer lighter)
+    var minDiffLuminosity = toMatchL > 100 - luminosityDiffThreshold
+      ? toMatchL - luminosityDiffThreshold
+      : toMatchL + luminosityDiffThreshold;
 
-  // Minimal difference
-  let minDiffLuminosity = padL(
-    toMatchL < midL ?
-      luminosityDiffThreshold + toMatchL
-      : toMatchL - luminosityDiffThreshold
-  );
-
-  // amount is 0 to 1
-  function mix (a, b, amount) {
-    return a*(1-amount) + b*amount;
-  }
-  let luminosity = mix(maxDiffluminosity, minDiffLuminosity, 0.5);
-
-  let colorDifference = luminosity - toMatchL;
-  if (Math.abs(colorDifference)  < luminosityDiffThreshold) {
-    luminosity = padL(
-      toMatchL < 50 ?
-        minDiffLuminosity + toMatchL
-        : toMatchL - minDiffLuminosity
-    );
-    return 'red';
+  } else {
+    // Minimal difference (prefer darker)
+    var minDiffLuminosity = toMatchL <= 0
+      ? toMatchL + luminosityDiffThreshold
+      : toMatchL - luminosityDiffThreshold;
   }
 
-  let color =  chroma.hcl(chroma(fromColor).get('hcl.h'), c, luminosity);
-  // if (!color.displayable()) return 'black';
+  let color =  chroma.hcl(chroma(fromColor).get('hcl.h'), c, minDiffLuminosity);
   return color;
 }
 

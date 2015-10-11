@@ -23,7 +23,7 @@ let colors = [
 class App extends Component {
   constructor(props) {
     super(props);
-    let themeName = 'terminal';
+    let themeName = 'sunset';
     let theme = themeColorScales[themeName];
     this.state = {
       theme: themeName,
@@ -131,7 +131,7 @@ class App extends Component {
         </Dropdown>
         { sizes.map(size => size/10).map(buttons) }
         <div style={{height: size(10)}} />
-        { sizesStiched.map(size => size/10).map(buttons) }
+        { /* sizesStiched.map(size => size/10).map(buttons) */ }
       </div>
     );
   }

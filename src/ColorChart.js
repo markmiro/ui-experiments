@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import d3 from 'd3-scale';
 import {size, tx, heading} from './Size.js';
+import mixer from './ColorMixer.js';
 import chroma from 'chroma-js';
 
 // H: 0-360
@@ -21,13 +22,9 @@ export class ColorChart extends Component {
     let startL = chroma(themeScale(0)).get('hcl.l');
     let endL = chroma(themeScale(1)).get('hcl.l');
     let scaleL = d3.linear().domain([0, 100]).range([h, 0]);
-    let colorAmount = 11;
+    let colorAmount = 20;
     let scaleColors = themeScale.colors(colorAmount);
-    // debugger;
-    let scaleColorsRotated = rotateArray(scaleColors);
     let x = d3.linear([0, colorAmount]).range([0, w/(colorAmount - 1)]);
-
-    // console.log(Math.round(startL), '\n', Math.round(endL));
 
     return (
       <svg width={w+pad*2} height={h+pad*2} style={{
@@ -68,23 +65,37 @@ export class ColorChart extends Component {
           />
 
           { /* start and end colors */ }
-          <line
-            x1={0}
-            y1={scaleL(startL)}
-            x2={w}
-            y2={scaleL(endL)}
-            stroke={themeScale(0.5)}
-            strokeWidth={2}
-          />
+          {
+            <line
+              x1={0}
+              y1={scaleL(startL)}
+              x2={w}
+              y2={scaleL(endL)}
+              stroke={themeScale(0.5)}
+              strokeWidth={2}
+            />
+          }
           {
             scaleColors.map((c, i) => (
               <circle
                 cx={x(i)}
                 cy={scaleL(chroma(c).get('hcl.l'))}
-                r={10}
+                r={5}
                 fill={c}
                 stroke={themeScale(0.5)}
                 strokeWidth={2}
+              />
+            ))
+          }
+          {
+            scaleColors.map((c, i) => (
+              <circle
+                cx={x(i)}
+                cy={scaleL(chroma(mixer.mix(themeScale, i / colorAmount, '#0088BF')).get('hcl.l'))}
+                r={10}
+                fill={mixer.mix(themeScale, i / colorAmount, '#0088BF')}
+                stroke={c}
+                strokeWidth={4}
               />
             ))
           }
