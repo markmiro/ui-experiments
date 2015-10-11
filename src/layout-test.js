@@ -5,6 +5,7 @@ import mixer from './ColorMixer.js';
 import {size, tx, heading} from './Size.js';
 import {Layout} from './Layout.js';
 import {Checkbox} from './Checkbox.js';
+import {Dropdown} from './Dropdown.js';
 import {Toggle} from './Toggle.js';
 import {Link} from './Link.js';
 
@@ -21,25 +22,27 @@ let colors = [
 class App extends Component {
   constructor(props) {
     super(props);
-    let theme = themeColorScales.mocha;
+    let themeName = 'terminal';
+    let theme = themeColorScales[themeName];
     this.state = {
-      invert: false,
+      theme: themeName,
+      invert: true,
       interpolator: theme.interpolator,
       startColor: theme.start,
       endColor: theme.end
     };
   }
-  _changeTheme (themeColorScale) {
+  _changeTheme (e) {
     var _this = this;
-    return function (e) {
-      e.preventDefault();
-      let theme = themeColorScales[themeColorScale];
-      this.setState({
-        interpolator: theme.interpolator,
-        startColor: theme.start,
-        endColor: theme.end
-      });
-    }
+    e.preventDefault();
+    console.log(e.target.value);
+    this.setState({theme: e.target.value});
+    let theme = themeColorScales[e.target.value];
+    this.setState({
+      interpolator: theme.interpolator,
+      startColor: theme.start,
+      endColor: theme.end
+    });
   }
   _handleChangeStartColor (e) {
     this.setState({startColor: e.target.value});
@@ -67,7 +70,6 @@ class App extends Component {
 
     var style = this.styler();
     var themeScale = this.colorer();
-    var invertedThemeScale = this.colorer({invert: true});
 
     let solidColoredButtonStyle = (color, bgScaleAmount) => {
       let middleColor = mixer.mix(themeScale, bgScaleAmount, color);
@@ -113,14 +115,16 @@ class App extends Component {
           depthScale={themeScale}
           colorDepth={0}
         />
-        {
-          Object.keys(themeColorScales).map((key) => {
-             let name = themeColorScales[key].name;
-             return <Link onClick={this._changeTheme(key).bind(this)}>{name}</Link>
-          })
-        }
+        <Dropdown onChange={this._changeTheme.bind(this)} value={this.state.theme}>
+          {
+            Object.keys(themeColorScales).map((key) => {
+               let name = themeColorScales[key].name;
+               return <option value={key}>{name}</option>
+            })
+          }
+        </Dropdown>
         { sizes.map(size => size/10).map(buttons) }
-        <div style={{height: size(20)}} />
+        <div style={{height: size(10)}} />
         { sizesStiched.map(size => size/10).map(buttons) }
       </div>
     );

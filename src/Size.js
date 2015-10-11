@@ -13,7 +13,7 @@ window.addEventListener('resize', function (e) {
   // console.log(e.target.innerWidth);
 });
 
-const scale = 12;
+const scale = 10;
 export function size(n) {
   return n * 0.5 * scale + 'px';
 }
