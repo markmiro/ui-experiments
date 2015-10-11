@@ -13,9 +13,9 @@ window.addEventListener('resize', function (e) {
   // console.log(e.target.innerWidth);
 });
 
-const scale = 1.5;
+const scale = 12;
 export function size(n) {
-  return n * 0.5 * scale + 'vmin';
+  return n * 0.5 * scale + 'px';
 }
 export function tx(n) {
   return ms(16 * scale, 1.25, n);

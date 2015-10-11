@@ -1,13 +1,5 @@
 import chroma from 'chroma-js';
 
-// let interpolators = {
-//   RGB: d3.interpolateRgb,
-//   HSL: d3.interpolateHsl,
-//   HCL: d3.interpolateHcl,
-//   HCL_LONG: d3.interpolateHclLong,
-//   CUBEHELIX: d3.interpolateCubehelix
-// };
-
 function interpolator(type) {
   switch (type) {
     case 'HCL': return (start, end) => chroma.scale([start, end])
@@ -20,14 +12,6 @@ function interpolator(type) {
   }
 }
 
-// let interpolators = {
-//   RGB: interpolator('RGB'),
-//   HSL: interpolator('HSL'),
-//   HCL: interpolator('HCL'),
-//   HCL_LONG: interpolator('HCL_LONG'),
-//   CUBEHELIX: interpolator('CUBEHELIX')
-// };
-
 // Returns a function that takes a value from 0 to 1
 function createInterpolator(interpolatorType, start, end) {
   if (!interpolatorType) return interpolator()(start, end);
@@ -35,7 +19,7 @@ function createInterpolator(interpolatorType, start, end) {
 }
 
 function createScale (start, end) {
-  return createInterpolator('HCL', start, end);
+  return createInterpolator(null , start, end);
 }
 
 function mix (themeScale, scaleAmount, fromColor) {

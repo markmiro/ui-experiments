@@ -58,7 +58,6 @@ const themeColorScales = {
   },
   visualAssault: {
     name: 'Visual Assault',
-    interpolator: 'HCL',
     start: '#FF32A8',
     end: '#00FA83'
   },

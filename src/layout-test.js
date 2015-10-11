@@ -91,113 +91,38 @@ class App extends Component {
     );
 
     return (
-      <Layout style={style.rootContainer}>
-        <Layout style={style.nav}>
-          <div>
-            <span style={{padding: size(3)}}>Lorem My Ipsum</span>
-            <Link href="http://google.com">Google</Link>
-            <Link>Recommended</Link>
-          </div>
-          <div style={{padding: size(3)}}>
-            Hi this is stuff here
-          </div>
-        </Layout>
-        <Layout style={{flexDirection: 'row'}}>
-          <div style={{
-            display: 'flex',
-            flexShrink: 0,
-            flexDirection: 'column'
-          }}>
-            <span style={{paddingLeft: size(3), paddingTop: size(3)}}>
-              Invert colors:
-            </span>
-            <Toggle
-              checked={this.state.invert}
-              onClick={this._handleClickInvert.bind(this)}
-              depthScale={themeScale}
-              colorDepth={0}
-            />
-            {
-              Object.keys(themeColorScales).map((key) => {
-                 let name = themeColorScales[key].name;
-                 return <Link onClick={this._changeTheme(key).bind(this)}>{name}</Link>
-              })
-            }
-          </div>
-          <div style={style.content}>
-            <span style={{color: themeScale(0.5)}}>About Us › Team › Engineering</span>
-            <h1 style={style.heading}>John Smith</h1>
-            <button style={style.btn()}>Cancel</button>
-            &nbsp;
-            <button style={style.btn({solid: true})}>Submit</button>
-            &nbsp;
-            <hr />
-            {
-              colors.map(color => (
-                <span>
-                  <button style={solidColoredButtonStyle(color, 1)}>Color</button>
-                  &nbsp;
-                </span>
-              ))
-            }
-            <hr />
-            <div style={{marginBottom: size(1)}}>
-              <span>Change color: </span>
-              <input
-                style={style.input}
-                type="color"
-                value={this.state.startColor}
-                onChange={this._handleChangeStartColor.bind(this)}
-              />
-              <input
-                style={style.input}
-                type="color"
-                value={this.state.endColor}
-                onChange={this._handleChangeEndColor.bind(this)}
-              />
-            </div>
-            <div style={style.innerNav}>
-              <Link>Search</Link>
-              <Link>Add URL</Link>
-              <Link>View Inbox</Link>
-              <Link>More...</Link>
-            </div>
-            <span style={{
-              display: 'block',
-              padding: size(3),
-              background: themeScale(0),
-              color: themeScale(0.5),
-            }}>
-              <button style={style.btn({solid: true, themeScale: invertedThemeScale})}>Submit</button>
-              &nbsp;
-              <button style={style.btn({themeScale: invertedThemeScale})}>Submit</button>
-              &nbsp;
-              <button style={style.btn({themeScale: invertedThemeScale})}>Submit</button>
-              <hr />
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </span>
-            {
-              sizes.map(size => <div style={{padding: 5, background: themeScale(size/10), color: themeScale(size/10 - 0.5)}}>{size}</div>)
-            }
-            &nbsp;
-            {
-              sizesStiched.map(size => <div style={{padding: 5, background: themeScale(size/10), color: themeScale(size/10 - 0.5)}}>{size}</div>)
-            }
-            &nbsp;
-            { sizes.map(size => <div style={{fontSize: heading(size)}}>{size}. Lorem Ipsum</div>) }
-            { sizes.map(size => <div style={{fontSize: tx(size)}}>{size}. Lorem Ipsum</div>) }
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-          </div>
-          <div style={{flexShrink: 0}}>
-            { sizes.map(size => size/10).map(buttons) }
-            <div style={{height: size(20)}} />
-            { /* sizesStiched.map(size => size/10).map(buttons) */ }
-          </div>
-        </Layout>
-        <div style={style.footer}>
-          Footer
-        </div>
-      </Layout>
+      <div style={style.rootContainer}>
+        <input
+          style={style.input}
+          type="color"
+          value={this.state.startColor}
+          onChange={this._handleChangeStartColor.bind(this)}
+        />
+        <input
+          style={style.input}
+          type="color"
+          value={this.state.endColor}
+          onChange={this._handleChangeEndColor.bind(this)}
+        />
+        <span style={{paddingLeft: size(3), paddingTop: size(3)}}>
+          Invert colors:
+        </span>
+        <Toggle
+          checked={this.state.invert}
+          onClick={this._handleClickInvert.bind(this)}
+          depthScale={themeScale}
+          colorDepth={0}
+        />
+        {
+          Object.keys(themeColorScales).map((key) => {
+             let name = themeColorScales[key].name;
+             return <Link onClick={this._changeTheme(key).bind(this)}>{name}</Link>
+          })
+        }
+        { sizes.map(size => size/10).map(buttons) }
+        <div style={{height: size(20)}} />
+        { sizesStiched.map(size => size/10).map(buttons) }
+      </div>
     );
   }
   colorer (opts = {invert: false}) {
@@ -219,35 +144,9 @@ class App extends Component {
     return {
       rootContainer: {
         height: '100%',
+        overflow: 'scroll',
         background: themeScale(1),
         color: themeScale(0.6)
-      },
-      nav: {
-        flexDirection: 'row',
-        background: themeScale(0),
-        color: themeScale(1)
-      },
-      content: {
-        background: themeScale(1),
-        color: themeScale(0.2),
-        padding: size(10)
-      },
-      heading: {
-        fontSize: heading(8),
-        fontWeight: 500,
-        paddingTop: heading(0.5),
-        paddingBottom: heading(1),
-        letterSpacing: size(-0.5)
-      },
-      innerNav: {
-        background: themeScale(0),
-        color: themeScale(0.8)
-      },
-      footer: {
-        flexShrink: 0,
-        background: themeScale(0.8),
-        color: themeScale(0.5),
-        padding: size(3)
       },
       input: {
         background: themeScale(0.9),
