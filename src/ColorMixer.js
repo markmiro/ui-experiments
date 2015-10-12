@@ -3,10 +3,12 @@ import chroma from 'chroma-js';
 function interpolator(type) {
   switch (type) {
     case 'HCL': return (start, end) => chroma.scale([start, end])
-      .mode('hcl');
+      .mode('hcl')
+      .correctLightness();
     case 'BEZIER':
     default: return (start, end) => chroma.bezier([start, end])
-      .scale();
+      .scale()
+      .correctLightness();
   }
 }
 
