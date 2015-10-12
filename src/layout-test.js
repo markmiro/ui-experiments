@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import ReactDOM from 'react-dom';
 
 import themeColorScales from './ThemeColorScales.js';
 import mixer from './ColorMixer.js';
@@ -192,4 +193,4 @@ class App extends Component {
   }
 }
 
-React.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));

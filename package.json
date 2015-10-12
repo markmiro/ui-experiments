@@ -54,7 +54,8 @@
     "d3-color": "^0.2.5",
     "d3-scale": "^0.1.1",
     "radium": "^0.13.8",
-    "react": "^0.13.0",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0",
     "react-motion": "^0.2.7",
     "reset": "^0.1.0",
     "underscore": "^1.8.3"

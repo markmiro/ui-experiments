@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import d3 from 'd3';
 // import { TetrisLayout } from './TetrisLayout';
 // var scale = d3.scale.category20();
@@ -48,9 +49,9 @@ class TetrisLayout extends React.Component {
       cols.push([]);
     }
     var currCol = 0;
-    console.log(cols);
+    // console.log(cols);
     for (var child of this.props.children) {
-      console.log(cols, currCol);
+      // console.log(cols, currCol);
       cols[currCol].push(child);
       currCol++;
       if (currCol % this.props.cols === 0) currCol = 0;
@@ -62,8 +63,8 @@ class TetrisLayout extends React.Component {
     // console.log(cols);
     return (
       <div style={style.row}>
-        {cols.map(col => (
-          <div style={style.col}>
+        {cols.map((col, i) => (
+          <div key={i} style={style.col}>
             {col}
           </div>
         ))}
@@ -77,10 +78,10 @@ class App extends React.Component {
     var range = Array.from(Array(total).keys());
     return (
       <TetrisLayout cols={30}>
-        {range.map(i => <Box i={i} />)}
+        {range.map(i => <Box key={i} i={i} />)}
       </TetrisLayout>
     );
   }
 }
 
-React.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));

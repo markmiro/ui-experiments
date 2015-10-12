@@ -1,6 +1,7 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
 import Radium from 'radium';
 import color from 'color';
-import React from 'react';
 import {vmin} from './Size';
 import {Fade} from './Fade';
 const {Spring} = require('react-motion');
@@ -20,7 +21,7 @@ export class ArticlePreview2 extends React.Component {
     window.removeEventListener('resize', this._handleResize.bind(this));
   }
   _handleResize(e) {
-    this.setState({contentWidth: React.findDOMNode(this.refs.content).offsetWidth});
+    this.setState({contentWidth: ReactDOM.findDOMNode(this.refs.content).offsetWidth});
   }
   _activate() {
     this.setState({ active: true});

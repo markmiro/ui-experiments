@@ -1,10 +1,11 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import color from 'color';
 import Radium from 'radium';
 
 export class Fade extends React.Component {
   componentDidMount() {
-    var reactId = React.findDOMNode(this.refs.gradient).getAttribute('data-reactid');
+    var reactId = ReactDOM.findDOMNode(this.refs.gradient).getAttribute('data-reactid');
     this.setState({ reactId: reactId + 'gradient' });
   }
   render() {

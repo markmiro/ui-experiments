@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import d3 from 'd3';
+import ReactDOM from 'react-dom';
+
 import {Layout} from './Layout';
 
 class Header extends Component {
@@ -31,7 +32,7 @@ class HeaderLayout extends Component {
     };
   }
   _handleScroll () {
-    let rootBoundingRect = React.findDOMNode(this).getBoundingClientRect();
+    let rootBoundingRect = ReactDOM.findDOMNode(this).getBoundingClientRect();
     let parentTop = rootBoundingRect.top;
     let i = 0;
     let scrollPosForHeader = [];
@@ -39,8 +40,8 @@ class HeaderLayout extends Component {
     let headerHeights = [];
     React.Children.forEach(this.props.children, (child) => {
       if (child.type === Header) {
-        let headerBlockBoundingRect = React.findDOMNode(this.refs['block'+i]).getBoundingClientRect();
-        let headerBoundingRect = React.findDOMNode(this.refs['header'+i]).getBoundingClientRect();
+        let headerBlockBoundingRect = ReactDOM.findDOMNode(this.refs['block'+i]).getBoundingClientRect();
+        let headerBoundingRect = ReactDOM.findDOMNode(this.refs['header'+i]).getBoundingClientRect();
         let scrollPos = headerBlockBoundingRect.top - parentTop;
         scrollPosForHeader[i] = scrollPos;
         headerHeights[i] = headerBoundingRect.height;
@@ -48,16 +49,16 @@ class HeaderLayout extends Component {
         i++;
       }
     });
-    let scrollTop = React.findDOMNode(this).scrollTop;
+    let scrollTop = ReactDOM.findDOMNode(this).scrollTop;
     this.setState({height: rootBoundingRect.height, scrollPosForHeader, headerHeights, headerContainerHeights});
   }
   componentDidMount() {
-    React.findDOMNode(this.refs.root).addEventListener('scroll', this._handleScroll.bind(this));
+    ReactDOM.findDOMNode(this.refs.root).addEventListener('scroll', this._handleScroll.bind(this));
     window.addEventListener('resize', this._handleScroll.bind(this));
     this._handleScroll();
   }
   componentWillUnmount() {
-    React.findDOMNode(this.refs.root).removeEventListener('scroll', this._handleScroll.bind(this));
+    ReactDOM.findDOMNode(this.refs.root).removeEventListener('scroll', this._handleScroll.bind(this));
   }
   _wrapHeader (reactElement, i) {
     let scrollPos = this.state.scrollPosForHeader[i];
@@ -208,4 +209,4 @@ class App extends Component {
   }
 }
 
-React.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
