@@ -9,7 +9,7 @@ import {Checkbox} from './Checkbox.js';
 import {Dropdown} from './Dropdown.js';
 import {Toggle} from './Toggle.js';
 import {Link} from './Link.js';
-import {ColorChart} from './ColorChart.js';
+import ColorChart from './ColorChart.js';
 
 let colors = [
   // 'black',
