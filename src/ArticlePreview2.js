@@ -125,7 +125,11 @@ export class ArticlePreview2 extends React.Component {
         marginRight: 'auto'
       },
       body: {
-        marginTop: this.props.img ? vmin(theme.contentMarginTop) : vmin(0),
+        marginTop: (
+          this.props.img
+          ? vmin(theme.contentMarginTop)
+          : vmin(0)
+        ),
         overflow: 'hidden',
         paddingRight: vmin(7),
         paddingLeft: vmin(7),

@@ -78,6 +78,7 @@ export class ColorChart extends Component {
           {
             scaleColors.map((c, i) => (
               <circle
+                key={i}
                 cx={x(i)}
                 cy={scaleL(chroma(c).get('hcl.l'))}
                 r={5}
@@ -90,6 +91,7 @@ export class ColorChart extends Component {
           {
             scaleColors.map((c, i) => (
               <circle
+                key={i + 'b'}
                 cx={x(i)}
                 cy={scaleL(chroma(mixer.mix(themeScale, i / colorAmount, '#0088BF')).get('hcl.l'))}
                 r={10}

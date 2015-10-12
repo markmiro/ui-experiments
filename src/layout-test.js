@@ -81,10 +81,10 @@ class App extends Component {
     };
 
     let buttons = depth => (
-      <div style={{background: themeScale(depth), padding: 10}}>
+      <div key={depth} style={{background: themeScale(depth), padding: 10}}>
       {
         colors.map(color =>
-          <span>
+          <span key={color}>
             <button style={solidColoredButtonStyle(color, depth)}>Color</button>
             &nbsp;
           </span>
@@ -125,7 +125,7 @@ class App extends Component {
           {
             Object.keys(themeColorScales).map((key) => {
                let name = themeColorScales[key].name;
-               return <option value={key}>{name}</option>
+               return <option key={key} value={key}>{name}</option>
             })
           }
         </Dropdown>

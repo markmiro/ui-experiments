@@ -43,6 +43,7 @@ export class Toggle extends Component {
         <span style={style.handle} />
         <input
           type="checkbox"
+          readOnly
           checked={this.props.checked}
           style={{display: 'none'}}
         />

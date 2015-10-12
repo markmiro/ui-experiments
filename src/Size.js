@@ -24,3 +24,6 @@ export function heading(n) {
   if (window.innerWidth < 600) return '16px';
   return ms(1 * scale, 1.25, n) + 'vmin';
 }
+export function vmin(n) {
+  return n + 'vmin';
+}
