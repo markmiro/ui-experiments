@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var express = require('express');
+var _ = require('ramda');
 var webpack = require('webpack');
 var config = require('./webpack.config');
 var template = fs.readFileSync('./template.html');
@@ -15,14 +16,18 @@ app.use(require('webpack-dev-middleware')(compiler, {
 
 app.use(require('webpack-hot-middleware')(compiler));
 
-app.get('*', function(req, res) {
-  var reqPath = req.path.slice(1); // Remove initial slash
-  if (!path.extname(reqPath)) {
-    if (reqPath === '') reqPath = 'index';
-    res.send(template.toString().replace('{bundleName}', reqPath));
-  } else {
-    res.sendFile(path.join(__dirname, reqPath));
-  }
+app.get('/base.css', function(req, res) {
+  res.sendFile(path.join(__dirname, req.path));
+});
+
+app.get(['/:bundle', '/'], function(req, res) {
+  var bundleName = req.params.bundle || 'index';
+  var isValidBundleName = _.contains(bundleName, _.keys(config.entry));
+  res.send(
+    isValidBundleName
+    ? template.toString().replace('{bundleName}', bundleName)
+    : 'Nope.'
+  );
 });
 
 app.listen(3000, 'localhost', function (err) {
