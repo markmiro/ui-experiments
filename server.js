@@ -1,7 +1,9 @@
+var fs = require('fs');
 var path = require('path');
 var express = require('express');
 var webpack = require('webpack');
 var config = require('./webpack.config');
+var template = fs.readFileSync('./template.html');
 
 var app = express();
 var compiler = webpack(config);
@@ -16,7 +18,8 @@ app.use(require('webpack-hot-middleware')(compiler));
 app.get('*', function(req, res) {
   var reqPath = req.path.slice(1); // Remove initial slash
   if (!path.extname(reqPath)) {
-    res.sendFile(path.join(__dirname, reqPath + '.html'));
+    if (reqPath === '') reqPath = 'index';
+    res.send(template.toString().replace('{bundleName}', reqPath));
   } else {
     res.sendFile(path.join(__dirname, reqPath));
   }
