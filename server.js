@@ -15,7 +15,11 @@ app.use(require('webpack-hot-middleware')(compiler));
 
 app.get('*', function(req, res) {
   var reqPath = req.path.slice(1); // Remove initial slash
-  res.sendFile(path.join(__dirname, reqPath + '.html'));
+  if (!path.extname(reqPath)) {
+    res.sendFile(path.join(__dirname, reqPath + '.html'));
+  } else {
+    res.sendFile(path.join(__dirname, reqPath));
+  }
 });
 
 app.listen(3000, 'localhost', function (err) {

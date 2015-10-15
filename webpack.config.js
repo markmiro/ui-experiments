@@ -1,26 +1,23 @@
+var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 
+var files = fs.readdirSync('./src/').filter(function (file) {
+  return path.extname(file) === '.js';
+});
+
+var entry = files.reduce(function (obj, file, index) {
+  var key = path.basename(file, '.js');
+  obj[key] = [
+    'webpack-hot-middleware/client',
+    './src/' + key
+  ];
+  return obj;
+}, {});
+
 module.exports = {
   devtool: 'eval',
-  entry: {
-    index: [
-      'webpack-hot-middleware/client',
-      './src/index'
-    ],
-    tetris: [
-      'webpack-hot-middleware/client',
-      './src/tetris'
-    ],
-    layouts: [
-      'webpack-hot-middleware/client',
-      './src/layouts'
-    ],
-    'layout-test': [
-      'webpack-hot-middleware/client',
-      './src/layout-test'
-    ]
-  },
+  entry: entry,
   output: {
     path: path.join(__dirname, 'dist'),
     filename: '[name].bundle.js',

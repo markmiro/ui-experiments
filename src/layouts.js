@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
-import {Layout} from './Layout';
+import {Layout} from './modules/Layout';
 
 class Header extends Component {
   render () {

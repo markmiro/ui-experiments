@@ -1,15 +1,15 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
-import themeColorScales from './ThemeColorScales.js';
-import mixer from './ColorMixer.js';
-import {size, tx, heading} from './Size.js';
-import {Layout} from './Layout.js';
-import {Checkbox} from './Checkbox.js';
-import {Dropdown} from './Dropdown.js';
-import {Toggle} from './Toggle.js';
-import {Link} from './Link.js';
-import ColorChart from './ColorChart.js';
+import themeColorScales from './modules/ThemeColorScales';
+import mixer from './modules/ColorMixer';
+import {size, tx, heading} from './modules/Size';
+import {Layout} from './modules/Layout';
+import {Checkbox} from './modules/Checkbox';
+import {Dropdown} from './modules/Dropdown';
+import {Toggle} from './modules/Toggle';
+import {Link} from './modules/Link';
+import ColorChart from './modules/ColorChart';
 
 let colors = [
   // 'black',
