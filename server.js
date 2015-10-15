@@ -13,20 +13,9 @@ app.use(require('webpack-dev-middleware')(compiler, {
 
 app.use(require('webpack-hot-middleware')(compiler));
 
-app.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/tetris', function(req, res) {
-  res.sendFile(path.join(__dirname, 'tetris.html'));
-});
-
-app.get('/layouts', function(req, res) {
-  res.sendFile(path.join(__dirname, 'layouts.html'));
-});
-
-app.get('/layout-test', function(req, res) {
-  res.sendFile(path.join(__dirname, 'layout-test.html'));
+app.get('*', function(req, res) {
+  var reqPath = req.path.slice(1); // Remove initial slash
+  res.sendFile(path.join(__dirname, reqPath + '.html'));
 });
 
 app.listen(3000, 'localhost', function (err) {
