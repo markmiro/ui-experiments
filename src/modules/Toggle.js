@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
-import {size, tx} from './Size.js';
+// import {size, tx} zie './Size.js';
+import ms from './ms';
 
 export class Toggle extends Component {
   render () {
-    let height = size(1);
-    let handleSize = size(4);
+    let handleSize = ms.base(14);
 
     let style = {
       handle: {
         transitionProperty: 'left',
         transitionDuration: '0.2s',
         borderStyle: 'solid',
-        borderWidth: size(0.5),
+        borderWidth: ms.border(3),
         borderColor:this.props.depthScale(this.props.colorDepth),
         background: this.props.depthScale(1-this.props.colorDepth),
         position: 'absolute',
@@ -21,17 +21,17 @@ export class Toggle extends Component {
         transform: 'translate(-50%, -50%)',
         width: handleSize,
         height: handleSize,
-        borderRadius: size(14),
+        borderRadius: 999,
         cursor: 'pointer'
       },
       track: {
         display: 'inline-block',
         borderRadius: 999,
         background: this.props.depthScale(this.props.colorDepth+0.6),
-        height: size(0.5),
+        height: ms.border(3),
         verticalAlign: 'middle',
         position: 'relative',
-        width: size(8),
+        width: ms.base(16),
         marginLeft: handleSize,
         marginRight: handleSize,
         marginTop: 20,

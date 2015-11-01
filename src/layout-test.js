@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 
 import themeColorScales from './modules/ThemeColorScales';
 import mixer from './modules/ColorMixer';
-import {size, tx, heading} from './modules/Size';
+// import {size, tx, heading} from './modules/Size';
+import ms from './modules/ms';
 import {Layout} from './modules/Layout';
 import {Checkbox} from './modules/Checkbox';
 import {Dropdown} from './modules/Dropdown';
@@ -113,7 +114,7 @@ class App extends Component {
           value={this.state.endColor}
           onChange={this._handleChangeEndColor.bind(this)}
         />
-        <span style={{paddingLeft: size(3), paddingTop: size(3)}}>
+      <span style={{paddingLeft: ms.spacing(3), paddingTop: ms.spacing(3)}}>
           Invert colors:
         </span>
         <Toggle
@@ -131,7 +132,7 @@ class App extends Component {
           }
         </Dropdown>
         { sizes.map(size => size/10).map(buttons) }
-        <div style={{height: size(10)}} />
+        <div style={{height: ms.spacing(10)}} />
         { /* sizesStiched.map(size => size/10).map(buttons) */ }
       </div>
     );
@@ -165,7 +166,7 @@ class App extends Component {
         border: 'none',
         boxShadow: 'none',
         fontSize: 16,
-        marginRight: size(2),
+        marginRight: ms.spacing(2),
         outlineColor: themeScale(0.5)
       },
       btn: (opts) => {
@@ -176,17 +177,16 @@ class App extends Component {
           background: scale(opts.solid ? 0 : 1),
           borderColor: scale(0),
           borderStyle: 'solid',
-          borderWidth: size(0.5),
+          borderWidth: ms.border(1),
           fontSize: '100%',
-          paddingLeft: size(1.5),
-          paddingRight: size(1.5),
-          paddingTop: size(1),
-          paddingBottom: size(1),
+          paddingLeft: ms.spacing(0),
+          paddingRight: ms.spacing(0),
+          paddingTop: ms.spacing(0),
+          paddingBottom: ms.spacing(0),
           cursor: 'pointer',
           fontWeight: 500,
           textTransform: 'uppercase',
           outlineColor: scale(0.5),
-          lineHeight: size(3)
         }
       }
     };

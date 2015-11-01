@@ -1,10 +1,11 @@
+import R from 'ramda';
 // export function vmin(size) {
 //   return `${size}vmin`;
 // }
 
 // Modular scale function for sizing text
 export function ms(base, ratio, value) {
-  return (Math.pow(ratio, value) * base);
+  return (base * Math.pow(ratio, value));
 }
 
 var Sizer = {};
@@ -13,17 +14,41 @@ window.addEventListener('resize', function (e) {
   // console.log(e.target.innerWidth);
 });
 
-const scale = 10;
+const base = 1;
+const scaleRatio = 1.25;
 export function size(n) {
-  return n * 0.5 * scale + 'px';
+  // If we're using this for padding we don't want 0 to resolve to any non-zero value
+  if (n === 0) return 0;
+  // if (n === 1) return 1;
+  // if (n === 2) return 2;
+  // return ms(8 * scale, 1.25, n - 1);
+  // Subtract 1 so size(1) is the start size (scale)
+  return ms(base, scaleRatio, n - 1);
 }
 export function tx(n) {
-  return ms(16 * scale, 1.25, n);
+  return ms(base, scaleRatio, n - 1);
+  // return ms(16 * scale, scaleRatio, n);
 }
 export function heading(n) {
-  if (window.innerWidth < 600) return '16px';
-  return ms(1 * scale, 1.25, n) + 'vmin';
+  // if (window.innerWidth < 600) return '16px';
+  return ms(tx(2) * base, scaleRatio, n);
 }
 export function vmin(n) {
   return n + 'vmin';
+}
+
+let _ms = R.curry(ms);
+export function modularScale (ratio) {
+  // let savedI = 0;
+  // function msFunc (i) {
+  //   savedI = i;
+  //   return Math.pow(ratio, i);
+  // }
+  // msFunc.offset = function (offsetI) {
+  //   return offsetI => msFunc(offsetI + savedI);
+  // };
+
+  let bla =  _ms(base, ratio);
+  bla.offset = (i) => (j) => bla(i + j);
+  return bla;
 }

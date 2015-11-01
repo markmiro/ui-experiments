@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import d3 from 'd3-scale';
-import {size, tx, heading} from './Size.js';
+import ms from './ms';
 import mixer from './ColorMixer.js';
 import chroma from 'chroma-js';
 
@@ -26,7 +26,7 @@ export default function ColorChart (props) {
 
   return (
     <svg width={w+pad*2} height={h+pad*2} style={{
-      margin: size(3),
+      margin: ms.spacing(3),
       background: themeScale(0.25),
       display: 'block'
     }}>
