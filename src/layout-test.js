@@ -11,16 +11,8 @@ import {Dropdown} from './modules/Dropdown';
 import {Toggle} from './modules/Toggle';
 import {Link} from './modules/Link';
 import ColorChart from './modules/ColorChart';
-
-let colors = [
-  // 'black',
-  // 'gray',
-  // 'white',
-  '#0088BF',
-  '#C40233',
-  '#00A368',
-  '#FFD300'
-];
+import ChromaChart from './modules/ChromaChart';
+import colors from './modules/statusColors';
 
 class App extends Component {
   constructor(props) {
@@ -102,8 +94,43 @@ class App extends Component {
           startColor={this.state.startColor}
           endColor={this.state.endColor}
         />
+      <ChromaChart
+          themeScale={themeScale}
+          startColor={this.state.startColor}
+          endColor={this.state.endColor}
+        />
+        {
+          // <ColorChart
+          //   themeScale={mixer.createScale('white', 'black')}
+          //   startColor={this.state.startColor}
+          //   endColor={this.state.endColor}
+          // />
+          // <ColorChart
+          //   themeScale={mixer.createScale('gray', 'black')}
+          //   startColor={this.state.startColor}
+          //   endColor={this.state.endColor}
+          // />
+          // <ColorChart
+          //   themeScale={mixer.createScale('white', 'gray')}
+          //   startColor={this.state.startColor}
+          //   endColor={this.state.endColor}
+          // />
+          // <ColorChart
+          //   themeScale={mixer.createScale('lightGray', 'gray')}
+          //   startColor={this.state.startColor}
+          //   endColor={this.state.endColor}
+          // />
+          // <ColorChart
+          //   themeScale={mixer.createScale('#444', 'black')}
+          //   startColor={this.state.startColor}
+          //   endColor={this.state.endColor}
+          // />
+        }
         <input
-          style={style.input}
+          style={{
+            ...style.input,
+            marginLeft: ms.spacing(3)
+          }}
           type="color"
           value={this.state.startColor}
           onChange={this._handleChangeStartColor.bind(this)}
