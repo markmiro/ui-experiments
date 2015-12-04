@@ -4,6 +4,16 @@ const themeColorScales = {
     start:  '#010101',
     end: '#fefefe'
   },
+  bwLight: {
+    name: 'Grayscale Light',
+    start:  '#888888',
+    end: '#fefefe'
+  },
+  bwDark: {
+    name: 'Grayscale Dark',
+    start:  '#010101',
+    end: '#888888'
+  },
   navy: {
     name: 'Navy',
     start: 'black',

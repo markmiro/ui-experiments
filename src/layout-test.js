@@ -17,7 +17,7 @@ import colors from './modules/statusColors';
 class App extends Component {
   constructor(props) {
     super(props);
-    let themeName = 'sunset';
+    let themeName = this.props.theme || 'sunset';
     let theme = themeColorScales[themeName];
     this.state = {
       theme: themeName,
@@ -94,12 +94,12 @@ class App extends Component {
           startColor={this.state.startColor}
           endColor={this.state.endColor}
         />
-      <ChromaChart
-          themeScale={themeScale}
-          startColor={this.state.startColor}
-          endColor={this.state.endColor}
-        />
         {
+          <ChromaChart
+            themeScale={themeScale}
+            startColor={this.state.startColor}
+            endColor={this.state.endColor}
+          />
           // <ColorChart
           //   themeScale={mixer.createScale('white', 'black')}
           //   startColor={this.state.startColor}
@@ -182,8 +182,9 @@ class App extends Component {
     var themeScale = this.colorer();
     return {
       rootContainer: {
-        height: '100%',
-        overflow: 'scroll',
+        display: 'inline-block',
+        // height: '100%',
+        // overflow: 'scroll',
         background: themeScale(1),
         color: themeScale(0.6)
       },
@@ -220,4 +221,16 @@ class App extends Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render((
+  <div style={{
+    height: '100%',
+    overflow: 'scroll'
+  }}>
+    <App theme="bw" />
+    <App theme="bwLight" />
+    <App theme="bwDark" />
+    <App theme="rose" />
+    <App theme="mocha" />
+    <App theme="visualAssault" />
+  </div>
+), document.getElementById('root'));

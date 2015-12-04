@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
 import d3 from 'd3-scale';
-import ms from './ms';
-import mixer from './ColorMixer.js';
 import chroma from 'chroma-js';
+
+import ms from './ms';
+import mixer from './ColorMixer';
+import statusColors from './statusColors';
 
 // H: 0-360
 // C: (depends)
@@ -89,9 +91,9 @@ export default function ColorChart (props) {
             <circle
               key={i + 'b'}
               cx={x(i)}
-              cy={scaleL(chroma(mixer.mix(themeScale, i / colorAmount, '#0088BF')).get('hcl.l'))}
+              cy={scaleL(chroma(mixer.mix(themeScale, i / colorAmount, statusColors[0])).get('hcl.l'))}
               r={10}
-              fill={mixer.mix(themeScale, i / colorAmount, '#0088BF')}
+              fill={mixer.mix(themeScale, i / colorAmount, statusColors[0])}
               stroke={c}
               strokeWidth={4}
             />
