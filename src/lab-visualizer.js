@@ -12,15 +12,9 @@ window.scale = scale;
 window.R = R;
 window.chroma = chroma;
 
-// var App = props => (
-//   <div style={{padding: ms.spacing(0)}}>
-//     Hello
-//   </div>
-// );
-
 const w = 300;
 const h = 300;
-const layers = 30;
+const layers = 25;
 
 var cursorX;
 var cursorY;
@@ -42,6 +36,7 @@ let App = React.createClass({
         // overflow:'scroll',
         width: '100%',
         height: '100%',
+        perspective: '1000px',
         // background: '#000',
         // display: 'flex',
         // flexDirection: 'column',
@@ -55,7 +50,6 @@ let App = React.createClass({
           transformStyle: 'preserve-3d',
           position: 'relative',
           transform: `translateX(0%) rotateX(${this.state.angle}deg) rotateZ(${this.state.rotation}deg)`,
-          // perspective: '1000px',
           // perspectiveOrigin: '0% 50%',
         }}>
           {
@@ -71,7 +65,7 @@ let App = React.createClass({
                   left: '50%',
                   display: 'block',
                   position: 'absolute',
-                  transform: `translateX(-50%) translateY(-50%) translateZ(${(layer - layers/2)*20 }px) scale(1)`,
+                  transform: `translateX(-50%) translateY(-50%) translateZ(${(layer - layers/2)*20 }px) scale(1.5)`,
                 }}
               />
             )
@@ -89,13 +83,18 @@ let xToA = scale.linear().range([-100, 100]).domain([0, w]);
 // b in lab color
 let yToB = scale.linear().range([-100, 100]).domain([0, h]);
 
-// x in xyz color
-let layerToZ = scale.linear().range([0, 150]).domain([layers, 0]);
-// a in xyz color
-let xToX = scale.linear().range([0, 1]).domain([0, w]);
-// b in xyz color
-let yToY = scale.linear().range([0, 1]).domain([0, h]);
+// l in hcl color
+// let layerToL = scale.linear().range([0, 150]).domain([layers, 0]);
+// c in hcl color
+let xToC = scale.linear().range([0, 150]).domain([0, w]);
+// h in hcl color
+let yToH = scale.linear().range([0, 360]).domain([0, h]);
 
+function xyToRadiusAngle (x, y) {
+  let radius = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  let angle = Math.atan2(y, x);
+  return { radius, angle };
+}
 
 function render () {
   ReactDOM.render(<App />, document.getElementById('root'));
@@ -112,13 +111,22 @@ function render () {
         var i = 0;
         for (var y = 0; y < h; y++) {
           for (var x = 0; x < w; x++) {
-            var color = d3.lab(layerToL(layer), xToA(x), yToB(y)).rgb();
-            if (color.displayable()) {
-              data[0 + i * 4] = color.r;
-              data[1 + i * 4] = color.g;
-              data[2 + i * 4] = color.b;
-              data[3 + i * 4] = 255;
-            }
+            let {radius, angle} = xyToRadiusAngle(x - w / 2, y - h / 2);
+            let angleDegrees = angle * (180 / Math.PI) + 180; // Add 180 so range is between 0 and 360, though it works without it
+            // let color = {r: 0, g: 0, b: 0};
+            // if (radius < 100) {
+            //   color = {r: 255, g: 0, b: 0};
+            // }
+            // let color = d3.hcl(yToH(y), xToC(x), layerToL(layer)).rgb();
+            let color = d3.hcl(angleDegrees, radius * 0.7, layerToL(layer)).rgb();
+            // let color = d3.lab(layerToL(layer), xToA(x), yToB(y)).rgb();
+            // let color2 = d3.lab(layerToL(layer), xToA(x), yToB(y)).rgb();
+            data[0 + i * 4] = color.r;
+            data[1 + i * 4] = color.g;
+            data[2 + i * 4] = color.b;
+            // data[3 + i * 4] = color.displayable() ? 255 : 2;
+            data[3 + i * 4] = (color.displayable() && (angleDegrees > 45)) ? 255 : 2;
+            // data[3 + i * 4] = color.displayable() ? 255 : (color2.displayable() ? 20 : 0);
             i++;
           }
         }
