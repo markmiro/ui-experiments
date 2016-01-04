@@ -44,15 +44,9 @@ const themeColorScales = {
   },
   mocha: {
     name: 'Mocha',
-    interpolator: 'BEZIER',
+    interpolator: 'LAB',
     start: '#4d2f34',
     end:  '#f2f0e7'
-  },
-  lime: {
-    name: 'Lime',
-    interpolator: 'HCL',
-    start: '#282c9c',
-    end:  '#f2f19c'
   },
   sunset: {
     name: 'Sunset',
