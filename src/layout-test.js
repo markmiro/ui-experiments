@@ -158,6 +158,8 @@ class App extends Component {
             })
           }
         </Dropdown>
+        &nbsp;
+        {this.state.interpolator || 'LAB'}
         { sizes.map(size => size/10).map(buttons) }
         <div style={{height: ms.spacing(10)}} />
         { /* sizesStiched.map(size => size/10).map(buttons) */ }
