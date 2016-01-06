@@ -1,6 +1,6 @@
 import chroma from 'chroma-js';
 // export default [
-//   // 'black',
+//   'black',
 //   // 'gray',
 //   // 'white',
 //   '#0088BF',

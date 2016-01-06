@@ -114,7 +114,9 @@ function mix (themeScale, scaleAmount, fromColor) {
 
   let huslStartSaturation = husl.fromHex(chroma(themeScale(0)).hex())[1];
   let huslEndSaturation = husl.fromHex(chroma(themeScale(1)).hex())[1];
-  let averageSaturation = (huslStartSaturation + huslEndSaturation)/2;
+  let averageSaturation = (chroma(themeScale(0)).get('hcl.c') + chroma(themeScale(1)).get('hcl.c')) / 2;
+  let minSaturation = Math.min(chroma(themeScale(0)).get('hcl.c'), chroma(themeScale(1)).get('hcl.c'));
+  let oppositeSaturation = chroma(themeScale(1 - scaleAmount)).get('hcl.c');
   // let huslToMatchSaturation = averageSaturation;
   // let huslToMatchSaturation = husl.fromHex(chroma(toMatchColor).hex())[1];
   let huslToMatchSaturation = husl.fromHex(chroma(themeScale(1 - scaleAmount)).hex())[1];
@@ -142,7 +144,7 @@ function mix (themeScale, scaleAmount, fromColor) {
   let luminosity = brokenStraightAcross * (1 - Math.abs(scaleAmount - 0.5)) + averageL * (Math.abs(scaleAmount - 0.5));
 
   // (euclidian distance between the start and end color) * (some deviance ratio)
-  let relativeSaturation = Math.max(huslToMatchSaturation * (maxL - minL) / 100, minChroma);
+  let relativeSaturation = Math.max(huslToMatchSaturation * (maxL - minL) / 100, oppositeSaturation * .5, minChroma);
   // let relativeSaturation = (husl.fromHex(chroma(themeScale(0)).hex())[1] + husl.fromHex(chroma(themeScale(1)).hex())[1])/2;
   // let relativeSaturation = averageL;
   // let relativeSaturation = 0;
@@ -172,9 +174,8 @@ module.exports = {
 
 
 // TODO:
-// * Fix saturation of status colors not keeping up with saturation of color scale. This is probably due to using deltaE, which doesn't give us a good idea of how much "punch" the overlaying status color should have. We can't change it to weight the saturation to the saturation of the current theme color, but maybe we can do mix the two. Maybe try ignoring brightness in the calculation
+// * Fix
 
-// * Fix issue with status colors overlaying white or black having too little contrast
 // * Allow picking a minimum allowed distance (in brightness) for black and white
 // * Allow picking setting for allowing status colors to deviate in brightness either towards the theme scale or away from it.
 // * Allow user to pick how many discrete steps they will allow for the status colors to vary across based on the theme scale
