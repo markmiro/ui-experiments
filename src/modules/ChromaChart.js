@@ -79,7 +79,7 @@ export default function ChromaChart (props) {
               key={i}
               cx={x(i)}
               cy={scaleC(chroma(c).get('hcl.c'))}
-              r={3}
+              r={10}
               fill={c}
               stroke={themeScale(0.5)}
               strokeWidth={2}

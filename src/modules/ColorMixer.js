@@ -36,8 +36,10 @@ function createScale (start, end) {
 // }
 
 function mix (themeScale, scaleAmount, fromColor) {
-  let luminosityDiffThreshold = 10; // minimum difference to keep between bg and fg
-  // let minChroma = 25;
+  let maxChroma = .99;
+  let themeTaint = .1;
+  let luminosityDiffThreshold = 0; // minimum difference to keep between bg and fg
+  let minChroma = 30;
 
   let startL = chroma(themeScale(0)).get('hcl.l');
   let endL = chroma(themeScale(1)).get('hcl.l');
@@ -61,28 +63,29 @@ function mix (themeScale, scaleAmount, fromColor) {
   // let c = 140 - chroma(themeScale(1 - scaleAmount)).get('hcl.c');
   // let c = 0;
 
-  // let averageL = (startL + endL) / 2;
-  // let toMatchL = toMatchColor.get('hcl.l');
-  let brokenStraightAcross = Math.max(Math.min(
-    Math.abs(toMatchColor.get('hcl.l') - startL) > Math.abs(toMatchColor.get('hcl.l') - endL) ? chroma(themeScale(0.1)).get('hcl.l') : chroma(themeScale(0.9)).get('hcl.l')
-  , 80), 30);
-  // let oppositeL = Math.max(Math.min(startL * scaleAmount + endL * (1 - scaleAmount), 80), 20);
+  let averageL = (startL + endL) / 2;
+  let toMatchL = toMatchColor.get('hcl.l');
+  // let toMatchL = Math.max(Math.min(toMatchColor.get('hcl.l'), 80), 30);
+  let lDiff = (maxL - minL) / 100 / 2 * 0.7;
+  let brokenStraightAcross =
+    Math.abs(toMatchL - startL) > Math.abs(toMatchL - endL) ? chroma(themeScale(lDiff)).get('hcl.l') : chroma(themeScale(1 - lDiff)).get('hcl.l')
+  let oppositeL = Math.max(Math.min(startL * scaleAmount + endL * (1 - scaleAmount), 80), 20);
 
   // if (minL - luminosityDiffThreshold <= 0) {
-  // if (toMatchL - luminosityDiffThreshold <= minL) {
-  //   // Mininal difference (prefer lighter)
-  //   var minDiffLuminosity = toMatchL > 100 - luminosityDiffThreshold
-  //     ? toMatchL - luminosityDiffThreshold
-  //     : toMatchL + luminosityDiffThreshold;
-  //
-  // } else {
-  //   // Minimal difference (prefer darker)
-  //   var minDiffLuminosity = toMatchL <= 0
-  //     ? toMatchL + luminosityDiffThreshold
-  //     : toMatchL - luminosityDiffThreshold;
-  // }
+  if (toMatchL - luminosityDiffThreshold <= minL) {
+    // Mininal difference (prefer lighter)
+    var minDiffLuminosity = toMatchL > 100 - luminosityDiffThreshold
+      ? toMatchL - luminosityDiffThreshold
+      : toMatchL + luminosityDiffThreshold;
 
-  let saturation = (startL + endL) / 5;
+  } else {
+    // Minimal difference (prefer darker)
+    var minDiffLuminosity = toMatchL <= 0
+      ? toMatchL + luminosityDiffThreshold
+      : toMatchL - luminosityDiffThreshold;
+  }
+
+  // let saturation = (startL + endL) / 5;
 
 
   let startColorLAB = chroma(themeScale(0)).lab();
@@ -108,32 +111,57 @@ function mix (themeScale, scaleAmount, fromColor) {
   //   deltaE / 100,
   //   0.6
   // );
-  let huslToMatchSaturation = Math.max(
-    husl.fromHex(chroma(themeScale(0)).hex())[1] / 100,
-    husl.fromHex(chroma(themeScale(1)).hex())[1] / 100,
-    deltaE / 100
-  );
 
+  let huslStartSaturation = husl.fromHex(chroma(themeScale(0)).hex())[1];
+  let huslEndSaturation = husl.fromHex(chroma(themeScale(1)).hex())[1];
+  let averageSaturation = (huslStartSaturation + huslEndSaturation)/2;
+  // let huslToMatchSaturation = averageSaturation;
+  // let huslToMatchSaturation = husl.fromHex(chroma(toMatchColor).hex())[1];
+  let huslToMatchSaturation = husl.fromHex(chroma(themeScale(1 - scaleAmount)).hex())[1];
+
+  // let huslToMatchSaturation = Math.max(
+  //   husl.fromHex(chroma(themeScale(0.5)).hex())[1], // saturation
+  //   deltaE
+  // );
+
+  // let huslToMatchSaturation =
+  //   .5 * husl.fromHex(chroma(themeScale(.5)).hex())[1] +  // saturation
+  //   .5 * deltaE;
+
+  // Opposite luminosity
+  // let luminosity = oppositeL;
+  // Same distance from scale at all points
+  // let luminosity = minDiffLuminosity;
   // Connected ends, straight across
   // let luminosity = averageL;
   // Connected ends, but disconnected center
   // let luminosity = minDiffLuminosity * (1 - Math.abs(scaleAmount - 0.5)) + averageL * (Math.abs(scaleAmount - 0.5));
   // linear broken feel
-  let luminosity = brokenStraightAcross;
+  // let luminosity = brokenStraightAcross;
+  // linear broken feel, but less disconnected ends
+  let luminosity = brokenStraightAcross * (1 - Math.abs(scaleAmount - 0.5)) + averageL * (Math.abs(scaleAmount - 0.5));
 
   // (euclidian distance between the start and end color) * (some deviance ratio)
-  let relativeSaturation = deltaE * huslToMatchSaturation;
+  let relativeSaturation = Math.max(huslToMatchSaturation * (maxL - minL) / 100, minChroma);
+  // let relativeSaturation = (husl.fromHex(chroma(themeScale(0)).hex())[1] + husl.fromHex(chroma(themeScale(1)).hex())[1])/2;
+  // let relativeSaturation = averageL;
   // let relativeSaturation = 0;
   // let relativeSaturation = (husl.fromRGB(chroma(themeScale(0)).rgb())[1] + husl.fromRGB(chroma(themeScale(1)).rgb())[1]) / 2;
 
-  let lch = husl._conv.husl.lch([chroma(fromColor).get('hcl.h'), relativeSaturation, luminosity]);
-  let color = chroma.lch(lch[0], lch[1], lch[2]).hex();
+  let lch = husl._conv.husl.lch([chroma(fromColor).get('hcl.h'), relativeSaturation * maxChroma, luminosity]);
+  let color = chroma.lch(lch[0], lch[1], lch[2]);
   // let color =  chroma.hcl(chroma(fromColor).get('hcl.h'), c, luminosity);
 
   // return chroma.mix(toMatchColor, color, 0.8, 'lab').set('lab.l', luminosity);
-  let toMatchColorOpposite = chroma(themeScale(1 - scaleAmount));
-  let toMatchColorMiddle = chroma(themeScale(0.5));
-  return chroma.mix(toMatchColorMiddle, color, 0.75, 'lab');
+  // let toMatchColorOpposite = chroma(themeScale(1 - scaleAmount));
+  // let toMatchColorMiddle = chroma(themeScale(0.5));
+  // let toMatchColorBG = chroma.mix(color, toMatchColorOpposite, themeTaint, 'lab');
+  return color;
+  // return chroma.mix(toMatchColorMiddle, color, 1 - deltaE / 100, 'lab');
+  // return chroma.mix(toMatchColorMiddle, color, averageSaturation / 100, 'lab');
+  // return chroma.mix(toMatchColorMiddle, color, (deltaE / 100), 'lab');
+  // return chroma.mix(toMatchColorMiddle, color, (deltaE / 100) * Math.abs(0.5 - scaleAmount)*2 * .7 + .3, 'lab');
+  // return chroma.mix(toMatchColorMiddle, color, ((1 - deltaE / 100) * .7 + .3) * Math.abs(0.5 - scaleAmount)*2 * .7 + .3, 'lab');
 }
 
 module.exports = {
