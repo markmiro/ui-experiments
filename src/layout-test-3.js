@@ -27,7 +27,7 @@ let opts = {
 // let g = Gradient.create('white', 'black', opts).invert();
 // let g = Gradient.create('#D56B83', '#E1FADD', opts).invert();
 // let g = Gradient.create('#ddd', '#555', opts);
-let g = Gradient.create('#fff', '#525865', opts);
+// let g = Gradient.create('#fff', '#525865', opts);
 // let g = Gradient.create('#FF9263', '#206652', opts).invert();
 // let g = Gradient.create('#fffebe', '#535f6e', opts).invert();
 // let g = Gradient.create('#4d2f34', '#f2e7b3', opts);
@@ -146,6 +146,19 @@ let Styler = props => (
       >
         Invert Colors
       </Checkbox>
+      <input
+        style={{
+          marginLeft: ms.spacing(3)
+        }}
+        type="color"
+        value={props.firstColor}
+        onChange={e => props.onChangeFirstColor(e.target.value)}
+      />
+      <input
+        type="color"
+        value={props.lastColor}
+        onChange={e => props.onChangeLastColor(e.target.value)}
+      />
       <HR g={props.g} />
       <p style={{color: props.g.base(0.5), fontSize: ms.tx(-1)}}>
         The hard part about playing with different color schemes for user interfaces is that you can't just change a single color. You often have to change all of them to avoid color clashes.
@@ -453,14 +466,18 @@ let AirbnbListing = props => (
 
 let App = React.createClass({
   getInitialState () {
-    return {isInverted: false};
+    return {
+      firstColor: '#fff',
+      lastColor: '#525865',
+      isInverted: false
+    };
   },
   _handleChangeInverted (inverted) {
     this.setState({isInverted: inverted});
     this.forceUpdate();
   },
   _g () {
-    // FIXME: getting global...
+    let g = Gradient.create(this.state.firstColor, this.state.lastColor, opts);
     return this.state.isInverted ? g.invert() : g;
   },
   render () {
@@ -473,7 +490,15 @@ let App = React.createClass({
         lineHeight: 1.25,
         flexWrap: 'wrap'
       }}>
-        <Styler g={g} invert={this.state.isInverted} onInvert={this._handleChangeInverted} />
+        <Styler
+          g={g}
+          invert={this.state.isInverted}
+          onInvert={this._handleChangeInverted}
+          onChangeFirstColor={color => this.setState({firstColor: color})}
+          firstColor={this.state.firstColor}
+          onChangeLastColor={color => this.setState({lastColor: color})}
+          lastColor={this.state.lastColor}
+        />
         <div style={{
             color: g.base(1),
             backgroundColor: g.base(0),
