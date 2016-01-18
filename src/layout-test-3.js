@@ -34,27 +34,27 @@ let g = Gradient.create('#fff', '#525865', opts);
 // let g = Gradient.create('#FDF063', '#C579E9', opts).invert();
 
 function gradientPainter (opts = {
-  color: g.invert().base,
+  color: props.g.invert().base,
   backgroundColor: g.base,
 }) {
   return i => R.map(prop => typeof prop === 'function' ? prop(i) : prop, opts);
 }
-let textPainter = gradientPainter();
-let buttonPainter = gradientPainter({
-  display: 'inline-block',
-  ...padding(3),
-  backgroundColor: g.success,
-  color: g.base
-});
-let dangerButtonPainter = gradientPainter({
-  display: 'inline-block',
-  ...padding(3),
-  backgroundColor: g.danger,
-  color: g.base
-});
-console.log(textPainter(0.0));
-console.log(textPainter(0.5));
-console.log(textPainter(1.0));
+// let textPainter = gradientPainter();
+// let buttonPainter = gradientPainter({
+//   display: 'inline-block',
+//   ...padding(3),
+//   backgroundColor: g.success,
+//   color: g.base
+// });
+// let dangerButtonPainter = gradientPainter({
+//   display: 'inline-block',
+//   ...padding(3),
+//   backgroundColor: g.danger,
+//   color: g.base
+// });
+// console.log(textPainter(0.0));
+// console.log(textPainter(0.5));
+// console.log(textPainter(1.0));
 
 let Link = props => (
   <a href="#0" {...props} style={{
@@ -64,21 +64,21 @@ let Link = props => (
   </a>
 );
 
-let Separator = () => (
+let Separator = props => (
   <div style={{
     height: ms.border(0),
-    backgroundColor: g.base(1)
+    backgroundColor: props.g.base(1)
   }} />
 );
 
 let Button = props => (
   <button style={{
-    color: g.invert().base(0),
+    color: props.g.base(1),
     backgroundColor: 'transparent',
     borderColor: 'inherit',
     borderWidth: ms.border(3),
     borderStyle: 'solid',
-    // backgroundColor: g.base(0.2),
+    // backgroundColor: props.g.base(0.2),
     ...padding(1, 2),
     fontSize: '100%',
     // border: 'none',
@@ -105,16 +105,67 @@ let ContentWrapper = props => (
   </div>
 );
 
+let Checkbox = props => (
+  <span onClick={() => props.onToggle(!props.checked)} style={{
+    cursor: 'pointer'
+  }}>
+    <span style={{
+      borderColor: props.g.base(0),
+      borderWidth: ms.border(3),
+      borderStyle: 'solid',
+      // backgroundColor: props.g.base(.5),
+      marginRight: ms.spacing(1)
+    }}>
+      <i className="fa fa-fw fa-check" style={{opacity: props.checked ? 1 : 0}} />
+    </span>
+    <span>{props.children}</span>
+  </span>
+);
+
+let Styler = props => (
+  <div style={{
+    color: props.g.base(0),
+    backgroundColor: props.g.base(1),
+    flex: 1,
+    minWidth: 300
+  }}>
+    <h1 style={{
+      // borderBottomColor: props.g.base(.8),
+      borderBottomWidth: ms.border(3),
+      borderBottomStyle: 'solid',
+      fontWeight: 500,
+      padding: ms.spacing(6)
+    }}>
+      Recolor Interfaces Like a Boss
+    </h1>
+    <div style={{padding: ms.spacing(6)}}>
+      <Checkbox
+        g={props.g}
+        checked={props.invert}
+        onToggle={checked => props.onInvert(checked)}
+      >
+        Invert Colors
+      </Checkbox>
+      <HR g={props.g} />
+      <p style={{color: props.g.base(0.5), fontSize: ms.tx(-1)}}>
+        The hard part about playing with different color schemes for user interfaces is that you can't just change a single color. You often have to change all of them to avoid color clashes.
+        <br /><br />
+        Read about why <a href="http://medium.com/TODO">changing multiple colors at once is hard</a>.
+      </p>
+    </div>
+  </div>
+);
+
 
 let TodoIconButton = props => (
-  <Button style={{
+  <Button g={props.g} style={{
       fontSize: ms.tx(-1),
       ...padding(1, 2),
       letterSpacing: .5,
       // backgroundColor: g[props.type](.7),
-      // color: g.base(1),
-      backgroundColor: g[props.type](.1),
-      color: g.base(.1),
+      // color: props.g.base(1),
+      backgroundColor: props.g[props.type](.1),
+      color: props.g.base(.1),
       borderColor: 'transparent',
       // borderRadius: 99,
       ...props.style
@@ -125,13 +176,14 @@ let TodoIconButton = props => (
 
 let Todo = props => (
   <div style={{
-      ...textPainter(0.1),
-      color: props.done ? g.base(0.5) : g.base(1),
+      color: props.g.base(.1),
+      backgroundColor: props.g.base(.1),
+      color: props.done ? props.g.base(0.5) : props.g.base(1),
       padding: ms.spacing(3),
       display: 'flex',
       flexWrap: 'wrap',
       alignItems: 'center',
-      borderColor: g.base(0.2),
+      borderColor: props.g.base(0.2),
       borderBottomWidth: ms.border(1),
       borderStyle: 'solid'
   }}>
@@ -144,20 +196,20 @@ let Todo = props => (
       {props.children}
     </div>
     <div>
-      <TodoIconButton icon="check" type="success" style={{marginRight: ms.border(2)}}>Complete</TodoIconButton>
-      <TodoIconButton icon="pencil" type="primary" style={{marginRight: ms.border(2)}}>Edit</TodoIconButton>
-      <TodoIconButton icon="trash" type="danger">Delete</TodoIconButton>
+      <TodoIconButton g={props.g} icon="check" type="success" style={{marginRight: ms.border(2)}}>Complete</TodoIconButton>
+      <TodoIconButton g={props.g} icon="pencil" type="primary" style={{marginRight: ms.border(2)}}>Edit</TodoIconButton>
+      <TodoIconButton g={props.g} icon="trash" type="danger">Delete</TodoIconButton>
     </div>
   </div>
 );
 
-let TodoForm = () => (
+let TodoForm = props => (
   <div style={{
-      backgroundColor: g.base(0.1),
-      color: g.base(0.5),
+      backgroundColor: props.g.base(0.1),
+      color: props.g.base(0.5),
       // borderBottomStyle: 'solid',
       // borderBottomWidth: ms.border(4),
-      // borderBottomColor: g.base(.9),
+      // borderBottomColor: props.g.base(.9),
       padding: ms.spacing(4),
       marginBottom: ms.spacing(0),
       display: 'flex',
@@ -167,10 +219,11 @@ let TodoForm = () => (
   </div>
 );
 
-let TodosFooter = () => (
+let TodosFooter = props => (
   <div style={{
-      ...textPainter(0.1),
-      // background: `linear-gradient(${g.base(.1)}, ${g.base(0)})`,
+      color: props.g.base(.9),
+      backgroundColor: props.g.base(.1),
+      // background: `linear-gradient(${props.g.base(.1)}, ${props.g.base(0)})`,
       // marginTop: ms.spacing(3),
       display: 'flex',
       alignItems: 'center',
@@ -185,15 +238,15 @@ let TodosFooter = () => (
       alignItems: 'center',
       justifyContent: 'center'
     }}>
-      <Button>All</Button>
-      <Button style={{borderColor: 'transparent'}}>Active</Button>
-      <Button style={{borderColor: 'transparent'}}>Completed</Button>
+      <Button g={props.g}>All</Button>
+      <Button g={props.g} style={{borderColor: 'transparent'}}>Active</Button>
+      <Button g={props.g} style={{borderColor: 'transparent'}}>Completed</Button>
     </div>
     <Link>Clear Completed</Link>
   </div>
 );
 
-let Todos = () => (
+let Todos = props => (
   <div style={{
     display: 'flex',
     alignItems: 'center',
@@ -208,13 +261,13 @@ let Todos = () => (
       width: ms.spacing(21),
     }}>
       <h1 style={{fontSize: ms.tx(6), marginBottom: ms.spacing(2), fontWeight: 700}}>Todos</h1>
-      <TodoForm />
-      <Todo>Beg Elon Musk for a job</Todo>
-      <Todo>Rewrite history</Todo>
-      <Todo>Grow another beard</Todo>
-      <Todo>Eat Chipotle (recurring task)</Todo>
-      <Todo>Go for a walk, never come back</Todo>
-      <TodosFooter />
+      <TodoForm g={props.g} />
+      <Todo g={props.g}>Beg Elon Musk for a job</Todo>
+      <Todo g={props.g}>Rewrite history</Todo>
+      <Todo g={props.g}>Grow another beard</Todo>
+      <Todo g={props.g}>Eat Chipotle (recurring task)</Todo>
+      <Todo g={props.g}>Go for a walk, never come back</Todo>
+      <TodosFooter g={props.g} />
     </div>
   </div>
 );
@@ -230,14 +283,14 @@ let NavLink = props => (
   </Link>
 );
 
-let Nav = () => (
-  <div style={{...textPainter(0), display: 'flex', alignItems: 'center'}}>
-    <span style={{...padding(6), display: 'inline-block', color: g.base(0.5)}}>airbnb</span>
+let Nav = props => (
+  <div style={{color: props.g.base(1), backgroundColor: props.g.base(0), display: 'flex', alignItems: 'center'}}>
+    <span style={{...padding(6), display: 'inline-block', color: props.g.base(0.5)}}>airbnb</span>
     <span style={{flexGrow: 1}}>Where are you going?</span>
-    <Button style={{marginRight: ms.spacing(6)}}>Become a Host</Button>
-    <NavLink>Help</NavLink>
-    <NavLink>Sign Up</NavLink>
-    <NavLink>Log In</NavLink>
+    <Button g={props.g} style={{marginRight: ms.spacing(6)}}>Become a Host</Button>
+    <NavLink g={props.g}>Help</NavLink>
+    <NavLink g={props.g}>Sign Up</NavLink>
+    <NavLink g={props.g}>Log In</NavLink>
   </div>
 );
 
@@ -252,7 +305,7 @@ let UserIcon = props => (
       borderRadius: ms.spacing(13) / 2,
       width: ms.spacing(13),
       height: ms.spacing(13),
-      backgroundColor: g.base(.5),
+      backgroundColor: props.g.base(.5),
       marginBottom: ms.spacing(2),
     }}/>
     John
@@ -266,7 +319,7 @@ let BigIcon = props => (
     alignItems: 'center',
     padding: ms.spacing(4),
     fontSize: ms.tx(-1),
-    color: g.base(.5)
+    color: props.g.base(.5)
     // background: 'red',
   }}>
     <div style={{
@@ -274,34 +327,35 @@ let BigIcon = props => (
       borderRadius: ms.spacing(10) / 2,
       width: ms.spacing(10),
       height: ms.spacing(10),
-      backgroundColor: g.base(.5),
+      backgroundColor: props.g.base(.5),
       marginBottom: ms.spacing(2),
     }}/>
     {props.label}
   </div>
 );
 
-let HR = () => <hr style={{color: g.base(.2), marginTop: ms.spacing(5), marginBottom: ms.spacing(5)}} />;
+let HR = props => <hr style={{color: props.g.base(.2), marginTop: ms.spacing(5), marginBottom: ms.spacing(5)}} />;
 
-let BasicInfo = () => (
-  <ContentWrapper>
+let BasicInfo = props => (
+  <ContentWrapper g={props.g}>
     <div style={{display: 'flex', paddingBottom: ms.spacing(8)}}>
-      <UserIcon style={{marginTop: ms.spacing(8)}} />
+      <UserIcon g={props.g} style={{marginTop: ms.spacing(8)}} />
       <div style={{marginLeft: ms.spacing(7), marginRight: ms.spacing(7), marginTop: ms.spacing(8)}}>
         <h1 style={{fontSize: ms.tx(2), marginBottom: ms.spacing(5)}}>Elon Musk Launch Site
           <br />
-          <small style={{fontSize: ms.tx(0), color: g.base(0.5)}}>Yachats, OR, United States (11)</small>
+          <small style={{fontSize: ms.tx(0), color: props.g.base(0.5)}}>Yachats, OR, United States (11)</small>
         </h1>
         <div style={{display: 'flex', justifyContent: 'space-between', marginLeft: -ms.spacing(4)}}>
-          <BigIcon label="Entire home/apt" />
-          <BigIcon label="4 Guests" />
-          <BigIcon label="0 Bedrooms" />
-          <BigIcon label="2 Beds" />
+          <BigIcon g={props.g} label="Entire home/apt" />
+          <BigIcon g={props.g} label="4 Guests" />
+          <BigIcon g={props.g} label="0 Bedrooms" />
+          <BigIcon g={props.g} label="2 Beds" />
         </div>
       </div>
       <div style={{flexGrow: 1, position: 'relative'}}>
         <div style={{
-            ...textPainter(1),
+            color: props.g.base(0),
+            backgroundColor: props.g.base(1),
             padding: ms.spacing(3),
             position: 'absolute',
             transform: 'translateY(-100%)',
@@ -309,18 +363,19 @@ let BasicInfo = () => (
           }}>
           $100 Per Night
         </div>
-        <div style={{...textPainter(0.1), padding: ms.spacing(3)}}>
+        <div style={{color: props.g.base(.9), backgroundColor: props.g.base(.1), padding: ms.spacing(3)}}>
           Check In
           <br />
           Check Out
           <br />
           Guests
-          <Button style={{
+          <Button g={props.g} style={{
             // display: 'block',
+            color: props.g.base(.1),
             marginTop: ms.spacing(2),
-            color: textPainter(0.1).backgroundColor,
-            borderColor: g.primary(.1),
-            backgroundColor: g.primary(.1),
+            backgroundColor: props.g.base(.1),
+            borderColor: props.g.primary(.1),
+            backgroundColor: props.g.primary(.1),
             width: '100%',
             display: 'block'
           }}>
@@ -332,15 +387,15 @@ let BasicInfo = () => (
   </ContentWrapper>
 );
 
-let DetailInfo = () => (
-  <div style={{backgroundColor: g.base(.1), paddingTop: ms.spacing(11), paddingBottom: ms.spacing(11)}}>
-    <ContentWrapper style={{lineHeight: 1.5}}>
+let DetailInfo = props => (
+  <div style={{backgroundColor: props.g.base(.1), paddingTop: ms.spacing(11), paddingBottom: ms.spacing(11)}}>
+    <ContentWrapper g={props.g} style={{lineHeight: 1.5}}>
       <h2 style={{fontSize: ms.tx(1), fontWeight: 700, marginBottom: ms.spacing(7)}}>About this listing</h2>
       <p style={{marginBottom: ms.spacing(2), marginTop: ms.spacing(2)}}>
         This sunny Yachats vacation rental is just what you were seeking for your next beach getaway.
       </p>
-      <Link style={{color: g.primary(.1)}}>Contact Host</Link>
-      <HR/>
+      <Link style={{color: props.g.primary(.1)}}>Contact Host</Link>
+      <HR g={props.g} />
       <div className="row">
         <div className="col-xs-4" style={{fontWeight: 700}}>This Space</div>
         <ul className="col-xs-4">
@@ -357,7 +412,7 @@ let DetailInfo = () => (
           <li>House Rules</li>
         </ul>
       </div>
-      <HR/>
+      <HR g={props.g} />
       <div className="row">
         <div className="col-xs-4" style={{fontWeight: 700}}>Amenities</div>
         <ul className="col-xs-4">
@@ -372,32 +427,44 @@ let DetailInfo = () => (
           <li>Cable TV</li>
         </ul>
       </div>
-      <HR/>
+      <HR g={props.g} />
       Prices
-      <HR/>
+      <HR g={props.g} />
       Description
     </ContentWrapper>
   </div>
 );
 
-let AirbnbListing = () => (
+let AirbnbListing = props => (
   <div>
-    <Nav />
+    <Nav g={props.g} />
     <div style={{
       height: '60%',
-      backgroundColor: g.base(.5),
+      backgroundColor: props.g.base(.5),
       backgroundImage: 'url(https://cdn-images-1.medium.com/max/2000/1*t0W_AaO1iWcAJkrho9qDBQ.jpeg)',
       backgroundSize: 'cover',
       backgroundPosition: '50% 50%',
       backgroundBlendMode: 'luminosity'
     }}/>
-      <BasicInfo />
-      <DetailInfo />
+      <BasicInfo g={props.g} />
+      <DetailInfo g={props.g} />
   </div>
 );
 
 let App = React.createClass({
-  render: function() {
+  getInitialState () {
+    return {isInverted: false};
+  },
+  _handleChangeInverted (inverted) {
+    this.setState({isInverted: inverted});
+    this.forceUpdate();
+  },
+  _g () {
+    // FIXME: getting global...
+    return this.state.isInverted ? g.invert() : g;
+  },
+  render () {
+    let g = this._g();
     return (
       <div style={{
         display: 'flex',
@@ -406,41 +473,21 @@ let App = React.createClass({
         lineHeight: 1.25,
         flexWrap: 'wrap'
       }}>
+        <Styler g={g} invert={this.state.isInverted} onInvert={this._handleChangeInverted} />
         <div style={{
-          ...textPainter(1),
-          flex: 1,
-          minWidth: 300
-        }}>
-          <h1 style={{
-            // borderBottomColor: g.base(.8),
-            borderBottomWidth: ms.border(3),
-            borderBottomStyle: 'solid',
-            fontWeight: 500,
-            padding: ms.spacing(6)
-          }}>
-            Recolor Interfaces Like a Boss
-          </h1>
-          <div style={{padding: ms.spacing(6)}}>
-            <p style={{color: g.base(0.5), fontSize: ms.tx(-1)}}>
-              The hard part about playing with different color schemes for user interfaces is that you can't just change a single color. You often have to change all of them to avoid color clashes.
-              <br /><br />
-              Read about why <a href="http://medium.com/TODO">changing multiple colors at once is hard</a>.
-            </p>
-          </div>
-        </div>
-        <div style={{
-            ...textPainter(0),
+            color: g.base(1),
+            backgroundColor: g.base(0),
             overflow: 'scroll',
             height: '100%',
             flex: 1,
             minWidth: '70%'
         }}>
-          <Todos />
-          <Separator />
-          <AirbnbListing />
+          <Todos g={g} />
+          <Separator g={g} />
+          <AirbnbListing g={g} />
 
           <div style={{height: 200}} />
-          <ContentWrapper>
+          <ContentWrapper g={g}>
             <div style={{marginBottom: ms.spacing(2), color: g.base(0.2)}}>
               About Us &rarr; Team &rarr; Engineering
             </div>
@@ -463,29 +510,31 @@ let App = React.createClass({
                 <br/>
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </p>
-            <div style={{padding: ms.spacing(1), ...textPainter(0)}}>
-              Hello
-              &nbsp;
-              <a href="#0" style={{...buttonPainter(0)}}>Click Here</a>
-              &nbsp;
-              <a href="#0" style={{...dangerButtonPainter(0)}}>Click Here</a>
-            </div>
-            <div style={{padding: ms.spacing(1), ...textPainter(.25)}}>
-              Hello
-              &nbsp;
-              <a href="#0" style={{...buttonPainter(0.25)}}>Click Here</a>
-              &nbsp;
-              <a href="#0" style={{...dangerButtonPainter(0.25)}}>Click Here</a>
-            </div>
-            <div style={{padding: ms.spacing(1), ...textPainter(1)}}>
-              Hello
-              &nbsp;
-              <a href="#0" style={{...buttonPainter(1.00)}}>Click Here</a>
-              &nbsp;
-              <a href="#0" style={{...dangerButtonPainter(1.00)}}>Click Here</a>
-              &nbsp;
-              <a href="#0">Click Here</a>
-            </div>
+            {
+              // <div style={{padding: ms.spacing(1), color: props.g.base(1), backgroundColor: props.g.base(0)}}>
+              //   Hello
+              //   &nbsp;
+              //   <a href="#0" style={{...buttonPainter(0)}}>Click Here</a>
+              //   &nbsp;
+              //   <a href="#0" style={{...dangerButtonPainter(0)}}>Click Here</a>
+              // </div>
+              // <div style={{padding: ms.spacing(1), color: props.g.base(.75), backgroundColor: props.g.base(.25)}}>
+              //   Hello
+              //   &nbsp;
+              //   <a href="#0" style={{...buttonPainter(0.25)}}>Click Here</a>
+              //   &nbsp;
+              //   <a href="#0" style={{...dangerButtonPainter(0.25)}}>Click Here</a>
+              // </div>
+              // <div style={{padding: ms.spacing(1), color: props.g.base(0), backgroundColor: props.g.base(1)}}>
+              //   Hello
+              //   &nbsp;
+              //   <a href="#0" style={{...buttonPainter(1.00)}}>Click Here</a>
+              //   &nbsp;
+              //   <a href="#0" style={{...dangerButtonPainter(1.00)}}>Click Here</a>
+              //   &nbsp;
+              //   <a href="#0">Click Here</a>
+              // </div>
+            }
           </ContentWrapper>
 
         </div>
