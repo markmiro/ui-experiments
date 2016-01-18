@@ -214,4 +214,28 @@ DANGER
 - Unhappy face
 - skull
 
+
+TODO:
+* Fix scale color being too dark to see the tint color. We want the light and dark tint colors to stand out equally well
+
+* Allow picking a minimum allowed distance (in brightness) for black and white
+* Allow picking setting for allowing status colors to deviate in brightness either towards the theme scale or away from it.
+* Allow user to pick how many discrete steps they will allow for the status colors to vary across based on the theme scale
+    - 1 (Tries to find a set of status colors that will try to maintain contrast with the start and end colors on the color scale, but not in the middle)
+    - 2 ()
+    - Infinity (what we currently do)
+
+
+I might want to analyze colors in the wild to help create color pallets. This would mean looking at patterns in:
+* industries
+  * food (maybe categorize by different cultures)
+  * homes
+  * cleaning products
+  * cars
+  * education
+  * technology
+* emotions
+
+* How blue suppresses appetite, yellows and reds increase it
+
 */

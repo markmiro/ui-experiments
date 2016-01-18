@@ -1,7 +1,10 @@
 *, body {
   font-family: 'Roboto';
+  text-rendering: optimizeLegibility;
 }
 * {
+  padding: 0;  /* Optional */
+  margin: 0; /* Optional */
   box-sizing: border-box;
   transition-property: opacity;
   transition-duration: 0.1s;

@@ -1,9 +1,6 @@
 import chroma from 'chroma-js';
 import husl from 'husl';
 
-window.husl = husl;
-window.chroma = chroma;
-
 function interpolator(type) {
   switch (type) {
     case 'HCL': return (start, end) => chroma.scale([start, end]).mode('hcl').correctLightness();
