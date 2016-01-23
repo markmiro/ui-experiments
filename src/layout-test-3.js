@@ -56,9 +56,49 @@ function gradientPainter (opts = {
 // console.log(textPainter(0.5));
 // console.log(textPainter(1.0));
 
-let Link = props => (
+let A = props => (
+  <a {...props} style={{
+    color: props.g.primary(0),
+    fontWeight: 500,
+    borderBottomWidth: ms.border(2),
+    borderBottomStyle: 'soild',
+    ...props.style
+  }}>
+    {props.children}
+  </a>
+);
+
+let SpacedFlexbox = React.createClass({
+  render () {
+    let margin = this.props.spacing / 2; // flexbox margins don't collapse
+    let children = React.Children.map(this.props.children, child => (
+      <li style={{margin, ...this.props.childWrapperStyle}}>
+        {child}
+      </li>
+    ));
+    return (
+      <ul style={{
+        // defaults
+        flexWrap: 'wrap',
+        // overrides
+        ...this.props.style,
+        // required
+        margin: -margin,
+        display: 'flex'
+      }}>
+        {children}
+      </ul>
+    );
+  }
+});
+
+let ButtonLink = props => (
   <a href="#0" {...props} style={{
-      ...props.style
+    color: 'inherit',
+    fontWeight: 500,
+    textTransform: 'uppercase',
+    textDecoration: 'none',
+    ...props.style
   }}>
     {props.children}
   </a>
@@ -122,23 +162,45 @@ let Checkbox = props => (
   </span>
 );
 
+let ColorPicker = props => (
+  <input
+    style={{
+      background: props.g.base(.5),
+      borderColor: props.g.base(0),
+      height: 27,
+      width: ms.spacing(10),
+      borderWidth: ms.border(3),
+      boxShadow: 'none',
+      outlineColor: props.g.base(0.5),
+      ...props.style
+    }}
+    type="color"
+    value={props.color}
+    onChange={e => props.onChangeColor(e.target.value)}
+  />
+);
+
 let Styler = props => (
   <div style={{
+    minWidth: 350,
     color: props.g.base(0),
     backgroundColor: props.g.base(1),
-    flex: 1,
-    minWidth: 300
+    flex: 1
   }}>
     <h1 style={{
-      // borderBottomColor: props.g.base(.8),
-      borderBottomWidth: ms.border(3),
+      fontSize: ms.tx(1),
+      borderBottomColor: props.g.base(.8),
+      borderBottomWidth: ms.border(1),
       borderBottomStyle: 'solid',
-      fontWeight: 500,
+      fontWeight: 700,
       padding: ms.spacing(6)
     }}>
       Recolor Interfaces Like a Boss
     </h1>
-    <div style={{padding: ms.spacing(6)}}>
+    <SpacedFlexbox spacing={ms.spacing(4)} style={{
+      flexDirection: 'column',
+      padding: ms.spacing(6)
+    }}>
       <Checkbox
         g={props.g}
         checked={props.invert}
@@ -146,26 +208,25 @@ let Styler = props => (
       >
         Invert Colors
       </Checkbox>
-      <input
-        style={{
-          marginLeft: ms.spacing(3)
-        }}
-        type="color"
-        value={props.firstColor}
-        onChange={e => props.onChangeFirstColor(e.target.value)}
-      />
-      <input
-        type="color"
-        value={props.lastColor}
-        onChange={e => props.onChangeLastColor(e.target.value)}
-      />
-      <HR g={props.g} />
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        Light Color:
+        <ColorPicker g={props.g} color={props.firstColor} onChangeColor={props.onChangeFirstColor} />
+      </div>
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        Dark Color:
+        <ColorPicker g={props.g} color={props.lastColor} onChangeColor={props.onChangeLastColor} />
+      </div>
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        Primary Color:
+        <ColorPicker g={props.g} color={props.lastColor} onChangeColor={props.onChangeLastColor} />
+      </div>
       <p style={{color: props.g.base(0.5), fontSize: ms.tx(-1)}}>
         The hard part about playing with different color schemes for user interfaces is that you can't just change a single color. You often have to change all of them to avoid color clashes.
-        <br /><br />
-        Read about why <a href="http://medium.com/TODO">changing multiple colors at once is hard</a>.
       </p>
-    </div>
+      <p>
+        Read about why <A href="http://medium.com/TODO" g={props.g} style={{color: props.g.primary(1)}}>changing multiple colors at once is hard</A>.
+      </p>
+    </SpacedFlexbox>
   </div>
 );
 
@@ -234,28 +295,27 @@ let TodoForm = props => (
 
 let TodosFooter = props => (
   <div style={{
-      color: props.g.base(.9),
-      backgroundColor: props.g.base(.1),
-      // background: `linear-gradient(${props.g.base(.1)}, ${props.g.base(0)})`,
-      // marginTop: ms.spacing(3),
-      display: 'flex',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      fontSize: ms.tx(-1),
-      padding: ms.spacing(3)
+    color: props.g.base(.9),
+    backgroundColor: props.g.base(.1),
+    // background: `linear-gradient(${props.g.base(.1)}, ${props.g.base(0)})`,
+    // marginTop: ms.spacing(3),
+    fontSize: ms.tx(-1),
+    padding: ms.spacing(3)
   }}>
-    2 items left
-    <div style={{
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <Button g={props.g}>All</Button>
-      <Button g={props.g} style={{borderColor: 'transparent'}}>Active</Button>
-      <Button g={props.g} style={{borderColor: 'transparent'}}>Completed</Button>
-    </div>
-    <Link>Clear Completed</Link>
+    <SpacedFlexbox spacing={ms.spacing(3)} style={{alignItems: 'center', justifyContent: 'space-between'}}>
+      2 items left
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <Button g={props.g}>All</Button>
+        <Button g={props.g} style={{borderColor: 'transparent'}}>Active</Button>
+        <Button g={props.g} style={{borderColor: 'transparent'}}>Completed</Button>
+      </div>
+      <ButtonLink>Clear Completed</ButtonLink>
+    </SpacedFlexbox>
   </div>
 );
 
@@ -287,13 +347,13 @@ let Todos = props => (
 
 
 let NavLink = props => (
-  <Link {...props} style={{
+  <ButtonLink {...props} style={{
       padding: ms.spacing(6),
       display: 'inline-block',
       ...props.style
   }}>
     {props.children}
-  </Link>
+  </ButtonLink>
 );
 
 let Nav = props => (
@@ -407,7 +467,7 @@ let DetailInfo = props => (
       <p style={{marginBottom: ms.spacing(2), marginTop: ms.spacing(2)}}>
         This sunny Yachats vacation rental is just what you were seeking for your next beach getaway.
       </p>
-      <Link style={{color: props.g.primary(.1)}}>Contact Host</Link>
+      <ButtonLink style={{color: props.g.primary(.1)}}>Contact Host</ButtonLink>
       <HR g={props.g} />
       <div className="row">
         <div className="col-xs-4" style={{fontWeight: 700}}>This Space</div>
@@ -467,7 +527,7 @@ let AirbnbListing = props => (
 let App = React.createClass({
   getInitialState () {
     return {
-      firstColor: '#fff',
+      firstColor: '#ffffff',
       lastColor: '#525865',
       isInverted: false
     };
@@ -504,7 +564,7 @@ let App = React.createClass({
             backgroundColor: g.base(0),
             overflow: 'scroll',
             height: '100%',
-            flex: 1,
+            flex: 3,
             minWidth: '70%'
         }}>
           <Todos g={g} />

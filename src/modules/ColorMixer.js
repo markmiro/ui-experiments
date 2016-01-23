@@ -20,7 +20,7 @@ function createScale (start, end) {
 }
 
 function mix (themeScale, scaleAmount, fromColor) {
-  let tinting = 0; // range: 0-1
+  let tinting = .15; // range: 0-1
   let maxChroma = 1 - tinting;
   let minChroma = 30;
 
