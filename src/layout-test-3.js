@@ -6,23 +6,23 @@ import Gradient from './modules/Gradient';
 import R from 'ramda';
 
 window.R = R;
-window.Gradient = Gradient;
-window.gradient = Gradient.create();
-window.gradient.toConsole();
+// window.Gradient = Gradient;
+// window.gradient = Gradient.create();
+// window.gradient.toConsole();
 
-let opts = {
-  mode: 'lab',
-  colors: 7,
-  tints: {
-    text: '#000000',
-    // primary: '#ff5a5f', //airbnb color
-    primary: '#5b92ff', // some blue color
-    selected: '#00ff00',
-    danger: '#d04c2f',
-    success: '#57ec81',
-    info: '#0000ff'
-  }
-};
+// let opts = {
+//   mode: 'lab',
+//   colors: 7,
+//   tints: {
+//     text: '#000000',
+//     // primary: '#ff5a5f', //airbnb color
+//     primary: '#5b92ff', // some blue color
+//     selected: '#00ff00',
+//     danger: '#d04c2f',
+//     success: '#57ec81',
+//     info: '#0000ff'
+//   }
+// };
 // let g = Gradient.create('white', 'black', opts);
 // let g = Gradient.create('white', 'black', opts).invert();
 // let g = Gradient.create('#D56B83', '#E1FADD', opts).invert();
@@ -33,12 +33,12 @@ let opts = {
 // let g = Gradient.create('#4d2f34', '#f2e7b3', opts);
 // let g = Gradient.create('#FDF063', '#C579E9', opts).invert();
 
-function gradientPainter (opts = {
-  color: props.g.invert().base,
-  backgroundColor: g.base,
-}) {
-  return i => R.map(prop => typeof prop === 'function' ? prop(i) : prop, opts);
-}
+// function gradientPainter (opts = {
+//   color: props.g.invert().base,
+//   backgroundColor: g.base,
+// }) {
+//   return i => R.map(prop => typeof prop === 'function' ? prop(i) : prop, opts);
+// }
 // let textPainter = gradientPainter();
 // let buttonPainter = gradientPainter({
 //   display: 'inline-block',
@@ -58,7 +58,7 @@ function gradientPainter (opts = {
 
 let A = props => (
   <a {...props} style={{
-    color: props.g.primary(0),
+    color: props.g.primary(.7),
     fontWeight: 500,
     borderBottomWidth: ms.border(2),
     borderBottomStyle: 'soild',
@@ -218,13 +218,13 @@ let Styler = props => (
       </div>
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         Primary Color:
-        <ColorPicker g={props.g} color={props.lastColor} onChangeColor={props.onChangeLastColor} />
+        <ColorPicker g={props.g} color={props.primaryColor} onChangeColor={props.onChangePrimaryColor} />
       </div>
       <p style={{color: props.g.base(0.5), fontSize: ms.tx(-1)}}>
         The hard part about playing with different color schemes for user interfaces is that you can't just change a single color. You often have to change all of them to avoid color clashes.
       </p>
       <p>
-        Read about why <A href="http://medium.com/TODO" g={props.g} style={{color: props.g.primary(1)}}>changing multiple colors at once is hard</A>.
+        Read about why <A href="http://medium.com/TODO" g={props.g} style={{color: props.g.primary(.3)}}>changing multiple colors at once is hard</A>.
       </p>
     </SpacedFlexbox>
   </div>
@@ -238,7 +238,7 @@ let TodoIconButton = props => (
       letterSpacing: .5,
       // backgroundColor: g[props.type](.7),
       // color: props.g.base(1),
-      backgroundColor: props.g[props.type](.1),
+      backgroundColor: props.g[props.type](1),
       color: props.g.base(.1),
       borderColor: 'transparent',
       // borderRadius: 99,
@@ -447,8 +447,8 @@ let BasicInfo = props => (
             color: props.g.base(.1),
             marginTop: ms.spacing(2),
             backgroundColor: props.g.base(.1),
-            borderColor: props.g.primary(.1),
-            backgroundColor: props.g.primary(.1),
+            borderColor: props.g.primary(.7),
+            backgroundColor: props.g.primary(.7),
             width: '100%',
             display: 'block'
           }}>
@@ -467,7 +467,7 @@ let DetailInfo = props => (
       <p style={{marginBottom: ms.spacing(2), marginTop: ms.spacing(2)}}>
         This sunny Yachats vacation rental is just what you were seeking for your next beach getaway.
       </p>
-      <ButtonLink style={{color: props.g.primary(.1)}}>Contact Host</ButtonLink>
+      <ButtonLink style={{color: props.g.primary(.7)}}>Contact Host</ButtonLink>
       <HR g={props.g} />
       <div className="row">
         <div className="col-xs-4" style={{fontWeight: 700}}>This Space</div>
@@ -514,7 +514,7 @@ let AirbnbListing = props => (
     <div style={{
       height: '60%',
       backgroundColor: props.g.base(.5),
-      backgroundImage: 'url(https://cdn-images-1.medium.com/max/2000/1*t0W_AaO1iWcAJkrho9qDBQ.jpeg)',
+      // backgroundImage: 'url(https://cdn-images-1.medium.com/max/2000/1*t0W_AaO1iWcAJkrho9qDBQ.jpeg)',
       backgroundSize: 'cover',
       backgroundPosition: '50% 50%',
       backgroundBlendMode: 'luminosity'
@@ -529,6 +529,7 @@ let App = React.createClass({
     return {
       firstColor: '#ffffff',
       lastColor: '#525865',
+      primaryColor: '#5b92ff',
       isInverted: false
     };
   },
@@ -537,7 +538,19 @@ let App = React.createClass({
     this.forceUpdate();
   },
   _g () {
-    let g = Gradient.create(this.state.firstColor, this.state.lastColor, opts);
+    let g = Gradient.create(this.state.firstColor, this.state.lastColor, {
+      mode: 'lab',
+      colors: 7,
+      tints: {
+        text: '#000000',
+        // primary: '#ff5a5f', //airbnb color
+        primary: this.state.primaryColor, // some blue color
+        selected: '#00ff00',
+        danger: '#d04c2f',
+        success: '#57ec81',
+        info: '#0000ff'
+      }
+    });
     return this.state.isInverted ? g.invert() : g;
   },
   render () {
@@ -557,6 +570,7 @@ let App = React.createClass({
           onChangeFirstColor={color => this.setState({firstColor: color})}
           firstColor={this.state.firstColor}
           onChangeLastColor={color => this.setState({lastColor: color})}
+          onChangePrimaryColor={color => this.setState({primaryColor: color})}
           lastColor={this.state.lastColor}
         />
         <div style={{

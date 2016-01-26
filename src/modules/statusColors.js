@@ -12,11 +12,12 @@ import chroma from 'chroma-js';
 // ];
 
 var steps = 7;
-var colors = ['black'];
+var colors = [];
 for (var i = 0; i < steps; i++) {
   colors.push(chroma.hcl(360/steps * i, 30, 50).hex());
   console.log('%c ', 'background: ' + chroma.hcl(360/steps * i, 30, 80).hex());
 }
+colors.push('black');
 
 export default colors;
 

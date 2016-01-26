@@ -65,22 +65,27 @@ class App extends Component {
 
     var style = this.styler();
     var themeScale = this.colorer();
-
-    let solidColoredButtonStyle = (color, bgScaleAmount) => {
-      let middleColor = mixer.mix(themeScale, bgScaleAmount, color);
-      return style.btn({
-        solid: true,
-        themeScale: mixer.createScale(middleColor, themeScale(bgScaleAmount))
-      });
-    };
+    //
+    // let solidColoredButtonStyle = (color, bgScaleAmount) => {
+    //   let middleColor = mixer.mix(themeScale, bgScaleAmount, color);
+    //   return style.btn({
+    //     solid: true,
+    //     themeScale: mixer.createScale(middleColor, themeScale(bgScaleAmount))
+    //   });
+    // };
 
     let buttons = depth => (
-      <div key={depth} style={{background: themeScale(depth), padding: 10}}>
+      <div key={depth} style={{background: themeScale(depth)}}>
       {
         colors.map(color =>
           <span key={color}>
-            <button style={solidColoredButtonStyle(color, depth)}>Color</button>
-            &nbsp;
+            <span style={{
+                marginRight: 20,
+                width: 40,
+                height: 20,
+                backgroundColor: mixer.mix(themeScale, depth, color),
+                display: 'inline-block'
+            }} />
           </span>
         )
       }
@@ -161,7 +166,6 @@ class App extends Component {
         &nbsp;
         {this.state.interpolator || 'LAB'}
         { sizes.map(size => size/10).map(buttons) }
-        <div style={{height: ms.spacing(10)}} />
         { /* sizesStiched.map(size => size/10).map(buttons) */ }
       </div>
     );

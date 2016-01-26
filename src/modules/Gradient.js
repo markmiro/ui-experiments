@@ -15,7 +15,7 @@ class Gradient {
 */
 
 let Gradient = {
-  create (start = 'white', end = 'black', opts = {mode: 'lab', colors: 7, tints: {text: '#000000', danger: '#ff0000', success: '#00ff00', info: '#0000ff'}}) {
+  create (start = 'white', end = 'black', opts = {mode: 'lab', colors: 7, tints: {text: '#000000', danger: '#ff0000', success: '#00ff00', info: '#0000ff', primary: 'blue'}}) {
     let baseScale = chroma.scale([start, end]).mode(opts.mode);
     let baseArr = baseScale.colors(opts.colors);
     var gradient = {

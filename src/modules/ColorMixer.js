@@ -20,9 +20,9 @@ function createScale (start, end) {
 }
 
 function mix (themeScale, scaleAmount, fromColor) {
-  let tinting = .15; // range: 0-1
-  let maxChroma = 1 - tinting;
-  let minChroma = 30;
+  let tinting = 0.0; // range: 0-1
+  let maxChroma = 1.0;
+  let minChroma = 0.25;
 
   let startL = chroma(themeScale(0)).get('hcl.l');
   let endL = chroma(themeScale(1)).get('hcl.l');
@@ -30,30 +30,36 @@ function mix (themeScale, scaleAmount, fromColor) {
 
   // Midpoint of luminosity between the two colors;
   let toMatchColor = themeScale(scaleAmount);
-  let toMatchOppositeColor = themeScale(1 - scaleAmount);
 
-  let averageL = (startL + endL) / 2;
-  let toMatchL = toMatchColor.get('hcl.l');
-  let lDiff = diffL / 2 * 0.7;
-  let brokenStraightAcross =
-    Math.abs(toMatchL - startL) > Math.abs(toMatchL - endL)
-      ? chroma(themeScale(lDiff)).get('hcl.l')
-      : chroma(themeScale(1 - lDiff)).get('hcl.l');
+  // let averageL = (startL + endL) / 2;
+  let toMatchL = themeScale.padding(.2 * (diffL))(scaleAmount).get('hcl.l');
+  // let lDiff = diffL / 2 * 0.7;
+  // let brokenStraightAcross =
+  //   Math.abs(toMatchL - startL) > Math.abs(toMatchL - endL)
+  //     ? chroma(themeScale(lDiff)).get('hcl.l')
+  //     : chroma(themeScale(1 - lDiff)).get('hcl.l');
 
-  let oppositeSaturation = toMatchOppositeColor.get('hcl.c');
+  let toMatchC = toMatchColor.get('hcl.c');
 
-  let huslToMatchSaturation = husl.fromHex(toMatchOppositeColor.hex())[1];
+  // let huslToMatchSaturation = husl.fromHex(toMatchColor.hex())[1];
 
-  let luminosity = brokenStraightAcross * (1 - Math.abs(scaleAmount - 0.5)) + averageL * Math.abs(scaleAmount - 0.5);
+  // let luminosity = toMatchL;
+  // let luminosity = Math.max(Math.min(toMatchL, 80), 30);
+  // let luminosity = brokenStraightAcross * (1 - Math.abs(scaleAmount - 0.5)) + averageL * Math.abs(scaleAmount - 0.5);
 
-  let relativeSaturation = Math.max(huslToMatchSaturation * diffL, oppositeSaturation * .5, minChroma);
+  // let relativeSaturation = Math.max(huslToMatchSaturation * diffL, toMatchC * .5, minChroma * 100);
+  // let relativeSaturation = toMatchC;
+  let hue = chroma(fromColor).get('hcl.h');
+  // let c = chroma(fromColor).get('hcl.c');
 
-  let tint = chroma.mix(fromColor, toMatchOppositeColor, tinting, 'lab');
-  let hue = tint.get('hcl.h');
-  let c = tint.get('hcl.c');
+  // let tint = chroma.mix(fromColor, toMatchColor, tinting, 'lab');
+  // let hue = tint.get('hcl.h');
+  // let c = Math.max(toMatchC, minChroma);
+  // let hue = tint.get('hcl.h');
+  // let c = tint.get('hcl.c');
 
-  let lch = husl._conv.husl.lch([hue, relativeSaturation * maxChroma, luminosity]);
-  let color = chroma.lch(lch[0], (lch[1] + c) / 2, lch[2]);
+  let lch = husl._conv.husl.lch([hue, toMatchC * maxChroma, toMatchL]);
+  let color = chroma.lch(lch[0], Math.max(lch[1]*.25 + toMatchC*.75, minChroma*100), lch[2]);
 
   return color;
 }

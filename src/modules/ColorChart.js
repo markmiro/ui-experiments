@@ -92,7 +92,7 @@ export default function ColorChart (props) {
               key={i + 'b'}
               cx={x(i)}
               cy={scaleL(chroma(mixer.mix(themeScale, i / colorAmount, statusColors[0])).get('hcl.l'))}
-              r={10}
+              r={5}
               fill={mixer.mix(themeScale, i / colorAmount, statusColors[0])}
               stroke={c}
               strokeWidth={4}
