@@ -13,6 +13,7 @@ import {Link} from './modules/Link';
 import ColorChart from './modules/ColorChart';
 import ChromaChart from './modules/ChromaChart';
 import colors from './modules/statusColors';
+import Gradient from './modules/Gradient';
 
 class App extends Component {
   constructor(props) {
@@ -64,7 +65,7 @@ class App extends Component {
     }
 
     var style = this.styler();
-    var themeScale = this.colorer();
+    var themeScale = this.colorer().base;
     //
     // let solidColoredButtonStyle = (color, bgScaleAmount) => {
     //   let middleColor = mixer.mix(themeScale, bgScaleAmount, color);
@@ -80,10 +81,10 @@ class App extends Component {
         colors.map(color =>
           <span key={color}>
             <span style={{
-                marginRight: 20,
-                width: 40,
-                height: 20,
-                backgroundColor: mixer.mix(themeScale, depth, color),
+                // marginRight: 5,
+                width: 30,
+                height: 10,
+                backgroundColor: this.colorer().tint(color, depth),
                 display: 'inline-block'
             }} />
           </span>
@@ -95,16 +96,17 @@ class App extends Component {
     return (
       <div style={style.rootContainer}>
         <ColorChart
-          themeScale={themeScale}
+          themeScale={this.colorer()}
+          startColor={this.state.startColor}
+          endColor={this.state.endColor}
+        />
+        <ChromaChart
+          themeScale={this.colorer()}
           startColor={this.state.startColor}
           endColor={this.state.endColor}
         />
         {
-          <ChromaChart
-            themeScale={themeScale}
-            startColor={this.state.startColor}
-            endColor={this.state.endColor}
-          />
+
           // <ColorChart
           //   themeScale={mixer.createScale('white', 'black')}
           //   startColor={this.state.startColor}
@@ -170,22 +172,20 @@ class App extends Component {
       </div>
     );
   }
+
   colorer (opts = {invert: false}) {
-    if (this.state.invert) opts.invert = !opts.invert;
-    let scale = this.state;
-    let startColor = scale.startColor;
-    let endColor = scale.endColor;
-    // let startColor = d3.hcl(scale.startColor);
-    // let endColor = d3.hcl(scale.endColor);
-    // startColor = d3.hcl(startColor.h, 0, startColor.l);
-    // endColor = d3.hcl(endColor.h, 0, endColor.l);
+    let g = Gradient.create(this.state.startColor, this.state.endColor, {
+      mode: this.state.interpolator ? this.state.interpolator.toLowerCase() : 'lab'
+    });
+
     if (opts && opts.invert === true) {
-      return  mixer.createInterpolator(scale.interpolator, endColor, startColor);
+      return g.invert();
     }
-    return mixer.createInterpolator(scale.interpolator, startColor, endColor);
+    return g;
   }
+
   styler () {
-    var themeScale = this.colorer();
+    var themeScale = this.colorer().base;
     return {
       rootContainer: {
         display: 'inline-block',

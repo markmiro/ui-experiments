@@ -7,7 +7,7 @@ import R from 'ramda';
 
 window.R = R;
 // window.Gradient = Gradient;
-// window.gradient = Gradient.create();
+window.gradient = Gradient.create();
 // window.gradient.toConsole();
 
 // let opts = {
@@ -55,6 +55,32 @@ window.R = R;
 // console.log(textPainter(0.0));
 // console.log(textPainter(0.5));
 // console.log(textPainter(1.0));
+
+let GradientContainer = props => (
+  <div {...props}>
+    {
+      React.Children.map(props.children, child =>
+        child.props.g ? child : React.cloneElement(child, {g: props.g})
+      )
+    }
+  </div>
+);
+
+// let D = props => (
+//   <div {...props}>
+//     {
+//       React.Children.map(props.children, child => {
+//         debugger;
+//         return React.isValidElement(child) && child.type.inheritColor === true ? React.cloneElement(child, {g: props.g}) : child;
+//       })
+//     }
+//   </div>
+// );
+// D.inheritColor = func => {
+//   let newFunc = props => func(props);
+//   newFunc.inheritColor = true;
+//   return newFunc;
+// };
 
 let A = props => (
   <a {...props} style={{
@@ -269,11 +295,11 @@ let Todo = props => (
     }}>
       {props.children}
     </div>
-    <div>
-      <TodoIconButton g={props.g} icon="check" type="success" style={{marginRight: ms.border(2)}}>Complete</TodoIconButton>
-      <TodoIconButton g={props.g} icon="pencil" type="primary" style={{marginRight: ms.border(2)}}>Edit</TodoIconButton>
-      <TodoIconButton g={props.g} icon="trash" type="danger">Delete</TodoIconButton>
-    </div>
+    <GradientContainer g={props.g}>
+      <TodoIconButton icon="check" type="success" style={{marginRight: ms.border(2)}}>Complete</TodoIconButton>
+      <TodoIconButton icon="pencil" type="primary" style={{marginRight: ms.border(2)}}>Edit</TodoIconButton>
+      <TodoIconButton icon="trash" type="danger">Delete</TodoIconButton>
+    </GradientContainer>
   </div>
 );
 
@@ -304,16 +330,16 @@ let TodosFooter = props => (
   }}>
     <SpacedFlexbox spacing={ms.spacing(3)} style={{alignItems: 'center', justifyContent: 'space-between'}}>
       2 items left
-      <div style={{
+      <GradientContainer g={props.g} style={{
         flex: 1,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <Button g={props.g}>All</Button>
-        <Button g={props.g} style={{borderColor: 'transparent'}}>Active</Button>
-        <Button g={props.g} style={{borderColor: 'transparent'}}>Completed</Button>
-      </div>
+        <Button>All</Button>
+        <Button style={{borderColor: 'transparent'}}>Active</Button>
+        <Button style={{borderColor: 'transparent'}}>Completed</Button>
+      </GradientContainer>
       <ButtonLink>Clear Completed</ButtonLink>
     </SpacedFlexbox>
   </div>
@@ -330,18 +356,18 @@ let Todos = props => (
     marginRight: ms.spacing(4)
     // minWidth: '80%'
   }}>
-    <div style={{
+    <GradientContainer g={props.g} style={{
       width: ms.spacing(21),
     }}>
       <h1 style={{fontSize: ms.tx(6), marginBottom: ms.spacing(2), fontWeight: 700}}>Todos</h1>
-      <TodoForm g={props.g} />
-      <Todo g={props.g}>Beg Elon Musk for a job</Todo>
-      <Todo g={props.g}>Rewrite history</Todo>
-      <Todo g={props.g}>Grow another beard</Todo>
-      <Todo g={props.g}>Eat Chipotle (recurring task)</Todo>
-      <Todo g={props.g}>Go for a walk, never come back</Todo>
-      <TodosFooter g={props.g} />
-    </div>
+      <TodoForm />
+      <Todo>Beg Elon Musk for a job</Todo>
+      <Todo>Rewrite history</Todo>
+      <Todo>Grow another beard</Todo>
+      <Todo>Eat Chipotle (recurring task)</Todo>
+      <Todo>Go for a walk, never come back</Todo>
+      <TodosFooter />
+    </GradientContainer>
   </div>
 );
 
@@ -357,14 +383,14 @@ let NavLink = props => (
 );
 
 let Nav = props => (
-  <div style={{color: props.g.base(1), backgroundColor: props.g.base(0), display: 'flex', alignItems: 'center'}}>
+  <GradientContainer g={props.g} style={{color: props.g.base(1), backgroundColor: props.g.base(0), display: 'flex', alignItems: 'center'}}>
     <span style={{...padding(6), display: 'inline-block', color: props.g.base(0.5)}}>airbnb</span>
     <span style={{flexGrow: 1}}>Where are you going?</span>
-    <Button g={props.g} style={{marginRight: ms.spacing(6)}}>Become a Host</Button>
-    <NavLink g={props.g}>Help</NavLink>
-    <NavLink g={props.g}>Sign Up</NavLink>
-    <NavLink g={props.g}>Log In</NavLink>
-  </div>
+    <Button style={{marginRight: ms.spacing(6)}}>Become a Host</Button>
+    <NavLink>Help</NavLink>
+    <NavLink>Sign Up</NavLink>
+    <NavLink>Log In</NavLink>
+  </GradientContainer>
 );
 
 let UserIcon = props => (
@@ -385,6 +411,8 @@ let UserIcon = props => (
   </div>
 );
 
+window.React = React;
+
 let BigIcon = props => (
   <div style={{
     display: 'inline-flex',
@@ -400,7 +428,7 @@ let BigIcon = props => (
       borderRadius: ms.spacing(10) / 2,
       width: ms.spacing(10),
       height: ms.spacing(10),
-      backgroundColor: props.g.base(.5),
+      backgroundColor: props.g.base(.2),
       marginBottom: ms.spacing(2),
     }}/>
     {props.label}
@@ -418,12 +446,12 @@ let BasicInfo = props => (
           <br />
           <small style={{fontSize: ms.tx(0), color: props.g.base(0.5)}}>Yachats, OR, United States (11)</small>
         </h1>
-        <div style={{display: 'flex', justifyContent: 'space-between', marginLeft: -ms.spacing(4)}}>
-          <BigIcon g={props.g} label="Entire home/apt" />
-          <BigIcon g={props.g} label="4 Guests" />
-          <BigIcon g={props.g} label="0 Bedrooms" />
-          <BigIcon g={props.g} label="2 Beds" />
-        </div>
+        <GradientContainer g={props.g} style={{display: 'flex', justifyContent: 'space-between', marginLeft: -ms.spacing(4)}}>
+          <BigIcon label="Entire home/apt" />
+          <BigIcon label="4 Guests" />
+          <BigIcon label="0 Bedrooms" />
+          <BigIcon label="2 Beds" />
+        </GradientContainer>
       </div>
       <div style={{flexGrow: 1, position: 'relative'}}>
         <div style={{
@@ -461,7 +489,7 @@ let BasicInfo = props => (
 );
 
 let DetailInfo = props => (
-  <div style={{backgroundColor: props.g.base(.1), paddingTop: ms.spacing(11), paddingBottom: ms.spacing(11)}}>
+  <div style={{backgroundColor: props.g.base(.1), paddingTop: ms.spacing(11), paddingBottom: ms.spacing(11), color: props.g.base(1)}}>
     <ContentWrapper g={props.g} style={{lineHeight: 1.5}}>
       <h2 style={{fontSize: ms.tx(1), fontWeight: 700, marginBottom: ms.spacing(7)}}>About this listing</h2>
       <p style={{marginBottom: ms.spacing(2), marginTop: ms.spacing(2)}}>
@@ -509,9 +537,9 @@ let DetailInfo = props => (
 );
 
 let AirbnbListing = props => (
-  <div>
-    <Nav g={props.g} />
-    <div style={{
+  <GradientContainer g={props.g}>
+    <Nav />
+    <GradientContainer style={{
       height: '60%',
       backgroundColor: props.g.base(.5),
       // backgroundImage: 'url(https://cdn-images-1.medium.com/max/2000/1*t0W_AaO1iWcAJkrho9qDBQ.jpeg)',
@@ -519,9 +547,9 @@ let AirbnbListing = props => (
       backgroundPosition: '50% 50%',
       backgroundBlendMode: 'luminosity'
     }}/>
-      <BasicInfo g={props.g} />
-      <DetailInfo g={props.g} />
-  </div>
+    <BasicInfo />
+    <DetailInfo />
+  </GradientContainer>
 );
 
 let App = React.createClass({
@@ -545,12 +573,13 @@ let App = React.createClass({
         text: '#000000',
         // primary: '#ff5a5f', //airbnb color
         primary: this.state.primaryColor, // some blue color
-        selected: '#00ff00',
+        // selected: '#00ff00',
         danger: '#d04c2f',
         success: '#57ec81',
         info: '#0000ff'
       }
     });
+    debugger;
     return this.state.isInverted ? g.invert() : g;
   },
   render () {

@@ -11,7 +11,7 @@ import chroma from 'chroma-js';
 //   // '#FF7300'
 // ];
 
-var steps = 7;
+var steps = 14;
 var colors = [];
 for (var i = 0; i < steps; i++) {
   colors.push(chroma.hcl(360/steps * i, 30, 50).hex());

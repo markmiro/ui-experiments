@@ -15,21 +15,21 @@ function rotateArray(arr, n = 1) {
 }
 
 export default function ChromaChart (props) {
-  let themeScale = props.themeScale;
+  let g = props.themeScale;
   let pad = 20;
   let w = 500;
   let h = 300;
-  let startC = chroma(themeScale(0)).get('hcl.c');
-  let endC = chroma(themeScale(1)).get('hcl.c');
+  let startC = chroma(g.base(0)).get('hcl.c');
+  let endC = chroma(g.base(1)).get('hcl.c');
   let scaleC = d3.linear().domain([0, 150]).range([h, 0]);
   let colorAmount = 20;
-  let scaleColors = themeScale.colors(colorAmount);
+  let scaleColors = g.colors(colorAmount);
   let x = d3.linear([0, colorAmount]).range([0, w/(colorAmount - 1)]);
 
   return (
     <svg width={w+pad*2} height={h+pad*2} style={{
       margin: ms.spacing(3),
-      background: themeScale(0.25),
+      background: g.base(0.25),
       display: 'block'
     }}>
       <g transform={`translate(${pad}, ${pad})`}>
@@ -38,7 +38,7 @@ export default function ChromaChart (props) {
           y={0}
           width={w}
           height={h}
-          stroke={themeScale(0.5)}
+          stroke={g.base(0.5)}
           strokeDasharray="1,1"
           strokeWidth={1}
           fill="transparent"
@@ -49,7 +49,7 @@ export default function ChromaChart (props) {
           y1={h/2}
           x2={w}
           y2={h/2}
-          stroke={themeScale(0.5)}
+          stroke={g.base(0.5)}
           strokeWidth={1}
           strokeDasharray="1,1"
         />
@@ -59,7 +59,7 @@ export default function ChromaChart (props) {
           y1={0}
           x2={w/2}
           y2={h}
-          stroke={themeScale(0.5)}
+          stroke={g.base(0.5)}
           strokeWidth={1}
           strokeDasharray="1,1"
         />
@@ -70,7 +70,7 @@ export default function ChromaChart (props) {
           y1={scaleC(startC)}
           x2={w}
           y2={scaleC(endC)}
-          stroke={themeScale(0.5)}
+          stroke={g.base(0.5)}
           strokeWidth={2}
         />
         {
@@ -81,7 +81,7 @@ export default function ChromaChart (props) {
               cy={scaleC(chroma(c).get('hcl.c'))}
               r={10}
               fill={c}
-              stroke={themeScale(0.5)}
+              stroke={g.base(0.5)}
               strokeWidth={2}
             />
           ))
@@ -90,15 +90,15 @@ export default function ChromaChart (props) {
           statusColors.map(statusColor =>
             scaleColors.map((c, i) => {
               // debugger;
-              var mixed = mixer.mix(themeScale, i / colorAmount, statusColor);
-              // console.log(mixed, chroma(mixed).get('hcl.c'));
+              let tinted = g.tint(statusColor, i / colorAmount);
+              // console.log(tinted, chroma(tinted).get('hcl.c'));
               return (
                 <circle
                   key={i + 'b'}
                   cx={x(i)}
-                  cy={scaleC(chroma(mixed).get('hcl.c'))}
+                  cy={scaleC(chroma(tinted).get('hcl.c'))}
                   r={6}
-                  fill={mixed}
+                  fill={tinted}
                   stroke={c}
                   strokeWidth={1}
                 />
