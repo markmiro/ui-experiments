@@ -1,4 +1,4 @@
-import {spacing} from './ms';
+import ms from './ms';
 
 let topForAmounts = (amounts) => amounts[0];
 
@@ -33,31 +33,31 @@ let leftForAmounts = (amounts) => {
 };
 
 export let padding = (...amounts)  => ({
-  paddingTop: spacing(
+  paddingTop: ms.spacing(
     topForAmounts(amounts)
   ),
-  paddingRight: spacing(
+  paddingRight: ms.spacing(
     rightForAmounts(amounts)
   ),
-  paddingBottom: spacing(
+  paddingBottom: ms.spacing(
     bottomForAmounts(amounts)
   ),
-  paddingLeft: spacing(
+  paddingLeft: ms.spacing(
     leftForAmounts(amounts)
   )
 });
 
 export let margin = (...amounts)  => ({
-  marginTop: spacing(
+  marginTop: ms.spacing(
     topForAmounts(amounts)
   ),
-  marginRight: spacing(
+  marginRight: ms.spacing(
     rightForAmounts(amounts)
   ),
-  marginBottom: spacing(
+  marginBottom: ms.spacing(
     bottomForAmounts(amounts)
   ),
-  marginLeft: spacing(
+  marginLeft: ms.spacing(
     leftForAmounts(amounts)
   )
 });

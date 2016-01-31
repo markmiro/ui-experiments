@@ -1,41 +1,48 @@
 {
-  "name": "react-transform-boilerplate",
-  "version": "0.1.0",
-  "description": "A new Webpack boilerplate with hot reloading React components, and error handling on module and component level.",
+  "name": "ui-experiments",
+  "version": "1.0.0",
+  "description": "An expriment for web interfaces, specifically with colors and React",
   "scripts": {
-    "start": "node server.js",
+    "clean": "rimraf dist",
+    "build:webpack": "cross-env NODE_ENV=production webpack --config webpack.config.prod.js",
+    "build": "npm run clean && npm run build:webpack",
+    "start": "node devServer.js",
     "lint": "eslint src"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gaearon/react-transform-boilerplate.git"
+    "url": "https://github.com/markmiro/ui-experiments.git"
   },
   "keywords": [
     "react",
     "reactjs",
-    "boilerplate",
-    "hot",
-    "reload",
-    "hmr",
-    "live",
-    "edit",
-    "webpack",
-    "babel",
-    "react-transform"
+    "colors",
+    "color",
+    "hcl",
+    "husl",
+    "huslp",
+    "chroma",
+    "ui"
   ],
-  "author": "Dan Abramov <dan.abramov@me.com> (http://github.com/gaearon)",
-  "license": "MIT",
+  "author": "Mark Miro <contact@markmiro.com>",
+  "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/gaearon/react-transform-boilerplate/issues"
+    "url": "https://github.com/markmiro/ui-experiments/issues"
   },
-  "homepage": "https://github.com/gaearon/react-transform-boilerplate",
+  "homepage": "https://github.com/markmiro/ui-experiments",
   "devDependencies": {
-    "babel-core": "^5.4.7",
-    "babel-eslint": "^3.1.9",
-    "babel-loader": "^5.1.2",
-    "babel-plugin-react-transform": "^1.0.1",
-    "eslint": "^1.3.1",
-    "eslint-plugin-react": "^2.3.0",
+    "babel-core": "^6.3.15",
+    "babel-eslint": "^5.0.0-beta4",
+    "babel-loader": "^6.2.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-preset-react-hmre": "^1.0.0",
+    "babel-preset-stage-2": "^6.3.13",
+    "cross-env": "^1.0.6",
+    "eslint": "^1.10.3",
+    "eslint-plugin-babel": "^3.0.0",
+    "eslint-plugin-react": "^3.11.3",
+    "eventsource-polyfill": "^0.9.6",
     "express": "^4.13.3",
     "json-loader": "^0.5.2",
     "react-transform-catch-errors": "^0.1.1",
@@ -43,9 +50,10 @@
     "redbox-react": "^1.0.1",
     "redux": "^2.0.0",
     "redux-devtools": "^2.1.0",
-    "webpack": "^1.9.6",
-    "webpack-dev-middleware": "^1.2.0",
-    "webpack-hot-middleware": "^2.0.0"
+    "rimraf": "^2.4.3",
+    "webpack": "^1.12.9",
+    "webpack-dev-middleware": "^1.4.0",
+    "webpack-hot-middleware": "^2.6.0"
   },
   "dependencies": {
     "chroma-js": "^1.1.1",
@@ -57,8 +65,8 @@
     "husl": "^6.0.1",
     "radium": "^0.13.8",
     "ramda": "^0.18.0",
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
     "react-motion": "^0.2.7",
     "reset": "^0.1.0",
     "underscore": "^1.8.3"

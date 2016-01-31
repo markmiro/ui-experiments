@@ -16,4 +16,4 @@ https://workflowy.com/s/kcqksrAt5T
 
 ## License
 
-MIT
+CC0 (public domain)

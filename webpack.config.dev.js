@@ -9,6 +9,7 @@ var files = fs.readdirSync('./src/').filter(function (file) {
 var entry = files.reduce(function (obj, file, index) {
   var key = path.basename(file, '.js');
   obj[key] = [
+    'eventsource-polyfill', // necessary for hot reloading with IE
     'webpack-hot-middleware/client',
     './src/' + key
   ];
@@ -16,7 +17,7 @@ var entry = files.reduce(function (obj, file, index) {
 }, {});
 
 module.exports = {
-  devtool: 'eval',
+  devtool: 'cheap-module-eval-source-map',
   entry: entry,
   output: {
     path: path.join(__dirname, 'dist'),
@@ -30,8 +31,8 @@ module.exports = {
   module: {
     loaders: [
       {
-        test: /\.js$/,
-        loader: 'babel',
+        test: /\.jsx?/,
+        loaders: ['babel'],
         include: path.join(__dirname, 'src')
       },
       {
