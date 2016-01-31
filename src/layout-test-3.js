@@ -7,7 +7,7 @@ import R from 'ramda';
 
 window.R = R;
 // window.Gradient = Gradient;
-window.gradient = Gradient.create();
+// window.gradient = Gradient.create();
 // window.gradient.toConsole();
 
 // let opts = {
