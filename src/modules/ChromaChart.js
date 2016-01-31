@@ -3,7 +3,6 @@ import d3 from 'd3-scale';
 import chroma from 'chroma-js';
 
 import ms from './ms';
-import mixer from './ColorMixer';
 import statusColors from './statusColors';
 
 // H: 0-360
@@ -15,7 +14,7 @@ function rotateArray(arr, n = 1) {
 }
 
 export default function ChromaChart (props) {
-  let g = props.themeScale;
+  let g = props.g;
   let pad = 20;
   let w = 500;
   let h = 300;

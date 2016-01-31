@@ -1,5 +1,8 @@
 import chroma from 'chroma-js';
-import mixer from './ColorMixer';
+import DeltaE from 'delta-e';
+import matchHueWith from './matchHueWith';
+import _ from 'underscore';
+
 /*
 1. Create a bunch of gradients
 2. Hook them up to certain css properties into "painters"
@@ -10,33 +13,63 @@ class Gradient {
   invert()
   brighten()
   darken()
-  mixWithColor()
+  tint()
 }
 */
 
 let Gradient = {
-  create (start = 'white', end = 'black', opts = {mode: 'lab', colors: 7, tints: {text: '#000000', danger: '#ff0000', success: '#00ff00', info: '#0000ff', primary: 'blue'}}) {
+  create (start = 'black', end = 'white', opts) {
+    opts = {
+      mode: 'lab',
+      minChroma: 0.33, // 0-1
+      chromaVariance: .5, // 0-1
+      tintLightnessPadding: .2, // 0-1
+      ...opts
+    };
+    opts.tints = {
+      success: '#00ff00',
+      warning: '#ffbf00',
+      danger: '#ff0000',
+      primary: '#004fff',
+      ...opts.tints
+    };
     let baseScale = chroma.scale([start, end]).mode(opts.mode);
-    let tintScale = chroma.scale([start, end]).mode(opts.mode).padding(0.2);
+    // let tintScale = baseScale;
+    let startL = chroma(start).get('hcl.l') / 100; // 0-1
+    let endL = chroma(end).get('hcl.l') / 100; // 0-1
+    let startDiffFromEnds = Math.min(startL, 1 - startL); // 0-1
+    let endLDiffFromEnds = Math.min(endL, 1 - endL); // 0-1
+    let tintScale = chroma.scale([start, end]).mode(opts.mode).padding([
+      startDiffFromEnds < opts.tintLightnessPadding ? opts.tintLightnessPadding : 0,
+      endLDiffFromEnds < opts.tintLightnessPadding ? opts.tintLightnessPadding : 0
+    ]);
+
+    let matchColorWith = (color, i) => {
+      let hclHue = chroma(color).get('hcl.h');
+      return matchHueWith(hclHue, tintScale(i), {chromaVariance: opts.chromaVariance, minChroma: opts.minChroma}).hex();
+    };
 
     // Setup some basic properties
     var gradient = {
       start,
       end,
-      // baseColors: baseArr,
+      opts,
       base: i => baseScale(i).hex(),
-      invert () {
-        return Gradient.create(end, start, opts);
+      invert (amount = 1) {
+        return amount === 1
+          ? Gradient.create(end, start, opts)
+          : Gradient.create(baseScale(amount), baseScale(1 - amount), opts);
       },
-      tint: (tintColor, i) => mixer.mix(tintScale, i, tintColor).hex(),
+      tint: (tintColor, i) => {
+        return matchColorWith(tintColor, i);
+      },
       colors: amount => tintScale.colors(amount)
     };
 
     // Create a function for each tint
     for (let tint in opts.tints) {
       if (opts.tints.hasOwnProperty(tint)) {
-        let hclHue = chroma(opts.tints[tint]).get('hcl.h');
-        gradient[tint] = i => mixer.matchHueWith(hclHue, tintScale(i)).hex();
+        gradient[tint] = i => matchColorWith(opts.tints[tint], i);
       }
     }
     gradient.toConsole = function () {

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import R from 'ramda';
 // import {tx, heading, size} from './modules/Size';
 import ms from './modules/ms';
-import mixer from './modules/ColorMixer';
+import Gradient from './modules/Gradient';
 import {VSticky} from './modules/VSticky';
 import {margin, padding} from './modules/cssUtils';
 
@@ -11,8 +11,8 @@ import {margin, padding} from './modules/cssUtils';
 
 let fgColor = 'black';
 let bgColor = 'white';
-let fg = mixer.createScale(fgColor, bgColor);
-let bg = mixer.createScale(bgColor, fgColor);
+let fg = Gradient.create(fgColor, bgColor).base;
+let bg = Gradient.create(bgColor, fgColor).base;
 let paint = step => ({
   color: fg(step),
   backgroundColor: bg(step)
@@ -20,8 +20,8 @@ let paint = step => ({
 
 let createPainter = (fg, bg) => (
   step => ({
-    color: mixer.createScale(fg, bg)(step),
-    backgroundColor: mixer.createScale(bg, fg)(step)
+    color: Gradient.create(fg, bg).base(step),
+    backgroundColor: Gradient.create(bg, fg).base(step)
   })
 );
 

@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
 import themeColorScales from './modules/ThemeColorScales';
-import mixer from './modules/ColorMixer';
 // import {size, tx, heading} from './modules/Size';
 import ms from './modules/ms';
 import {Layout} from './modules/Layout';
@@ -64,19 +63,20 @@ class App extends Component {
       }
     }
 
-    var style = this.styler();
-    var themeScale = this.colorer().base;
+    var gradient = this.gradient();
+    var style = this.styler(gradient);
+    var g = gradient.base;
     //
     // let solidColoredButtonStyle = (color, bgScaleAmount) => {
-    //   let middleColor = mixer.mix(themeScale, bgScaleAmount, color);
+    //   let middleColor = mixer.mix(g, bgScaleAmount, color);
     //   return style.btn({
     //     solid: true,
-    //     themeScale: mixer.createScale(middleColor, themeScale(bgScaleAmount))
+    //     g: mixer.createScale(middleColor, g(bgScaleAmount))
     //   });
     // };
 
     let buttons = depth => (
-      <div key={depth} style={{background: themeScale(depth)}}>
+      <div key={depth} style={{background: g(depth)}}>
       {
         colors.map(color =>
           <span key={color}>
@@ -84,7 +84,7 @@ class App extends Component {
                 // marginRight: 5,
                 width: 30,
                 height: 10,
-                backgroundColor: this.colorer().tint(color, depth),
+                backgroundColor: gradient.tint(color, depth),
                 display: 'inline-block'
             }} />
           </span>
@@ -96,43 +96,15 @@ class App extends Component {
     return (
       <div style={style.rootContainer}>
         <ColorChart
-          themeScale={this.colorer()}
+          g={gradient}
           startColor={this.state.startColor}
           endColor={this.state.endColor}
         />
         <ChromaChart
-          themeScale={this.colorer()}
+          g={gradient}
           startColor={this.state.startColor}
           endColor={this.state.endColor}
         />
-        {
-
-          // <ColorChart
-          //   themeScale={mixer.createScale('white', 'black')}
-          //   startColor={this.state.startColor}
-          //   endColor={this.state.endColor}
-          // />
-          // <ColorChart
-          //   themeScale={mixer.createScale('gray', 'black')}
-          //   startColor={this.state.startColor}
-          //   endColor={this.state.endColor}
-          // />
-          // <ColorChart
-          //   themeScale={mixer.createScale('white', 'gray')}
-          //   startColor={this.state.startColor}
-          //   endColor={this.state.endColor}
-          // />
-          // <ColorChart
-          //   themeScale={mixer.createScale('lightGray', 'gray')}
-          //   startColor={this.state.startColor}
-          //   endColor={this.state.endColor}
-          // />
-          // <ColorChart
-          //   themeScale={mixer.createScale('#444', 'black')}
-          //   startColor={this.state.startColor}
-          //   endColor={this.state.endColor}
-          // />
-        }
         <input
           style={{
             ...style.input,
@@ -154,7 +126,7 @@ class App extends Component {
         <Toggle
           checked={this.state.invert}
           onClick={this._handleClickInvert.bind(this)}
-          depthScale={themeScale}
+          depthScale={g}
           colorDepth={0}
         />
         <Dropdown onChange={this._changeTheme.bind(this)} value={this.state.theme}>
@@ -173,7 +145,7 @@ class App extends Component {
     );
   }
 
-  colorer (opts = {invert: false}) {
+  gradient (opts = {invert: false}) {
     let g = Gradient.create(this.state.startColor, this.state.endColor, {
       mode: this.state.interpolator ? this.state.interpolator.toLowerCase() : 'lab'
     });
@@ -184,45 +156,44 @@ class App extends Component {
     return g;
   }
 
-  styler () {
-    var themeScale = this.colorer().base;
+  styler (g) {
     return {
       rootContainer: {
         display: 'inline-block',
         // height: '100%',
         // overflow: 'scroll',
-        background: themeScale(1),
-        color: themeScale(0.6)
+        background: g.base(1),
+        color: g.base(0.6)
       },
       input: {
-        background: themeScale(0.9),
-        color: themeScale(0.5),
+        background: g.base(0.9),
+        color: g.base(0.5),
         border: 'none',
         boxShadow: 'none',
         fontSize: 16,
         marginRight: ms.spacing(2),
-        outlineColor: themeScale(0.5)
+        outlineColor: g.base(0.5)
       },
-      btn: (opts) => {
-        opts = opts || {};
-        let scale = opts.themeScale ? opts.themeScale : themeScale;
-        return {
-          color: scale(opts.solid ? 1 : 0),
-          background: scale(opts.solid ? 0 : 1),
-          borderColor: scale(0),
-          borderStyle: 'solid',
-          borderWidth: ms.border(1),
-          fontSize: '100%',
-          paddingLeft: ms.spacing(0),
-          paddingRight: ms.spacing(0),
-          paddingTop: ms.spacing(0),
-          paddingBottom: ms.spacing(0),
-          cursor: 'pointer',
-          fontWeight: 500,
-          textTransform: 'uppercase',
-          outlineColor: scale(0.5),
-        }
-      }
+      // btn: (opts) => {
+      //   opts = opts || {};
+      //   let scale = opts.themeScale ? opts.themeScale : g.base;
+      //   return {
+      //     color: scale(opts.solid ? 1 : 0),
+      //     background: scale(opts.solid ? 0 : 1),
+      //     borderColor: scale(0),
+      //     borderStyle: 'solid',
+      //     borderWidth: ms.border(1),
+      //     fontSize: '100%',
+      //     paddingLeft: ms.spacing(0),
+      //     paddingRight: ms.spacing(0),
+      //     paddingTop: ms.spacing(0),
+      //     paddingBottom: ms.spacing(0),
+      //     cursor: 'pointer',
+      //     fontWeight: 500,
+      //     textTransform: 'uppercase',
+      //     outlineColor: scale(0.5),
+      //   }
+      // }
     };
   }
 }

@@ -548,7 +548,7 @@ let AirbnbListing = props => (
       backgroundBlendMode: 'luminosity'
     }}/>
     <BasicInfo />
-    <DetailInfo />
+    <DetailInfo g={props.g.invert(.1)} />
   </GradientContainer>
 );
 
@@ -566,21 +566,16 @@ let App = React.createClass({
     this.forceUpdate();
   },
   _g () {
-    let g = Gradient.create(this.state.firstColor, this.state.lastColor, {
+    let gradientOpts = {
       mode: 'lab',
-      colors: 7,
       tints: {
-        text: '#000000',
-        // primary: '#ff5a5f', //airbnb color
-        primary: this.state.primaryColor, // some blue color
-        // selected: '#00ff00',
-        danger: '#d04c2f',
-        success: '#57ec81',
-        info: '#0000ff'
+        primary: this.state.primaryColor
       }
-    });
-    debugger;
-    return this.state.isInverted ? g.invert() : g;
+    };
+    return (this.state.isInverted
+      ? Gradient.create(this.state.lastColor, this.state.firstColor, gradientOpts)
+      : Gradient.create(this.state.firstColor, this.state.lastColor, gradientOpts)
+    );
   },
   render () {
     let g = this._g();
@@ -593,7 +588,7 @@ let App = React.createClass({
         flexWrap: 'wrap'
       }}>
         <Styler
-          g={g}
+          g={Gradient.create(g.base(1), g.base(.1), g.opts)}
           invert={this.state.isInverted}
           onInvert={this._handleChangeInverted}
           onChangeFirstColor={color => this.setState({firstColor: color})}
