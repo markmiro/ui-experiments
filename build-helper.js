@@ -1,5 +1,6 @@
 var path = require('path');
 var fs = require('fs');
+var _ = require('ramda');
 
 var files = fs.readdirSync('./src/').filter(function (file) {
   return path.extname(file) === '.js';
