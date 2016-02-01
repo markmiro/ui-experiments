@@ -5,7 +5,7 @@ var _ = require('ramda');
 var webpack = require('webpack');
 
 var config = require('./webpack.config.dev');
-var template = fs.readFileSync('./template.html');
+var template = fs.readFileSync('./template.html').toString();
 
 var app = express();
 var compiler = webpack(config);
@@ -26,7 +26,7 @@ app.get(['/:bundle', '/'], function(req, res) {
   var isValidBundleName = _.contains(bundleName, _.keys(config.entry));
   res.send(
     isValidBundleName
-    ? template.toString().replace('{bundleName}', bundleName)
+    ? template.replace('{bundleName}', bundleName).replace(/\{basePath\}/gm, '')
     : 'Nope.'
   );
 });

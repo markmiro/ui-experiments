@@ -15,6 +15,6 @@ fs.writeFileSync('./dist/base.css', fs.readFileSync('base.css').toString());
 var template = fs.readFileSync('./template.html').toString();
 var bundleNames = _.keys(buildHelper.entry);
 bundleNames.map(function (bundleName) {
-  var contents = template.replace('{bundleName}', bundleName);
+  var contents = template.replace('{bundleName}', bundleName).replace(/\{basePath\}/gm, '/ui-experiments');
   fs.writeFileSync('./dist/' + bundleName + '.html', contents);
 });
