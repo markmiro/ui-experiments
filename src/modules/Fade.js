@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import color from 'color';
 import Radium from 'radium';
 
 export class Fade extends React.Component {

@@ -1,14 +1,14 @@
 var path = require('path');
 var webpack = require('webpack');
+var buildHelper = require('./build-helper');
+
 
 module.exports = {
   devtool: 'source-map',
-  entry: [
-    './src/index'
-  ],
+  entry: buildHelper.entry,
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'bundle.js',
+    filename: '[name].bundle.js',
     publicPath: '/static/'
   },
   plugins: [

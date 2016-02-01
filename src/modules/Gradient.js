@@ -1,5 +1,4 @@
 import chroma from 'chroma-js';
-import DeltaE from 'delta-e';
 import matchHueWith from './matchHueWith';
 import _ from 'underscore';
 

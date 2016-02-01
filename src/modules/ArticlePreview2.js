@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Radium from 'radium';
-import color from 'color';
 import {vmin} from './Size';
 import {Fade} from './Fade';
 const {Spring} = require('react-motion');
@@ -83,12 +82,12 @@ export class ArticlePreview2 extends React.Component {
       contentMarginTop: -8,
       height: 100,
       bg: 'white',
-      fg: color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString(),
+      fg: this.props.theme.bg,
       maxWidth: 1000
     };
     let activeValue = {
       bg: 'white',
-      fg: color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString(),
+      fg: this.props.theme.bg,
     };
     let closedValue = {
       imgOpacity: 0.5,

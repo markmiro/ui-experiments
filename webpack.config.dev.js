@@ -1,24 +1,10 @@
-var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
-
-var files = fs.readdirSync('./src/').filter(function (file) {
-  return path.extname(file) === '.js';
-});
-
-var entry = files.reduce(function (obj, file, index) {
-  var key = path.basename(file, '.js');
-  obj[key] = [
-    'eventsource-polyfill', // necessary for hot reloading with IE
-    'webpack-hot-middleware/client',
-    './src/' + key
-  ];
-  return obj;
-}, {});
+var buildHelper = require('./build-helper');
 
 module.exports = {
   devtool: 'cheap-module-eval-source-map',
-  entry: entry,
+  entry: buildHelper.entry,
   output: {
     path: path.join(__dirname, 'dist'),
     filename: '[name].bundle.js',

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Radium from 'radium';
-import color from 'color';
 import {vmin} from './Size';
 import {Fade} from './Fade';
 const {Spring} = require('react-motion');
