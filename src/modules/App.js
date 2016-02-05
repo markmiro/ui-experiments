@@ -14,7 +14,7 @@ export class App extends Component {
     let buzzfeedTheme = { ...baseTheme, fg: '#f03232', bg: 'black'};
     let aeonTheme = { ...baseTheme, bg: '#d6a788' };
     return (
-      <div>
+      <div style={{overflow: 'scroll', height: '100%'}}>
         <ArticlePreview
           theme={buzzfeedTheme}
           img="https://img.readitlater.com/i/recodetech.files.wordpress.com/2015/06/20150527-code-conference1/QS/quality%253D80%2526strip%253Dinfo/EQS/RS/w1280.jpg?&ssl=1"

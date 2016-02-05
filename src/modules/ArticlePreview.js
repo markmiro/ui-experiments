@@ -101,12 +101,12 @@ export class ArticlePreview extends React.Component {
       contentMarginTop: -8,
       height: 100,
       bg: 'white',
-      fg: color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString(),
+      fg: 'black',
       maxWidth: 1000
     };
     let activeValue = {
       bg: 'white',
-      fg: color(this.props.theme.bg).darken(0.5).desaturate(0.5).hexString(),
+      fg: 'black',
     };
     let closedValue = {
       fadeOpacity: 1,
