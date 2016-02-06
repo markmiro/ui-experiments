@@ -6,6 +6,7 @@
     "clean": "rimraf dist",
     "build:webpack": "cross-env NODE_ENV=production webpack --config webpack.config.prod.js",
     "build:non-js": "node build-non-js",
+    "build:lib": "babel src/modules --out-dir lib",
     "build": "npm run clean && npm run build:non-js && npm run build:webpack",
     "start": "node dev-server",
     "deploy": "npm run build && node deploy.js",
@@ -15,6 +16,7 @@
     "type": "git",
     "url": "https://github.com/markmiro/ui-experiments.git"
   },
+  "main": "main.js",
   "keywords": [
     "react",
     "reactjs",
