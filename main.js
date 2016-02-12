@@ -1,1 +1,5 @@
-module.exports = require('./lib/Gradient');
+var Gradient = require('./lib/Gradient');
+
+module.exports = {
+  Gradient: Gradient
+};
