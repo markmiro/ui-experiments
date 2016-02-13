@@ -1,8 +1,9 @@
 {
   "name": "ui-experiments",
   "version": "1.0.0",
-  "description": "An expriment for web interfaces, specifically with colors and React",
+  "description": "An experiment for web interfaces, specifically with colors and React",
   "scripts": {
+    "test": "ava --watch",
     "clean": "rimraf dist",
     "build:webpack": "cross-env NODE_ENV=production webpack --config webpack.config.prod.js",
     "build:non-js": "node build-non-js",
@@ -35,6 +36,7 @@
   },
   "homepage": "https://github.com/markmiro/ui-experiments",
   "devDependencies": {
+    "ava": "sindresorhus/ava",
     "babel-core": "^6.3.15",
     "babel-eslint": "^5.0.0-beta4",
     "babel-loader": "^6.2.0",
@@ -54,8 +56,7 @@
     "react-transform-catch-errors": "^0.1.1",
     "react-transform-webpack-hmr": "^0.1.2",
     "redbox-react": "^1.0.1",
-    "redux": "^2.0.0",
-    "redux-devtools": "^2.1.0",
+    "redux-devtools": "^3.1.1",
     "rimraf": "^2.4.3",
     "webpack": "^1.12.9",
     "webpack-dev-middleware": "^1.4.0",
@@ -66,12 +67,14 @@
     "d3": "^3.5.6",
     "d3-color": "^0.2.5",
     "d3-scale": "^0.1.1",
+    "deep-freeze": "0.0.1",
     "husl": "^6.0.1",
-    "radium": "^0.13.8",
+    "radium": "^0.16.6",
     "ramda": "^0.18.0",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "react-motion": "^0.2.7",
+    "redux": "^3.3.1",
     "reset": "^0.1.0",
     "underscore": "^1.8.3"
   }

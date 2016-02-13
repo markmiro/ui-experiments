@@ -20,9 +20,9 @@ let Gradient = {
   create (start = 'black', end = 'white', opts) {
     opts = {
       mode: 'lab',
-      minChroma: 0.33, // 0-1
+      minChroma: 0.2, // 0-1
       chromaVariance: .5, // 0-1
-      tintLightnessPadding: .2, // 0-1
+      tintLightnessPadding: 0, // 0-1
       ...opts
     };
     opts.tints = {

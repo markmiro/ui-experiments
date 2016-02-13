@@ -1,9 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import R from 'ramda';
+
 import ms from './modules/ms';
 import {padding, margin} from './modules/cssUtils';
 import Gradient from './modules/Gradient';
-import R from 'ramda';
+import SpacedFlexbox from './modules/SpacedFlexbox';
+import Button from './modules/Button';
 
 window.R = R;
 // window.Gradient = Gradient;
@@ -94,67 +97,11 @@ let A = props => (
   </a>
 );
 
-let SpacedFlexbox = React.createClass({
-  render () {
-    let margin = this.props.spacing / 2; // flexbox margins don't collapse
-    let children = React.Children.map(this.props.children, child => (
-      <li style={{margin, ...this.props.childWrapperStyle}}>
-        {child}
-      </li>
-    ));
-    return (
-      <ul style={{
-        // defaults
-        flexWrap: 'wrap',
-        // overrides
-        ...this.props.style,
-        // required
-        margin: -margin,
-        display: 'flex'
-      }}>
-        {children}
-      </ul>
-    );
-  }
-});
-
-let ButtonLink = props => (
-  <a href="#0" {...props} style={{
-    color: 'inherit',
-    fontWeight: 500,
-    textTransform: 'uppercase',
-    textDecoration: 'none',
-    ...props.style
-  }}>
-    {props.children}
-  </a>
-);
-
 let Separator = props => (
   <div style={{
     height: ms.border(0),
     backgroundColor: props.g.base(1)
   }} />
-);
-
-let Button = props => (
-  <button style={{
-    color: props.g.base(1),
-    backgroundColor: 'transparent',
-    borderColor: 'inherit',
-    borderWidth: ms.border(3),
-    borderStyle: 'solid',
-    // backgroundColor: props.g.base(0.2),
-    ...padding(1, 2),
-    fontSize: '100%',
-    // border: 'none',
-    cursor: 'pointer',
-    fontWeight: 500,
-    textTransform: 'uppercase',
-    ...props.style
-  }}>
-    {props.children}
-  </button>
 );
 
 let ContentWrapper = props => (
@@ -264,7 +211,7 @@ let TodoIconButton = props => (
       letterSpacing: .5,
       // backgroundColor: g[props.type](.7),
       // color: props.g.base(1),
-      backgroundColor: props.g[props.type](1),
+      backgroundColor: props.g[props.type](.8),
       color: props.g.base(.1),
       borderColor: 'transparent',
       // borderRadius: 99,
@@ -340,7 +287,7 @@ let TodosFooter = props => (
         <Button style={{borderColor: 'transparent'}}>Active</Button>
         <Button style={{borderColor: 'transparent'}}>Completed</Button>
       </GradientContainer>
-      <ButtonLink>Clear Completed</ButtonLink>
+      <Button.Link>Clear Completed</Button.Link>
     </SpacedFlexbox>
   </div>
 );
@@ -373,13 +320,13 @@ let Todos = props => (
 
 
 let NavLink = props => (
-  <ButtonLink {...props} style={{
+  <Button.Link {...props} style={{
       padding: ms.spacing(6),
       display: 'inline-block',
       ...props.style
   }}>
     {props.children}
-  </ButtonLink>
+  </Button.Link>
 );
 
 let Nav = props => (
@@ -495,7 +442,7 @@ let DetailInfo = props => (
       <p style={{marginBottom: ms.spacing(2), marginTop: ms.spacing(2)}}>
         This sunny Yachats vacation rental is just what you were seeking for your next beach getaway.
       </p>
-      <ButtonLink style={{color: props.g.primary(.7)}}>Contact Host</ButtonLink>
+      <Button.Link style={{color: props.g.primary(.7)}}>Contact Host</Button.Link>
       <HR g={props.g} />
       <div className="row">
         <div className="col-xs-4" style={{fontWeight: 700}}>This Space</div>

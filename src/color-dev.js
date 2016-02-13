@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
+import throttle from 'throttle-function';
 
 import themeColorScales from './modules/ThemeColorScales';
 // import {size, tx, heading} from './modules/Size';
@@ -14,19 +15,21 @@ import ChromaChart from './modules/ChromaChart';
 import colors from './modules/statusColors';
 import Gradient from './modules/Gradient';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+const App = React.createClass({
+  getInitialState () {
     let themeName = this.props.theme || 'sunset';
     let theme = themeColorScales[themeName];
-    this.state = {
+    return {
       theme: themeName,
       invert: true,
       interpolator: theme.interpolator,
       startColor: theme.start,
       endColor: theme.end
     };
-  }
+  },
+  componentWillMount () {
+    this._handleChangeStartColor = throttle(this._handleChangeStartColor, {window: 1, limit: 1}).bind(this);
+  },
   _changeTheme (e) {
     var _this = this;
     e.preventDefault();
@@ -38,16 +41,16 @@ class App extends Component {
       startColor: theme.start,
       endColor: theme.end
     });
-  }
+  },
   _handleChangeStartColor (e) {
     this.setState({startColor: e.target.value});
-  }
-  _handleChangeEndColor (e) {
+  },
+  _handleChangeEndColor: function (e) {
     this.setState({endColor: e.target.value});
-  }
+  },
   _handleClickInvert (e) {
     this.setState({invert: !this.state.invert});
-  }
+  },
   render () {
     let sizes = [];
     let times = 11;
@@ -112,24 +115,24 @@ class App extends Component {
           }}
           type="color"
           value={this.state.startColor}
-          onChange={this._handleChangeStartColor.bind(this)}
+          onChange={this._handleChangeStartColor}
         />
         <input
           style={style.input}
           type="color"
           value={this.state.endColor}
-          onChange={this._handleChangeEndColor.bind(this)}
+          onChange={this._handleChangeEndColor}
         />
       <span style={{paddingLeft: ms.spacing(3), paddingTop: ms.spacing(3)}}>
           Invert colors:
         </span>
         <Toggle
           checked={this.state.invert}
-          onClick={this._handleClickInvert.bind(this)}
+          onClick={this._handleClickInvert}
           depthScale={g}
           colorDepth={0}
         />
-        <Dropdown onChange={this._changeTheme.bind(this)} value={this.state.theme}>
+        <Dropdown onChange={this._changeTheme} value={this.state.theme}>
           {
             Object.keys(themeColorScales).map((key) => {
                let name = themeColorScales[key].name;
@@ -143,7 +146,7 @@ class App extends Component {
         { /* sizesStiched.map(size => size/10).map(buttons) */ }
       </div>
     );
-  }
+  },
 
   gradient (opts = {invert: false}) {
     let g = Gradient.create(this.state.startColor, this.state.endColor, {
@@ -154,7 +157,7 @@ class App extends Component {
       return g.invert();
     }
     return g;
-  }
+  },
 
   styler (g) {
     return {
@@ -196,7 +199,7 @@ class App extends Component {
       // }
     };
   }
-}
+});
 
 ReactDOM.render((
   <div style={{
