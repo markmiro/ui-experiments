@@ -6,6 +6,7 @@ import ms from './modules/ms';
 import {padding, margin} from './modules/cssUtils';
 import Gradient from './modules/Gradient';
 import SpacedFlexbox from './modules/SpacedFlexbox';
+import Slider from './modules/Slider';
 import Button from './modules/Button';
 
 window.R = R;
@@ -193,6 +194,10 @@ let Styler = props => (
         Primary Color:
         <ColorPicker g={props.g} color={props.primaryColor} onChangeColor={props.onChangePrimaryColor} />
       </div>
+      Minimum Chroma:
+      <Slider g={props.g} min={0} max={1} value={props.minChroma} onChange={props.onMinChromaChange} />
+      Tint Lightness Padding:
+      <Slider g={props.g} min={0} max={1} value={props.tintLightnessPadding} onChange={props.onTintLightnessPaddingChange} />
       <p style={{color: props.g.base(0.5), fontSize: ms.tx(-1)}}>
         The hard part about playing with different color schemes for user interfaces is that you can't just change a single color. You often have to change all of them to avoid color clashes.
       </p>
@@ -505,7 +510,10 @@ let App = React.createClass({
       firstColor: '#ffffff',
       lastColor: '#525865',
       primaryColor: '#5b92ff',
-      isInverted: false
+      isInverted: false,
+      chromaVariance: 0.5,
+      minChroma: 0.2,
+      tintLightnessPadding: 0.15
     };
   },
   _handleChangeInverted (inverted) {
@@ -515,6 +523,9 @@ let App = React.createClass({
   _g () {
     let gradientOpts = {
       mode: 'lab',
+      chromaVariance: this.state.minChroma,
+      minChroma: this.state.minChroma,
+      tintLightnessPadding: this.state.tintLightnessPadding,
       tints: {
         primary: this.state.primaryColor
       }
@@ -543,6 +554,15 @@ let App = React.createClass({
           onChangeLastColor={color => this.setState({lastColor: color})}
           onChangePrimaryColor={color => this.setState({primaryColor: color})}
           lastColor={this.state.lastColor}
+
+          chromaVariance={this.state.chromaVariance}
+          onChromaVarianceChange={chromaVariance => this.setState({chromaVariance})}
+
+          minChroma={this.state.minChroma}
+          onMinChromaChange={minChroma => this.setState({minChroma})}
+
+          tintLightnessPadding={this.state.tintLightnessPadding}
+          onTintLightnessPaddingChange={tintLightnessPadding => this.setState({tintLightnessPadding})}
         />
         <div style={{
             color: g.base(1),

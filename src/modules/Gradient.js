@@ -22,7 +22,7 @@ let Gradient = {
       mode: 'lab',
       minChroma: 0.2, // 0-1
       chromaVariance: .5, // 0-1
-      tintLightnessPadding: 0, // 0-1
+      tintLightnessPadding: 0.15, // 0-1
       ...opts
     };
     opts.tints = {
@@ -34,14 +34,18 @@ let Gradient = {
     };
     let baseScale = chroma.scale([start, end]).mode(opts.mode);
     // let tintScale = baseScale;
-    let startL = chroma(start).get('hcl.l') / 100; // 0-1
-    let endL = chroma(end).get('hcl.l') / 100; // 0-1
+    let startL = chroma(start).get('lab.l') / 100; // 0-1
+    let endL = chroma(end).get('lab.l') / 100; // 0-1
     let startDiffFromEnds = Math.min(startL, 1 - startL); // 0-1
     let endLDiffFromEnds = Math.min(endL, 1 - endL); // 0-1
     let tintScale = chroma.scale([start, end]).mode(opts.mode).padding([
       startDiffFromEnds < opts.tintLightnessPadding ? opts.tintLightnessPadding : 0,
       endLDiffFromEnds < opts.tintLightnessPadding ? opts.tintLightnessPadding : 0
     ]);
+
+    let minChroma = Math.abs(startL - endL);
+    opts.minChroma = minChroma;
+    opts.chromaVariance = minChroma;
 
     let matchColorWith = (color, i) => {
       let hclHue = chroma(color).get('hcl.h');

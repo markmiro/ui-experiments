@@ -4,7 +4,7 @@ import ms from './modules/ms';
 import Gradient from './modules/Gradient';
 import SpacedFlexbox from './modules/SpacedFlexbox';
 import Button from './modules/Button';
-import {createStore} from 'redux';
+import {createStore, applyMiddleware} from 'redux';
 
 const counter = (state = 0, action) => {
   switch (action.type) {
@@ -14,7 +14,9 @@ const counter = (state = 0, action) => {
   }
 };
 
-const store = createStore(counter);
+const store = createStore(counter, 0,
+  window.devToolsExtension ? window.devToolsExtension() : undefined
+);
 
 let g = Gradient.create('#666255', '#e9ddb8').invert();
 

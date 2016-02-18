@@ -17,7 +17,7 @@ export default function ColorChart (props) {
   let g = props.g;
   let pad = 20;
   let w = 500;
-  let h = 300;
+  let h = 200;
   let startL = chroma(g.base(0)).get('hcl.l');
   let endL = chroma(g.base(1)).get('hcl.l');
   let scaleL = d3.linear().domain([0, 100]).range([h, 0]);
@@ -77,7 +77,7 @@ export default function ColorChart (props) {
             <circle
               key={i}
               cx={x(i)}
-              cy={scaleL(chroma(c).get('hcl.l'))}
+              cy={scaleL(chroma(c).get('lab.l'))}
               r={5}
               fill={c}
               stroke={g.base(0.5)}
@@ -86,20 +86,22 @@ export default function ColorChart (props) {
           ))
         }
         {
-          scaleColors.map((c, i) => {
-            let tinted = g.tint(statusColors[0], i / colorAmount);
-            return (
-              <circle
-                key={i + 'b'}
-                cx={x(i)}
-                cy={scaleL(chroma(tinted).get('hcl.l'))}
-                r={5}
-                fill={tinted}
-                stroke={c}
-                strokeWidth={4}
-              />
-            );
-          })
+          statusColors.map(statusColor =>
+            scaleColors.map((c, i) => {
+              let tinted = g.tint(statusColor, i / colorAmount);
+              return (
+                <circle
+                  key={i + 'b'}
+                  cx={x(i)}
+                  cy={scaleL(chroma(tinted).get('hcl.l'))}
+                  r={5}
+                  fill={tinted}
+                  stroke={c}
+                  strokeWidth={4}
+                />
+              );
+            })
+          )
         }
       </g>
     </svg>

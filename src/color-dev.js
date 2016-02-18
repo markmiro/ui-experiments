@@ -28,7 +28,7 @@ const App = React.createClass({
     };
   },
   componentWillMount () {
-    this._handleChangeStartColor = throttle(this._handleChangeStartColor, {window: 1, limit: 1}).bind(this);
+    // this._handleChangeStartColor = throttle(this._handleChangeStartColor, {window: 1, limit: 1}).bind(this);
   },
   _changeTheme (e) {
     var _this = this;
@@ -79,14 +79,15 @@ const App = React.createClass({
     // };
 
     let buttons = depth => (
-      <div key={depth} style={{background: g(depth)}}>
+      <div key={depth} style={{background: g(depth), paddingLeft: 10}}>
       {
         colors.map(color =>
           <span key={color}>
             <span style={{
-                // marginRight: 5,
-                width: 30,
-                height: 10,
+                marginRight: 10,
+                marginBottom: 10,
+                width: 20,
+                height: 20,
                 backgroundColor: gradient.tint(color, depth),
                 display: 'inline-block'
             }} />

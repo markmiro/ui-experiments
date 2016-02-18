@@ -17,7 +17,7 @@ export default function ChromaChart (props) {
   let g = props.g;
   let pad = 20;
   let w = 500;
-  let h = 300;
+  let h = 200;
   let startC = chroma(g.base(0)).get('hcl.c');
   let endC = chroma(g.base(1)).get('hcl.c');
   let scaleC = d3.linear().domain([0, 150]).range([h, 0]);
