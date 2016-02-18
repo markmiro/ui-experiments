@@ -7,11 +7,13 @@ import Gradient from './modules/Gradient';
 
 const g = Gradient.create().invert();
 
-let portalContents = null;
+let portalContents = [];
 const Portal = ({contents}) => (
   <div>
     {
-      contents ? contents : 'Empty Portal'
+      contents.length > 0
+        ? contents
+        : 'Empty Portal'
     }
   </div>
 );
@@ -22,13 +24,13 @@ let renderPortal = () => (
 
 
 // A component that wraps some content and puts it into the DOM
-portal.add = (contents) => {
-  portalContents = contents;
+portal.add = reactElement => {
+  portalContents.push(reactElement);
   console.log('add to portal');
   renderPortal();
 };
-portal.remove = (contents) => {
-  portalContents = null;
+portal.remove = reactElement => {
+  portalContents = portalContents.filter(item => item.key !== reactElement.key);
   console.log('remove from portal');
   renderPortal();
 };
@@ -36,6 +38,18 @@ renderPortal();
 
 
 
+const Tooltip = ({children, top, left}) => (
+  <div style={{
+    top,
+    left,
+    position: 'absolute',
+    padding: ms.spacing(2),
+    backgroundColor: g.base(1),
+    color: g.base(0)
+  }}>
+    {children}
+  </div>
+);
 
 // Wraps a component to enable an on-hover tooltip
 // ---
@@ -44,17 +58,33 @@ renderPortal();
 // In the future we might want to be able to pick the position.
 const Tooltipped = React.createClass({
   render () {
-    const content = (
-      <div>Tooltip says: {this.props.content}</div>
-    );
+    let timeout = null;
+    let content = undefined;
+    const removeContent = () => portal.remove(content);
+    // const content2 = (
+    //   <Tooltip key="2">Tooltip2 says: {this.props.content}</Tooltip>
+    // );
     return React.cloneElement(React.Children.only(this.props.children), {
-      onMouseEnter () {
-        console.log('mouse enter');
+      onMouseEnter: ({target}) => {
+        const boundingRect = target.getBoundingClientRect();
+        clearTimeout(timeout);
+        content = (
+          <Tooltip
+            key="1"
+            left={boundingRect.left}
+            top={boundingRect.top + boundingRect.height}
+          >
+            Tooltip says: {this.props.content}
+          </Tooltip>
+        );
+        console.log('mouse enter', boundingRect);
         portal.add(content);
+        // portal.add(content2);
       },
       onMouseLeave () {
         console.log('mouse leave');
-        portal.remove(content);
+        timeout = window.setTimeout(removeContent, 500);
+        // portal.remove(content2);
       }
     });
   }
