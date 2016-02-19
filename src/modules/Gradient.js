@@ -20,16 +20,16 @@ let Gradient = {
   create (start = 'black', end = 'white', opts) {
     opts = {
       mode: 'lab',
-      minChroma: 0.2, // 0-1
+      minChroma: 0.5, // 0-1
       chromaVariance: .5, // 0-1
-      tintLightnessPadding: 0.15, // 0-1
+      tintLightnessPadding: 0, // 0-1
       ...opts
     };
     opts.tints = {
-      success: '#00ff00',
+      success: '#1D9C3C',
       warning: '#ffbf00',
-      danger: '#ff0000',
-      primary: '#004fff',
+      danger: '#FF3600',
+      primary: '#0659AF',
       ...opts.tints
     };
     let baseScale = chroma.scale([start, end]).mode(opts.mode);
@@ -44,7 +44,7 @@ let Gradient = {
     ]);
 
     let minChroma = Math.abs(startL - endL);
-    opts.minChroma = minChroma;
+    opts.minChroma = minChroma * opts.minChroma;
     opts.chromaVariance = minChroma;
 
     let matchColorWith = (color, i) => {
