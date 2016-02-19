@@ -19,6 +19,8 @@ const App = React.createClass({
   render () {
     return (
       <div style={{
+        overflow: 'scroll',
+        fontSize: ms.tx(0),
         backgroundColor: g.base(0),
         color: g.base(1),
         display: 'flex',
@@ -42,9 +44,12 @@ const App = React.createClass({
         <PortalSource>
           <Alert status="primary" key="24">There</Alert>
         </PortalSource>
-        <Tooltipped content="Click to show modal">
-          <Button g={g} onClick={this.toggle}>Open Modal</Button>
-        </Tooltipped>
+        <SpacedFlexbox spacing={ms.spacing(2)}>
+          <Tooltipped content="Click to show modal">
+            <Button g={g} onClick={this.toggle}>Open Modal</Button>
+          </Tooltipped>
+          <Button g={g} onClick={this.toggle}>Alert</Button>
+        </SpacedFlexbox>
         <PortalSource isOpen={this.state.isShowingModal}>
           <Modal key='sdf' onClose={this.toggle}>
             <SpacedFlexbox spacing={ms.spacing(2)}>

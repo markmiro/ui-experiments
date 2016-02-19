@@ -1,6 +1,7 @@
 import React from 'react';
 import {render} from 'react-dom';
 
+import ms from './ms';
 import g from './gradient';
 import createPortal from '../Portal';
 
@@ -8,6 +9,7 @@ const portal = createPortal();
 const {PortalSource, PortalTarget} = portal;
 const PortalWrapper = ({children}) => (
   <div style={{
+    fontSize: ms.tx(0),
     backgroundColor: g.base(0),
     color: g.base(1),
     zIndex: 999,

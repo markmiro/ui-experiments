@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Radium from 'radium';
-import {vmin} from './Size';
 import {Fade} from './Fade';
 const {Spring} = require('react-motion');
+
+const vmin = n => n + 'vmin';
 
 export class BackgroundImage extends React.Component {
   render() {

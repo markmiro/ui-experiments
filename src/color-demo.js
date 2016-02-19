@@ -109,7 +109,7 @@ let ContentWrapper = props => (
   <div style={{
     paddingLeft: ms.spacing(8),
     paddingRight: ms.spacing(8),
-    maxWidth: ms.spacing(23),
+    maxWidth: 1024,
     fontSize: ms.tx(0),
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -142,7 +142,7 @@ let ColorPicker = props => (
       background: props.g.base(.5),
       borderColor: props.g.base(0),
       height: 27,
-      width: ms.spacing(10),
+      width: 60,
       borderWidth: ms.border(3),
       boxShadow: 'none',
       outlineColor: props.g.base(0.5),
@@ -212,7 +212,7 @@ let Styler = props => (
 let TodoIconButton = props => (
   <Button g={props.g} style={{
       fontSize: ms.tx(-1),
-      ...padding(1, 2),
+      ...padding(0, 1),
       letterSpacing: .5,
       // backgroundColor: g[props.type](.7),
       // color: props.g.base(1),
@@ -309,7 +309,7 @@ let Todos = props => (
     // minWidth: '80%'
   }}>
     <GradientContainer g={props.g} style={{
-      width: ms.spacing(21),
+      width: 700
     }}>
       <h1 style={{fontSize: ms.tx(6), marginBottom: ms.spacing(2), fontWeight: 700}}>Todos</h1>
       <TodoForm />
