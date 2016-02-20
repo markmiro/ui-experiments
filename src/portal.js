@@ -19,7 +19,6 @@ const App = React.createClass({
   render () {
     return (
       <div style={{
-        overflow: 'scroll',
         fontSize: ms.tx(0),
         backgroundColor: g.base(0),
         color: g.base(1),

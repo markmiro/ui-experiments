@@ -1,5 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import {App} from './modules/App';
+import {render} from 'react-dom';
+import Fill from './modules/Fill';
+import Gradient from './modules/Gradient';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+let g = Gradient.create('white', 'black');
+
+render((
+  <Fill g={g}>
+    Hello
+  </Fill>
+), document.getElementById('root'));

@@ -5,6 +5,8 @@ import R from 'ramda';
 import ms from './modules/ms';
 import {padding, margin} from './modules/cssUtils';
 import Gradient from './modules/Gradient';
+import GradientContainer from './modules/GradientContainer';
+import Todos from './modules/Todos';
 import SpacedFlexbox from './modules/SpacedFlexbox';
 import Slider from './modules/Slider';
 import Button from './modules/Button';
@@ -59,16 +61,6 @@ window.R = R;
 // console.log(textPainter(0.0));
 // console.log(textPainter(0.5));
 // console.log(textPainter(1.0));
-
-let GradientContainer = props => (
-  <div {...props}>
-    {
-      React.Children.map(props.children, child =>
-        child.props.g ? child : React.cloneElement(child, {g: props.g})
-      )
-    }
-  </div>
-);
 
 // let D = props => (
 //   <div {...props}>
@@ -207,122 +199,6 @@ let Styler = props => (
     </SpacedFlexbox>
   </div>
 );
-
-
-let TodoIconButton = props => (
-  <Button g={props.g} style={{
-      fontSize: ms.tx(-1),
-      ...padding(0, 1),
-      letterSpacing: .5,
-      // backgroundColor: g[props.type](.7),
-      // color: props.g.base(1),
-      backgroundColor: props.g[props.type](.8),
-      color: props.g.base(.1),
-      borderColor: 'transparent',
-      // borderRadius: 99,
-      ...props.style
-    }}>
-    {props.children}
-  </Button>
-);
-
-let Todo = props => (
-  <div style={{
-      color: props.g.base(.1),
-      backgroundColor: props.g.base(.1),
-      color: props.done ? props.g.base(0.5) : props.g.base(1),
-      padding: ms.spacing(3),
-      display: 'flex',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-      borderColor: props.g.base(0.2),
-      borderBottomWidth: ms.border(1),
-      borderStyle: 'solid'
-  }}>
-    <div style={{
-      flex: 1,
-      minWidth: 220,
-      lineHeight: 1.5,
-      textDecoration: props.done ? 'line-through' : 'none'
-    }}>
-      {props.children}
-    </div>
-    <GradientContainer g={props.g}>
-      <TodoIconButton icon="check" type="success" style={{marginRight: ms.border(2)}}>Complete</TodoIconButton>
-      <TodoIconButton icon="pencil" type="primary" style={{marginRight: ms.border(2)}}>Edit</TodoIconButton>
-      <TodoIconButton icon="trash" type="danger">Delete</TodoIconButton>
-    </GradientContainer>
-  </div>
-);
-
-let TodoForm = props => (
-  <div style={{
-      backgroundColor: props.g.base(0.1),
-      color: props.g.base(0.5),
-      // borderBottomStyle: 'solid',
-      // borderBottomWidth: ms.border(4),
-      // borderBottomColor: props.g.base(.9),
-      padding: ms.spacing(4),
-      marginBottom: ms.spacing(0),
-      display: 'flex',
-      alignItems: 'center'
-  }}>
-    Is there something you should be doing?
-  </div>
-);
-
-let TodosFooter = props => (
-  <div style={{
-    color: props.g.base(.9),
-    backgroundColor: props.g.base(.1),
-    // background: `linear-gradient(${props.g.base(.1)}, ${props.g.base(0)})`,
-    // marginTop: ms.spacing(3),
-    fontSize: ms.tx(-1),
-    padding: ms.spacing(3)
-  }}>
-    <SpacedFlexbox spacing={ms.spacing(3)} style={{alignItems: 'center', justifyContent: 'space-between'}}>
-      2 items left
-      <GradientContainer g={props.g} style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <Button>All</Button>
-        <Button style={{borderColor: 'transparent'}}>Active</Button>
-        <Button style={{borderColor: 'transparent'}}>Completed</Button>
-      </GradientContainer>
-      <Button.Link>Clear Completed</Button.Link>
-    </SpacedFlexbox>
-  </div>
-);
-
-let Todos = props => (
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    // flexDirection: 'column',
-    justifyContent: 'center',
-    minHeight: '100%',
-    marginLeft: ms.spacing(4),
-    marginRight: ms.spacing(4)
-    // minWidth: '80%'
-  }}>
-    <GradientContainer g={props.g} style={{
-      width: 700
-    }}>
-      <h1 style={{fontSize: ms.tx(6), marginBottom: ms.spacing(2), fontWeight: 700}}>Todos</h1>
-      <TodoForm />
-      <Todo>Beg Elon Musk for a job</Todo>
-      <Todo>Rewrite history</Todo>
-      <Todo>Grow another beard</Todo>
-      <Todo>Eat Chipotle (recurring task)</Todo>
-      <Todo>Go for a walk, never come back</Todo>
-      <TodosFooter />
-    </GradientContainer>
-  </div>
-);
-
 
 let NavLink = props => (
   <Button.Link {...props} style={{
