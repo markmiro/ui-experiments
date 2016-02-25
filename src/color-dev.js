@@ -80,20 +80,20 @@ const App = React.createClass({
 
     let buttons = depth => (
       <div key={depth} style={{background: g(depth), paddingLeft: 10}}>
-      {
-        colors.map(color =>
-          <span key={color}>
-            <span style={{
-                marginRight: 10,
-                marginBottom: 10,
-                width: 20,
-                height: 20,
-                backgroundColor: gradient.tint(color, depth),
-                display: 'inline-block'
-            }} />
-          </span>
-        )
-      }
+        {
+          colors.map(color =>
+            <span key={color}>
+              <span style={{
+                  marginRight: 10,
+                  marginBottom: 10,
+                  width: 20,
+                  height: 20,
+                  backgroundColor: gradient.tint(color, depth),
+                  display: 'inline-block'
+              }} />
+            </span>
+          )
+        }
       </div>
     );
 

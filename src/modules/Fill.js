@@ -12,6 +12,7 @@ const Fill = ({children, style, g = gDefault}) => (
     height: '100%',
     width: '100%',
     overflow: 'scroll',
+    WebkitOverflowScrolling: 'touch',
     ...style
   }}>
     {children}
