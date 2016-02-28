@@ -12,13 +12,13 @@ const defaultG = g;
 const vmin = n => n + 'vmin';
 
 const P = ({children, style}) => (
-  <p style={{
+  <div style={{
     fontWeight: 300,
     lineHeight: 1.5,
     ...style
   }}>
     {children}
-  </p>
+  </div>
 );
 
 const AddVisual = ({children, style}) => (
@@ -32,7 +32,7 @@ const AddVisual = ({children, style}) => (
   }}>
     {children || 'Add Example'}
   </div>
-)
+);
 
 const Box = ({children, style}) => (
   <div style={{
@@ -65,6 +65,7 @@ const Content = ({children, style, g = defaultG}) => (
     color: g.base(1),
     backgroundColor: g.base(0),
     maxWidth: 750,
+    width: '100%',
     ...style
   }}>
     {children}
@@ -87,28 +88,64 @@ const Heading = ({children, style, size = 1}) => {
   );
 };
 
-const List = ({children, style}) => (
+const List = ({children, style, value, onChange}) => (
   <div style={{
-    borderStyle: 'solid',
-    borderColor: g.base(0.2),
-    borderBottomWidth: '2px',
+    marginBottom: '2px',
+    // borderStyle: 'solid',
+    // borderColor: g.base(0.2),
+    // borderBottomWidth: '2px',
     ...style
   }}>
     {children}
   </div>
 );
 
-const ListItem = ({children, style}) => (
-  <div style={{
-    borderStyle: 'solid',
-    borderColor: g.base(0.2),
-    borderTopWidth: '2px',
-    padding: spacing(2),
-    ...style
-  }}>
-    {children}
-  </div>
-);
+function OptionsDecorator(Component) {
+  const Options = props => {
+    const {children, style, value, onChange} = props;
+    return (
+      <Component {...props}>
+        {
+          React.Children.map(children, child =>
+            React.cloneElement(child, {
+              active: child.props.value === value,
+              onClick: e => {
+                onChange(child.props.value);
+                'onClick' in child.props && child.props.onClick(e);
+              }
+            })
+          )
+        }
+      </Component>
+    )
+  };
+  return Options;
+}
+
+const ListItem = props => {
+  const {children, style, active} = props;
+  return (
+    <div {...props} style={{
+      // backgroundColor: g.base(0),
+      borderStyle: 'solid',
+      borderColor: g.base(0.2),
+      borderTopWidth: '2px',
+      borderBottomWidth: '2px',
+      marginBottom: '-2px',
+      padding: '2vmin',
+      ...style
+    }}>
+      {children}
+    </div>
+  );
+};
+
+function ActiveDecorator(Component, activeProps) {
+  const Option = props => (
+    <Component {...(props.active ? {...props, ...activeProps(props)} : props)} />
+  );
+  return Option;
+}
 
 const Nav = () => (
   <div style={{
@@ -290,11 +327,42 @@ const Article = () => (
   </Center>
 );
 
+const Options = OptionsDecorator(List);
+const Option = ActiveDecorator(ListItem, props => ({
+  style: {
+    color: g.primary(1),
+    backgroundColor: g.primary(.2),
+    borderColor: g.primary(.2),
+    position: 'relative',
+    zIndex: 100
+  },
+  children: (
+    <div>
+      <i className="fa fa-chevron-right" style={{color: g.primary(1)}} /> {props.children}
+    </div>
+  )
+}));
+
 const App = React.createClass({
+  getInitialState () {
+    return {
+      value: "1"
+    };
+  },
   render () {
     return (
       <Fill g={g}>
         <Nav />
+        <Center style={{height: '100%'}}>
+          <Content>
+            <Options value={this.state.value} onChange={newValue => this.setState({value: newValue})} style={{fontSize: '4vmin'}}>
+              <Option value="1">Fly a kite to the moon</Option>
+              <Option value="2">Bring some cheese back</Option>
+              <Option value="3">Spend the cheese on coke</Option>
+              <Option value="4">Overdose on diabetes</Option>
+            </Options>
+          </Content>
+        </Center>
         <Hero />
         <Article />
       </Fill>
