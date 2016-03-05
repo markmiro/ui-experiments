@@ -371,3 +371,53 @@ const App = React.createClass({
 });
 
 render(<App />, document.getElementById('root'));
+
+
+//
+// const SidebarPortal = createPortal();
+// const Nav = PathSelector(MenuList);
+// const NavItem = SingleSelect(MenuItem, props => ({
+//   style: {
+//     color: 'blue'
+//   }
+// }));
+// const App = React.createClass({
+//   getInitialState () {
+//     return {
+//       path: window.location // when loading app for first time just go to whatever page the user wants
+//     }
+//   },
+//   render () {
+//     return (
+//       <div>
+//         {
+//           // This is where we decide which nav items are shown when, and which one is selected
+//         }
+//         <Nav currentPath={this.state.path} onChange={newPath => this.setState({path: newPath})}>
+//           <NavItem path="home">Home</NavItem>
+//           <NavItem path="about">About</NavItem>
+//           <NavItem path="blog" subNav={
+//             <Nav>
+//               <NavItem path="filter/recent">Most Recent</NavItem>
+//               <NavItem path="filter/favorites">Favorites</NavItem>
+//             </Nav>
+//           }>
+//             Blog
+//           </NavItem>
+//           <NavItem path="contact">Contact</NavItem>
+//         </Nav>
+//         <Body>
+//           <Sidebar>
+//             <SidebarPortal.Destination />
+//           </Sidebar>
+//           <Content>
+//             {
+//               // This is where we use react-router or something to display the page contents
+//             }
+//             <Router></Router>
+//           </Content>
+//         </Body>
+//       </div>
+//     );
+//   }
+// });

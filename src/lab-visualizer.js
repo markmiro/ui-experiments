@@ -124,7 +124,7 @@ function render () {
             data[0 + i * 4] = color.r;
             data[1 + i * 4] = color.g;
             data[2 + i * 4] = color.b;
-            data[3 + i * 4] = color.displayable() ? 255 : 0;
+            data[3 + i * 4] = color.displayable() ? (Math.round(radius/2) === 60 ? 255 : 10) : 0;
             // data[3 + i * 4] = (color.displayable() && (angleDegrees > 45)) ? 255 : 2;
             // data[3 + i * 4] = color.displayable() ? 255 : (color2.displayable() ? 20 : 0);
             i++;

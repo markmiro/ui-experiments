@@ -17,7 +17,6 @@ Layouts vs style:
   - left, right, top
   - position
   - transform (in most cases)
-  -
 
 
   // Color Findings:
