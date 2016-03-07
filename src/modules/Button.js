@@ -1,11 +1,12 @@
 import React from 'react';
-import ms from './ms';
+import ms from './common/ms';
+import g from './common/gradient';
 import {padding, margin} from './cssUtils';
 
 let Button = props => (
   <a {...props} style={{
     display: 'inline-block',
-    color: props.color || props.g.base(1),
+    color: props.color || (props.g ? props.g.base(1) : g.base(1)),
     background: 'transparent',
     borderColor: 'inherit',
     borderWidth: ms.border(3),

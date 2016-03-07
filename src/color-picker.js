@@ -1,14 +1,94 @@
 import React from 'react';
 import {render} from 'react-dom';
 import husl from 'husl';
+import d3 from 'd3-color';
 
 import ms from './modules/common/ms';
+import Gradient from './modules/Gradient';
+import g from './modules/common/gradient';
 import SpacedFlexbox from './modules/SpacedFlexbox';
+import Button from './modules/Button';
 
 const w = 100;
 const h = 100;
 const boxSize = 500;
-const border = '1px solid #ccc';
+const border = '2px solid #ccc';
+// const hslProxy = husl;
+
+const hclFunc = {
+  resolution: 150,
+  referenceSaturation: 33.9,
+  toRGB (hue, saturation, lightness) {
+    const color = d3.hcl(hue, saturation, lightness);
+    if (!color.displayable()) return [0, 0, 0];
+    const {r, g, b} = color.rgb();
+    return [r / 255, g / 255, b / 255];
+  },
+  toHex (hue, saturation, lightness) {
+    const color = d3.hcl(hue, saturation, lightness);
+    if (!color.displayable()) return '#000';
+    return color.toString();
+  }
+};
+const hclExtendedFunc = {
+  resolution: 150,
+  referenceSaturation: 100,
+  toRGB (hue, saturation, lightness) {
+    const color = d3.hcl(hue, saturation, lightness);
+    const {r, g, b} = color.rgb();
+    return [r / 255, g / 255, b / 255];
+  },
+  toHex (hue, saturation, lightness) {
+    const color = d3.hcl(hue, saturation, lightness);
+    return color.toString();
+  }
+};
+
+const huslHueClip = i => Math.min(360, Math.max(0, i));
+const huslSaturationClip = i => Math.min(100, Math.max(0, i));
+const huslLightnessClip = i => Math.min(100, Math.max(0, i));
+const huslFunc = {
+  resolution: 40,
+  referenceSaturation: 100,
+  // toRGB: husl.toRGB,
+  // prevent from going over 1
+  toRGB: (h, s, l) => husl.toRGB(h, s, l),
+  // toHex: husl.toHex
+  toHex: (h, s, l) => husl.toHex.apply(null, [
+    huslHueClip(h),
+    huslSaturationClip(s),
+    huslLightnessClip(l)
+  ])
+};
+const huslpFunc = {
+  resolution: 40,
+  referenceSaturation: 100,
+  toRGB: husl.p.toRGB,
+  toHex: (h, s, l) => husl.p.toHex.apply(null, [
+    huslHueClip(h),
+    huslSaturationClip(s),
+    huslLightnessClip(l)
+  ])
+};
+const hslFunc = {
+  resolution: 100,
+  referenceSaturation: 100,
+  toRGB (hue, saturation, lightness) {
+    const color = d3.hsl(hue, saturation / 100, lightness / 100);
+    // if (!color.displayable()) return [0, 0, 0];
+    const {r, g, b} = color.rgb();
+    return [r / 255, g / 255, b / 255];
+  },
+  toHex (hue, saturation, lightness) {
+    const color = d3.hsl(hue, saturation / 100, lightness / 100);
+    // if (!color.displayable()) return '#000';
+    return color.toString();
+  }
+};
+
+// This type of func can be set to use HSL, HCL, HUSL, and HUSLp
+// const hslProxy = hclFunc;
+// window.hslProxy = hslProxy;
 
 const HueSlider = React.createClass({
   render () {
@@ -18,7 +98,7 @@ const HueSlider = React.createClass({
         <canvas
           ref="canvas"
           width={1}
-          height={h}
+          height={this.props.hslProxy.resolution}
           onMouseMove={e => {
             const y = mousePositionElement(e).y;
             const newHue = (y / boxSize) * 360;
@@ -31,11 +111,12 @@ const HueSlider = React.createClass({
         />
         <div style={{
           pointerEvents: 'none',
-          height: 2,
+          height: 4,
           width: '100%',
           backgroundColor: 'black',
-          borderBottom: border,
+          borderTop: border,
           position: 'absolute',
+          transform: 'translateY(-50%)',
           left: 0,
           top: boxSize * (this.props.hue / 360)
         }} />
@@ -57,11 +138,10 @@ const HueSlider = React.createClass({
     var imageData = ctx.createImageData(1, canvas.height);
     var data = imageData.data;
 
-    for (let y = 0, i = -1; y < h; ++y) {
-      const hue = (y  / h) * 360;
+    for (let y = 0, i = -1; y < this.props.hslProxy.resolution; ++y) {
+      const hue = (y  / this.props.hslProxy.resolution) * 360;
       const saturation = 100;
-      const lightness =  70;
-      const color = husl.p.toRGB(hue, saturation, lightness);
+      const color = this.props.hslProxy.toRGB(hue, this.props.saturation, this.props.lightness);
 
       data[++i] = color[0] * 255;
       data[++i] = color[1] * 255;
@@ -75,14 +155,14 @@ const HueSlider = React.createClass({
 const ColorPicker = React.createClass({
   getInitialState () {
     return {
-      // color: '#EDCFAC',
+      hslProxy: huslFunc,
       hue: 50,
       saturation: 50,
       lightness: 50
     };
   },
   render () {
-    const {hue, saturation, lightness} = this.state;
+    const {hue, saturation, lightness, hslProxy} = this.state;
     return (
       <div>
         <SpacedFlexbox spacing={ms.spacing(0)}>
@@ -100,8 +180,8 @@ const ColorPicker = React.createClass({
                   lightness: newLightness
                 });
               }}
-              width={w}
-              height={h}
+              width={hslProxy.resolution}
+              height={hslProxy.resolution}
               style={{
                 width: boxSize,
                 height: boxSize
@@ -113,7 +193,7 @@ const ColorPicker = React.createClass({
               height: 10,
               position: 'absolute',
               transform: 'translate(-50%, -50%)',
-              boxShadow: '1px 1px',
+              boxShadow: '2px 2px',
               // left: 0,
               // top: 0,
               left: boxSize * (saturation / 100),
@@ -121,13 +201,41 @@ const ColorPicker = React.createClass({
               border
             }} />
           </div>
-          <HueSlider hue={hue} onChange={hue => this.setState({hue})} />
+          <HueSlider
+            hslProxy={hslProxy}
+            hue={hue}
+            lightness={lightness}
+            saturation={saturation}
+            onChange={hue => this.setState({hue})}
+          />
+          <HueSlider
+            hslProxy={hslProxy}
+            hue={hue}
+            lightness={60}
+            saturation={hslProxy.referenceSaturation}
+            onChange={hue => this.setState({hue})}
+          />
           <div style={{
-            backgroundColor: husl.toHex(hue, saturation, lightness),
+            backgroundColor: hslProxy.toHex(hue, saturation, lightness),
             width: 200,
             height: 200,
             border
           }}/>
+        <Button onClick={() => this.setState({hslProxy: hslFunc})} g={g}>
+          HSL
+        </Button>
+        <Button onClick={() => this.setState({hslProxy: hclFunc})} g={g}>
+          HCL
+        </Button>
+        <Button onClick={() => this.setState({hslProxy: hclExtendedFunc})} g={g}>
+          HCL Extended
+        </Button>
+        <Button onClick={() => this.setState({hslProxy: huslFunc})} g={g}>
+          HUSL
+        </Button>
+        <Button onClick={() => this.setState({hslProxy: huslpFunc})} g={g}>
+          HUSLp
+        </Button>
         </SpacedFlexbox>
       </div>
     );
@@ -147,13 +255,13 @@ const ColorPicker = React.createClass({
     var imageData = ctx.createImageData(canvas.width, canvas.height);
     var data = imageData.data;
 
-    const hue = this.state.hue;
+    const {hue, hslProxy} = this.state;
     let i = 0;
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        const saturation = x / w * 100;
-        const lightness =  100 - (y / h * 100);
-        const color = husl.toRGB(hue, saturation, lightness);
+    for (let y = 0; y < hslProxy.resolution; y++) {
+      for (let x = 0; x < hslProxy.resolution; x++) {
+        const saturation = x / hslProxy.resolution * 100;
+        const lightness =  100 - (y / hslProxy.resolution * 100);
+        const color = hslProxy.toRGB(hue, saturation, lightness);
 
         data[0 + i * 4] = color[0] * 255;
         data[1 + i * 4] = color[1] * 255;
@@ -182,8 +290,6 @@ const App = React.createClass({
 });
 
 render(<App />, document.getElementById('root'));
-
-
 
 // Which HTML element is the target of the event
 function mouseTarget(e) {
