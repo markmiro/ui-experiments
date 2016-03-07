@@ -18,7 +18,7 @@ const layers = 25;
 
 var cursorX;
 var cursorY;
-document.onmousemove = function(e){
+document.onmousemove = function(e) {
     cursorX = e.pageX;
     cursorY = e.pageY;
 }
