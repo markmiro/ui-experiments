@@ -13,7 +13,7 @@ import Button from './modules/Button';
 const w = 100;
 const h = 100;
 const boxSize = 500;
-const border = '2px solid #ccc';
+const border = '2px solid ' + g.base(1);
 // const hslProxy = husl;
 
 
