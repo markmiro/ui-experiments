@@ -7,143 +7,27 @@ import chroma from 'chroma-js';
 import ms from './modules/common/ms';
 import Gradient from './modules/Gradient';
 import g from './modules/common/gradient';
+import Fill from './modules/Fill';
 import SpacedFlexbox from './modules/SpacedFlexbox';
 import Button from './modules/Button';
+import {
+  huslFunc,
+  huslpFunc,
+  hsvFunc,
+  hslFunc,
+  hclFunc,
+  hclExtendedFunc,
+  hueClip,
+  saturationClip,
+  lightnessClip,
+  mousePositionElement
+} from './modules/colorPickerUtils';
 
 const w = 100;
 const h = 100;
 const boxSize = 500;
 const border = '2px solid ' + g.base(1);
 // const hslProxy = husl;
-
-
-const hueClip = h => Math.min(360, Math.max(0, h));
-const saturationClip = s => Math.min(100, Math.max(0, s));
-const lightnessClip = l => Math.min(100, Math.max(0, l));
-
-const hsvToHslWrapper = func => {
-  return (h, s, v) => {
-    // return func(h, s, v);
-    // const color = chroma.hsv(h, s / 100, v / 100).hsl();
-    const color = hsv2hsl(h, s, v);
-    return func.call(null, color[0], color[1], color[2]);
-  }
-};
-function convertHslProxyToHsvProxy (proxy) {
-  proxy.toRGB = hsvToHslWrapper(proxy.toRGB);
-  proxy.toHex = hsvToHslWrapper(proxy.toHex);
-  return proxy;
-}
-
-const hclFunc = {
-  resolution: 150,
-  referenceSaturation: 33.9,
-  toRGB (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation, lightness);
-    if (!color.displayable()) return [0, 0, 0];
-    const {r, g, b} = color.rgb();
-    return [r / 255, g / 255, b / 255];
-  },
-  toHex (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation, lightness);
-    if (!color.displayable()) return '#000';
-    return color.toString();
-  },
-  fromHex (hex) {
-    const color = d3.hcl(hex);
-    return {
-      hue: color.h,
-      saturation: color.c,
-      lightness: color.l
-    };
-  }
-};
-const hclExtendedFunc = {
-  resolution: 150,
-  referenceSaturation: 100,
-  toRGB (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation, lightness);
-    const {r, g, b} = color.rgb();
-    return [r / 255, g / 255, b / 255];
-  },
-  toHex (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation, lightness);
-    return color.toString();
-  },
-  fromHex (hex) {
-    const color = d3.hcl(hex);
-    return {
-      hue: color.h,
-      saturation: color.c,
-      lightness: color.l
-    };
-  }
-};
-const huslFunc = {
-  resolution: 40,
-  referenceSaturation: 100,
-  // toRGB: husl.toRGB,
-  // prevent from going over 1
-  toRGB: husl.toRGB,
-  toHex: (h, s, l) => husl.toHex.apply(null, [
-    hueClip(h),
-    saturationClip(s),
-    lightnessClip(l)
-  ]),
-  fromHex: husl.fromHex
-};
-const huslpFunc = {
-  resolution: 40,
-  referenceSaturation: 100,
-  toRGB: husl.p.toRGB,
-  toHex: (h, s, l) => husl.p.toHex.apply(null, [
-    hueClip(h),
-    saturationClip(s),
-    lightnessClip(l)
-  ]),
-  fromHex: husl.p.fromHex
-};
-const hslFunc = {
-  resolution: 100,
-  referenceSaturation: 100,
-  toRGB (hue, saturation, lightness) {
-    const color = d3.hsl(hue, saturation / 100, lightness / 100);
-    // if (!color.displayable()) return [0, 0, 0];
-    const {r, g, b} = color.rgb();
-    return [r / 255, g / 255, b / 255];
-  },
-  toHex (hue, saturation, lightness) {
-    const color = d3.hsl(hue, saturation / 100, lightness / 100);
-    // if (!color.displayable()) return '#000';
-    return color.toString();
-  },
-  fromHex (hex) {
-    const color = d3.hsl(hex);
-    return {
-      hue: color.h,
-      saturation: color.s * 100,
-      lightness: color.l * 100
-    };
-  }
-};
-const hsvFunc = {
-  resolution: 20,
-  referenceSaturation: 100,
-  toRGB (hue, saturation, lightness) {
-    return chroma.hsv(hue, saturation / 100, lightness / 100).rgb().map(i => i / 255);
-  },
-  toHex (hue, saturation, lightness) {
-    return chroma.hsv(hue, saturation / 100, lightness / 100).hex();
-  },
-  fromHex (hex) {
-    const color = chroma(hex).hsv();
-    return {
-      hue: color[0],
-      saturation: color[1] * 100,
-      lightness: color[2] * 100
-    };
-  }
-};
 
 // This type of func can be set to use HSL, HCL, HUSL, and HUSLp
 // const hslProxy = hclFunc;
@@ -183,7 +67,7 @@ const HueSlider = React.createClass({
           pointerEvents: 'none',
           height: 4,
           width: '100%',
-          backgroundColor: 'black',
+          backgroundColor: g.base(0),
           borderTop: border,
           position: 'absolute',
           transform: 'translateY(-50%)',
@@ -226,6 +110,27 @@ const HueSlider = React.createClass({
   }
 });
 
+const ColorPin = React.createClass({
+  render () {
+    const {saturation, lightness} = this.props;
+    return (
+      <div style={{
+        pointerEvents: 'none',
+        width: 10,
+        height: 10,
+        position: 'absolute',
+        transform: 'translate(-50%, -50%)',
+        boxShadow: '2px 2px ' + g.base(0),
+        // left: 0,
+        // top: 0,
+        left: boxSize * (saturation / 100),
+        top: boxSize * ((100 - lightness) / 100),
+        border
+      }}/>
+    );
+  }
+});
+
 const ColorPicker = React.createClass({
   getInitialState () {
     return {
@@ -238,7 +143,7 @@ const ColorPicker = React.createClass({
   render () {
     const {hue, saturation, lightness, hslProxy} = this.state;
     return (
-      <div>
+      <SpacedFlexbox spacing={ms.spacing(0)} style={{flexDirection: 'column'}}>
         <SpacedFlexbox spacing={ms.spacing(0)}>
           <div style={{position: 'relative', border}}>
             <canvas
@@ -261,19 +166,7 @@ const ColorPicker = React.createClass({
                 height: boxSize
               }}
             />
-            <div ref="colorPin" style={{
-              pointerEvents: 'none',
-              width: 10,
-              height: 10,
-              position: 'absolute',
-              transform: 'translate(-50%, -50%)',
-              boxShadow: '2px 2px',
-              // left: 0,
-              // top: 0,
-              left: boxSize * (saturation / 100),
-              top: boxSize * ((100 - lightness) / 100),
-              border
-            }}/>
+            <ColorPin ref="colorPin" saturation={saturation} lightness={lightness} />
           </div>
           <HueSlider
             hslProxy={hslProxy}
@@ -289,18 +182,21 @@ const ColorPicker = React.createClass({
             saturation={hslProxy.referenceSaturation}
             onChange={hue => this.setState({hue})}
           />
-          <div className="selectable" style={{
-            textAlign: 'center',
-            textTransform: 'uppercase',
-            color: lightness > 50 ? 'black' : 'white',
-            backgroundColor: hslProxy.toHex(hue, saturation, lightness),
-            width: 200,
-            height: 200,
-            border,
-            lineHeight: '200px'
-          }}>
-            {hslProxy.toHex(hue, saturation, lightness)}
-          </div>
+          <SpacedFlexbox spacing={ms.spacing(0)} style={{flexDirection: 'column'}}>
+            <div style={{
+              backgroundColor: hslProxy.toHex(hue, saturation, lightness),
+              width: 200,
+              height: 200,
+              border
+            }} />
+            <div className="selectable" style={{
+              textTransform: 'uppercase',
+            }}>
+              {hslProxy.toHex(hue, saturation, lightness)}
+            </div>
+          </SpacedFlexbox>
+        </SpacedFlexbox>
+        <SpacedFlexbox spacing={ms.spacing(0)}>
           <Button g={g} onClick={() =>
             this.setState({
               hslProxy: hsvFunc,
@@ -350,7 +246,7 @@ const ColorPicker = React.createClass({
             HUSLp
           </Button>
         </SpacedFlexbox>
-      </div>
+      </SpacedFlexbox>
     );
   },
   componentDidMount () {
@@ -401,114 +297,16 @@ const ColorPicker = React.createClass({
 const App = React.createClass({
   render () {
     return (
-      <div style={{
-        margin: ms.spacing(5)
+      <Fill style={{
+        padding: ms.spacing(8)
       }}>
-        <h1>
+        <h1 style={{marginBottom: ms.spacing(0)}}>
           Color Picker
         </h1>
         <ColorPicker />
-      </div>
+      </Fill>
     );
   }
 });
 
 render(<App />, document.getElementById('root'));
-
-
-// https://gist.github.com/electricg/4435259
-// Which HTML element is the target of the event
-function mouseTarget(e) {
-	var targ;
-	if (!e) var e = window.event;
-	if (e.target) targ = e.target;
-	else if (e.srcElement) targ = e.srcElement;
-	if (targ.nodeType == 3) // defeat Safari bug
-		targ = targ.parentNode;
-	return targ;
-}
-
-// Mouse position relative to the document
-// From http://www.quirksmode.org/js/events_properties.html
-function mousePositionDocument(e) {
-	var posx = 0;
-	var posy = 0;
-	if (!e) {
-		var e = window.event;
-	}
-	if (e.pageX || e.pageY) {
-		posx = e.pageX;
-		posy = e.pageY;
-	}
-	else if (e.clientX || e.clientY) {
-		posx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-		posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-	}
-	return {
-		x : posx,
-		y : posy
-	};
-}
-
-// Find out where an element is on the page
-// From http://www.quirksmode.org/js/findpos.html
-function findPos(obj) {
-	var curleft = 0;
-  var curtop = 0;
-	if (obj.offsetParent) {
-		do {
-			curleft += obj.offsetLeft;
-			curtop += obj.offsetTop;
-		} while (obj = obj.offsetParent);
-	}
-	return {
-		left : curleft,
-		top : curtop
-	};
-}
-
-// Mouse position relative to the element
-// not working on IE7 and below
-function mousePositionElement(e) {
-	var mousePosDoc = mousePositionDocument(e);
-	var target = mouseTarget(e);
-	var targetPos = findPos(target);
-	var posx = mousePosDoc.x - targetPos.left;
-	var posy = mousePosDoc.y - targetPos.top;
-	return {
-		x : posx,
-		y : posy
-	};
-}
-
-// https://gist.github.com/xpansive/1337890
-function hsl2hsv (h, s, l) {
-  h /= 360;
-  s /= 100;
-  l /= 100;
-
-  s *= (l < 0.5) ? l : 1 - l;
-  return [ // [hue, saturation, value
-    h * 360, // Hue stays the same
-    (2 * s / (l + s)) * 100, // Saturation
-    (l + s) * 100 // Value
-  ]
-}
-function hsv2hsl (hue,sat,val) {
-  hue /= 360;
-  sat /= 100;
-  val /= 100;
-  return [ //[hue, saturation, lightness]
-          //Range should be between 0 - 1
-      hue * 360, //Hue stays the same
-
-      //Saturation is very different between the two color spaces
-      //If (2-sat)*val < 1 set it to sat*val/((2-sat)*val)
-      //Otherwise sat*val/(2-(2-sat)*val)
-      //Conditional is not operating with hue, it is reassigned!
-      sat * val / ((hue = (2 - sat) * val) < 1 ? hue : 2 - hue) * 100,
-
-      (hue / 2) * 100 //Lightness is (2-sat)*val/2
-      //See reassignment of hue above
-  ]
-}
