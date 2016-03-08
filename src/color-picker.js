@@ -48,6 +48,14 @@ const hclFunc = {
     const color = d3.hcl(hue, saturation, lightness);
     if (!color.displayable()) return '#000';
     return color.toString();
+  },
+  fromHex (hex) {
+    const color = d3.hcl(hex);
+    return {
+      hue: color.h,
+      saturation: color.c,
+      lightness: color.l
+    };
   }
 };
 const hclExtendedFunc = {
@@ -61,6 +69,14 @@ const hclExtendedFunc = {
   toHex (hue, saturation, lightness) {
     const color = d3.hcl(hue, saturation, lightness);
     return color.toString();
+  },
+  fromHex (hex) {
+    const color = d3.hcl(hex);
+    return {
+      hue: color.h,
+      saturation: color.c,
+      lightness: color.l
+    };
   }
 };
 const huslFunc = {
@@ -73,7 +89,8 @@ const huslFunc = {
     hueClip(h),
     saturationClip(s),
     lightnessClip(l)
-  ])
+  ]),
+  fromHex: husl.fromHex
 };
 const huslpFunc = {
   resolution: 40,
@@ -83,7 +100,8 @@ const huslpFunc = {
     hueClip(h),
     saturationClip(s),
     lightnessClip(l)
-  ])
+  ]),
+  fromHex: husl.p.fromHex
 };
 const hslFunc = {
   resolution: 100,
@@ -98,6 +116,14 @@ const hslFunc = {
     const color = d3.hsl(hue, saturation / 100, lightness / 100);
     // if (!color.displayable()) return '#000';
     return color.toString();
+  },
+  fromHex (hex) {
+    const color = d3.hsl(hex);
+    return {
+      hue: color.h,
+      saturation: color.s * 100,
+      lightness: color.l * 100
+    };
   }
 };
 const hsvFunc = {
@@ -108,6 +134,14 @@ const hsvFunc = {
   },
   toHex (hue, saturation, lightness) {
     return chroma.hsv(hue, saturation / 100, lightness / 100).hex();
+  },
+  fromHex (hex) {
+    const color = chroma(hex).hsv();
+    return {
+      hue: color[0],
+      saturation: color[1] * 100,
+      lightness: color[2] * 100
+    };
   }
 };
 
@@ -267,22 +301,52 @@ const ColorPicker = React.createClass({
           }}>
             {hslProxy.toHex(hue, saturation, lightness)}
           </div>
-          <Button onClick={() => this.setState({hslProxy: hsvFunc})} g={g}>
+          <Button g={g} onClick={() =>
+            this.setState({
+              hslProxy: hsvFunc,
+              ...(hsvFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
+            })
+          }>
             HSV
           </Button>
-          <Button onClick={() => this.setState({hslProxy: hslFunc})} g={g}>
+          <Button g={g} onClick={() =>
+            this.setState({
+              hslProxy: hslFunc,
+              ...(hslFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
+            })
+          }>
             HSL
           </Button>
-          <Button onClick={() => this.setState({hslProxy: hclFunc})} g={g}>
+          <Button g={g} onClick={() =>
+            this.setState({
+              hslProxy: hclFunc,
+              ...(hclFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
+            })
+          }>
             HCL
           </Button>
-          <Button onClick={() => this.setState({hslProxy: hclExtendedFunc})} g={g}>
+          <Button g={g} onClick={() =>
+            this.setState({
+              hslProxy: hclExtendedFunc,
+              ...(hclExtendedFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
+            })
+          }>
             HCL Extended
           </Button>
-          <Button onClick={() => this.setState({hslProxy: huslFunc})} g={g}>
+          <Button g={g} onClick={() =>
+            this.setState({
+              hslProxy: huslFunc,
+              ...(huslFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
+            })
+          }>
             HUSL
           </Button>
-          <Button onClick={() => this.setState({hslProxy: huslpFunc})} g={g}>
+          <Button g={g} onClick={() =>
+            this.setState({
+              hslProxy: huslpFunc,
+              ...(huslpFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
+            })
+          }>
             HUSLp
           </Button>
         </SpacedFlexbox>
