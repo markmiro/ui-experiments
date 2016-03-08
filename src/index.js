@@ -5,6 +5,8 @@ import Fill from './modules/Fill';
 import g from './modules/common/gradient';
 import ms from './modules/common/ms';
 import SpacedFlexbox from './modules/SpacedFlexbox';
+import Content from './modules/Content';
+import Center from './modules/Center';
 
 const {border, spacing, tx, heading} = ms;
 const defaultG = g;
@@ -40,32 +42,6 @@ const Box = ({children, style}) => (
     height: spacing(17),
     color: g.base(.1),
     backgroundColor: g.base(1),
-    ...style
-  }}>
-    {children}
-  </div>
-);
-
-const Center = ({children, style, g = defaultG}) => (
-  <span style={{
-    color: g.base(1),
-    backgroundColor: g.base(0),
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...style
-  }}>
-    {children}
-  </span>
-);
-
-const Content = ({children, style, g = defaultG}) => (
-  <div style={{
-    color: g.base(1),
-    backgroundColor: g.base(0),
-    maxWidth: 750,
-    width: '100%',
     ...style
   }}>
     {children}

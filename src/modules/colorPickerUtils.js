@@ -22,15 +22,15 @@ function convertHslProxyToHsvProxy (proxy) {
 
 const hclFunc = {
   resolution: 150,
-  referenceSaturation: 33.9,
+  referenceSaturation: 33.9 / 1.35,
   toRGB (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation, lightness);
+    const color = d3.hcl(hue, saturation * 1.35, lightness);
     if (!color.displayable()) return [0, 0, 0];
     const {r, g, b} = color.rgb();
     return [r / 255, g / 255, b / 255];
   },
   toHex (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation, lightness);
+    const color = d3.hcl(hue, saturation * 1.35, lightness);
     if (!color.displayable()) return '#000';
     return color.toString();
   },
@@ -38,7 +38,7 @@ const hclFunc = {
     const color = d3.hcl(hex);
     return {
       hue: color.h,
-      saturation: color.c,
+      saturation: color.c / 1.35,
       lightness: color.l
     };
   }
@@ -47,19 +47,19 @@ const hclExtendedFunc = {
   resolution: 150,
   referenceSaturation: 100,
   toRGB (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation, lightness);
+    const color = d3.hcl(hue, saturation * 1.35, lightness);
     const {r, g, b} = color.rgb();
     return [r / 255, g / 255, b / 255];
   },
   toHex (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation, lightness);
+    const color = d3.hcl(hue, saturation * 1.35, lightness);
     return color.toString();
   },
   fromHex (hex) {
     const color = d3.hcl(hex);
     return {
       hue: color.h,
-      saturation: color.c,
+      saturation: color.c / 1.35,
       lightness: color.l
     };
   }
@@ -75,7 +75,14 @@ const huslFunc = {
     saturationClip(s),
     lightnessClip(l)
   ]),
-  fromHex: husl.fromHex
+  fromHex (hex) {
+    const color = husl.fromHex(hex);
+    return {
+      hue: color[0],
+      saturation: color[1],
+      lightness: color[2]
+    };
+  }
 };
 const huslpFunc = {
   resolution: 40,
@@ -86,7 +93,14 @@ const huslpFunc = {
     saturationClip(s),
     lightnessClip(l)
   ]),
-  fromHex: husl.p.fromHex
+  fromHex (hex) {
+    const color = husl.p.fromHex(hex);
+    return {
+      hue: hueClip(color[0]),
+      saturation: saturationClip(color[1]),
+      lightness: lightnessClip(color[2])
+    };
+  }
 };
 const hslFunc = {
   resolution: 100,

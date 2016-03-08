@@ -3,10 +3,13 @@ import {render} from 'react-dom';
 import husl from 'husl';
 import d3 from 'd3-color';
 import chroma from 'chroma-js';
+import _ from 'underscore';
 
 import ms from './modules/common/ms';
 import Gradient from './modules/Gradient';
 import g from './modules/common/gradient';
+import Content from './modules/Content';
+import Center from './modules/Center';
 import Fill from './modules/Fill';
 import SpacedFlexbox from './modules/SpacedFlexbox';
 import Button from './modules/Button';
@@ -27,6 +30,7 @@ const w = 100;
 const h = 100;
 const boxSize = 500;
 const border = '2px solid ' + g.base(1);
+const defaultG = g;
 // const hslProxy = husl;
 
 // This type of func can be set to use HSL, HCL, HUSL, and HUSLp
@@ -131,20 +135,54 @@ const ColorPin = React.createClass({
   }
 });
 
+const HGroup = props => (
+  <SpacedFlexbox spacing={ms.spacing(0)} {...props} />
+);
+
+const VGroup = props => (
+  <SpacedFlexbox spacing={ms.spacing(0)} {...props} style={{flexDirection: 'column', ...props.style}} />
+);
+
+const HR = () => (
+  <hr style={{
+      borderBottom: border,
+      marginTop: ms.spacing(0),
+      marginBottom: ms.spacing(0),
+      borderColor: g.base(0.2)
+  }} />
+);
+
+const Swatch = ({hex, onSelect, onRemove}) => (
+  <VGroup className="selectable" style={{textTransform: 'uppercase'}}>
+    <div onClick={() => onSelect(hex)} style={{
+      width: 120,
+      height: 42,
+      backgroundColor: hex,
+      border
+    }} />
+  <div style={{display: 'flex', justifyContent: 'space-between'}}>
+      {hex}
+      {' '}
+      <a className="fa fa-remove" style={{color: g.danger(.5)}} onClick={onRemove} />
+    </div>
+  </VGroup>
+);
+
 const ColorPicker = React.createClass({
   getInitialState () {
     return {
       hslProxy: huslFunc,
       hue: 50,
       saturation: 50,
-      lightness: 50
+      lightness: 50,
+      swatches: ['#2603FB']
     };
   },
   render () {
-    const {hue, saturation, lightness, hslProxy} = this.state;
+    const {hue, saturation, lightness, hslProxy, swatches} = this.state;
     return (
-      <SpacedFlexbox spacing={ms.spacing(0)} style={{flexDirection: 'column'}}>
-        <SpacedFlexbox spacing={ms.spacing(0)}>
+      <VGroup>
+        <HGroup>
           <div style={{position: 'relative', border}}>
             <canvas
               ref="canvas"
@@ -182,21 +220,26 @@ const ColorPicker = React.createClass({
             saturation={hslProxy.referenceSaturation}
             onChange={hue => this.setState({hue})}
           />
-          <SpacedFlexbox spacing={ms.spacing(0)} style={{flexDirection: 'column'}}>
+          <VGroup>
             <div style={{
               backgroundColor: hslProxy.toHex(hue, saturation, lightness),
               width: 200,
               height: 200,
               border
             }} />
-            <div className="selectable" style={{
-              textTransform: 'uppercase',
-            }}>
+            <div className="selectable" style={{textTransform: 'uppercase'}}>
               {hslProxy.toHex(hue, saturation, lightness)}
             </div>
-          </SpacedFlexbox>
-        </SpacedFlexbox>
-        <SpacedFlexbox spacing={ms.spacing(0)}>
+            <Button onClick={() =>
+              this.setState({
+                swatches: _.unique(swatches.slice().concat(hslProxy.toHex(hue, saturation, lightness)))
+              })
+            }>
+              Add Swatch
+            </Button>
+          </VGroup>
+        </HGroup>
+        <HGroup>
           <Button g={g} onClick={() =>
             this.setState({
               hslProxy: hsvFunc,
@@ -245,8 +288,31 @@ const ColorPicker = React.createClass({
           }>
             HUSLp
           </Button>
-        </SpacedFlexbox>
-      </SpacedFlexbox>
+        </HGroup>
+        {
+          swatches.length > 0 &&
+          <VGroup>
+            <HR />
+            Swatches
+            <HGroup>
+              {
+                swatches.map(hex =>
+                  <Swatch
+                    key={hex}
+                    hex={hex}
+                    onSelect={hex => this.setState(hslProxy.fromHex(hex))}
+                    onRemove={() => this.setState({swatches: _.without(swatches, hex)})}
+                  />
+                )
+              }
+            </HGroup>
+            {
+              swatches.length > 0 &&
+              <Button g={Gradient.create(g.start, g.danger(.5))} onClick={() => this.setState({swatches: []})}>Clear Swatches</Button>
+            }
+          </VGroup>
+        }
+      </VGroup>
     );
   },
   componentDidMount () {
@@ -300,10 +366,14 @@ const App = React.createClass({
       <Fill style={{
         padding: ms.spacing(8)
       }}>
-        <h1 style={{marginBottom: ms.spacing(0)}}>
-          Color Picker
-        </h1>
-        <ColorPicker />
+        <Center>
+          <Content style={{maxWidth: 900}}>
+            <h1 style={{marginBottom: ms.spacing(0)}}>
+              Color Picker
+            </h1>
+            <ColorPicker />
+          </Content>
+        </Center>
       </Fill>
     );
   }
