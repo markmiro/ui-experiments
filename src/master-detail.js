@@ -165,24 +165,26 @@ const countries = [
 
 const Header = props => (
   <div style={{
-    backgroundColor: g.base(0.2),
+    backgroundColor: g.base(0.1),
     color: g.base(1),
     padding: ms.spacing(2),
     flexShrink: 0
   }} {...props} />
 );
 
+const contentWidth = 360;
 const Detail = ({children}) => (
   <Fill style={{
     backgroundColor: g.base(0.2),
     display: 'flex',
     flexDirection: 'column',
-    minWidth: 360,
-    height: 'auto',
+    minWidth: contentWidth,
+    height: 'auto', // to allow scrollling
+    width: contentWidth,
     // width: '100%',
     // flexShrink: 0,
-    // flexGrow: 1,
-    boxShadow: `0 0 10px ${g.base(.6)}`
+    flexGrow: 1,
+    boxShadow: `0 0 50px ${g.base(.4)}`
   }}>
     {children}
   </Fill>
@@ -199,8 +201,9 @@ const MasterDetail = React.createClass({
     return (
       <div style={{
         display: 'flex',
-        boxShadow: `0 0 10px ${g.base(.6)}`,
-        minWidth: 360,
+        boxShadow: `0 0 50px ${g.base(.4)}`,
+        minWidth: contentWidth,
+        flexGrow: 1,
         overflow: 'hidden',
         zIndex: 1
       }}>
@@ -208,10 +211,12 @@ const MasterDetail = React.createClass({
             display: 'flex',
             flexDirection: 'column',
             width: 360,
-            flexShrink: 1,
+            transitionProperty: 'flex-shrink',
+            transitionDuration: '0.2s',
+            flexShrink: this.state.hovering ? 0 : 1,
             // minWidth: 0,
             backgroundColor: g.base(0.1),
-            overflow: this.state.hovering ? 'visible' : 'hidden'
+            overflow: 'hidden'
           }}>
           <Header>{title}</Header>
           <Fill style={{padding: ms.spacing(2), minWidth: 360}}>
