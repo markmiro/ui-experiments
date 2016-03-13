@@ -1,8 +1,7 @@
 import React from 'react';
 import {render} from 'react-dom';
+import d3 from 'd3';
 import husl from 'husl';
-import d3 from 'd3-color';
-import chroma from 'chroma-js';
 import _ from 'underscore';
 
 import ms from './modules/common/ms';
@@ -14,6 +13,7 @@ import Fill from './modules/Fill';
 import SpacedFlexbox from './modules/SpacedFlexbox';
 import Button from './modules/Button';
 import {
+  luvFunc,
   huslFunc,
   huslpFunc,
   hsvFunc,
@@ -36,6 +36,7 @@ const defaultG = g;
 // This type of func can be set to use HSL, HCL, HUSL, and HUSLp
 // const hslProxy = hclFunc;
 // window.hslProxy = hslProxy;
+window.husl = husl;
 
 const HueSlider = React.createClass({
   getInitialState () {
@@ -116,13 +117,14 @@ const HueSlider = React.createClass({
 
 const ColorPin = React.createClass({
   render () {
+    const size = this.props.size || 10;
     const {saturation, lightness, color} = this.props;
     return (
       <div style={{
         backgroundColor: color,
         pointerEvents: 'none',
-        width: 10,
-        height: 10,
+        width: size,
+        height: size,
         position: 'absolute',
         transform: 'translate(-50%, -50%)',
         boxShadow: '2px 2px ' + g.base(0),
@@ -171,10 +173,25 @@ const Swatch = ({hex, onSelect, onRemove}) => (
   </VGroup>
 );
 
+const points = 200;
+const xSaturation = d3.scale.linear().domain([0, 100 * 1.80]).range([0, boxSize]);
+const yLightness = d3.scale.linear().domain([points, 0]).range([0, boxSize]);
+const line = d3.svg.line()
+  .x((d, i) => xSaturation(d))
+  .y((d, i) => yLightness(i));
+
+function svgPathForLightnessSaturationFromHue(hue) {
+  let saturationMaxLine = [0]; // contains the max saturation values for a given hue and lightness
+  for (var i = 1; i < points+1; i++) {
+    saturationMaxLine.push(husl._maxChromaForLH(i/points * 100, hue));
+  }
+  return line(saturationMaxLine);
+}
+
 const ColorPicker = React.createClass({
   getInitialState () {
     return {
-      hslProxy: hclFunc,
+      hslProxy: luvFunc,
       hue: 50,
       saturation: 50,
       lightness: 50,
@@ -183,6 +200,8 @@ const ColorPicker = React.createClass({
   },
   render () {
     const {hue, saturation, lightness, hslProxy, swatches} = this.state;
+    // console.log(saturationMaxLine);
+    // console.log(line(saturationMaxLine));
     return (
       <VGroup>
         <HGroup>
@@ -207,14 +226,82 @@ const ColorPicker = React.createClass({
                 height: boxSize
               }}
             />
-            <ColorPin ref="colorPin" saturation={saturation} lightness={lightness} color={hslProxy.toHex(hue, saturation, lightness)} />
             <div style={{opacity: 0.5}}>
+              <svg style={{
+                position: 'absolute',
+                pointerEvents: 'none',
+                left: 0,
+                top: 0,
+                width: boxSize,
+                height: boxSize
+              }}>
+                <path
+                  d={svgPathForLightnessSaturationFromHue(hue)}
+                  style={{
+                    stroke: g.base(1),
+                    strokeWidth: 2,
+                    fill: 'none'
+                  }}
+                />
+                {
+                  (hslProxy === luvFunc || hslProxy === huslFunc || hslProxy === huslpFunc) &&
+                  swatches.map(swatch =>
+                    <path
+                      d={svgPathForLightnessSaturationFromHue(hslProxy.fromHex(swatch).hue)}
+                      style={{
+                        stroke: swatch,
+                        strokeWidth: 2,
+                        fill: 'none'
+                      }}
+                    />
+                  )
+                }
+              </svg>
+              <ColorPin
+                ref="colorPin"
+                size={20}
+                saturation={saturation}
+                lightness={lightness}
+                color={hslProxy.toHex(hue, saturation, lightness)}
+              />
               {swatches.map(swatch => {
                 const {saturation, lightness} = hslProxy.fromHex(swatch);
                 return (
-                  <ColorPin ref="colorPin" saturation={saturation} lightness={lightness} color={swatch} />
+                  <ColorPin
+                    key={swatch}
+                    ref="colorPin"
+                    saturation={saturation}
+                    lightness={lightness}
+                    color={swatch}
+                  />
                 );
               })}
+              <div style={{
+                // vertical line
+                pointerEvents: 'none',
+                position: 'absolute',
+                top: 0,
+                left: boxSize * (saturation / 100),
+                height: '100%',
+                transform: 'translateX(-50%)',
+                // boxShadow: '2px 2px ' + g.base(0),
+                border,
+                borderWidth: 1,
+                opacity: 0.5
+              }} />
+              <div style={{
+                // horizontal line
+                pointerEvents: 'none',
+                position: 'absolute',
+                left: 0,
+                top: boxSize * ((100 - lightness) / 100),
+                width: '100%',
+                transform: 'translateY(-50%)',
+                // boxShadow: '2px 2px ' + g.base(0),
+                border,
+                borderWidth: 1,
+                opacity: 0.5
+              }} />
             </div>
           </div>
           <HueSlider
@@ -282,6 +369,14 @@ const ColorPicker = React.createClass({
             })
           }>
             HCL Extended
+          </Button>
+          <Button g={g} onClick={() =>
+            this.setState({
+              hslProxy: luvFunc,
+              ...(luvFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
+            })
+          }>
+            LUV
           </Button>
           <Button g={g} onClick={() =>
             this.setState({

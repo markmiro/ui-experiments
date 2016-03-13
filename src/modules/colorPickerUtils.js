@@ -20,6 +20,30 @@ function convertHslProxyToHsvProxy (proxy) {
   return proxy;
 }
 
+// Actually this is just the HUSL implementation of HCL which we assume is based off of LUV rather than LAB
+const luvFunc = {
+  resolution: 150,
+  referenceSaturation: 33.9 / 1.80,
+  toRGB (hue, saturation, lightness) {
+    const color = husl._conv.lch.rgb([lightness, saturation * 1.80, hue]);
+    // if (color[0] > 1 || color[1] > 1 || color[2] > 1) return [0, 0, 0];
+    // if (color[0] < 0 || color[1] < 0 || color[2] < 0) return [0, 0, 0];
+    return color;
+  },
+  toHex (hue, saturation, lightness) {
+    const color = husl._conv.lch.rgb([lightness, saturation * 1.80, hue]);
+    // if (color[0] > 1 || color[1] > 1 || color[2] > 1) return '#000';
+    // if (color[0] < 0 || color[1] < 0 || color[2] < 0) return '#000';
+    return d3.rgb(color[0] * 255, color[1] * 255, color[2] * 255).toString();
+  },
+  fromHex (hex) {
+    const color = d3.rgb(hex); // returns array with range 1-255 for each index
+    const {r, g, b} = color.rgb();
+    const [lightness, saturation, hue] = husl._conv.rgb.lch([r / 255, g / 255, b / 255]);
+    // const color = d3.hcl(hex);
+    return {hue, saturation: saturation / 1.80, lightness};
+  }
+};
 const hclFunc = {
   resolution: 150,
   referenceSaturation: 33.9 / 1.35,
@@ -246,6 +270,7 @@ function hsv2hsl (hue,sat,val) {
 
 
 export {
+  luvFunc,
   huslFunc,
   huslpFunc,
   hsvFunc,
