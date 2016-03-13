@@ -6,8 +6,8 @@ import chroma from 'chroma-js';
 import _ from 'underscore';
 
 import ms from './modules/common/ms';
-import Gradient from './modules/Gradient';
 import g from './modules/common/gradient';
+import Gradient from './modules/Gradient';
 import Content from './modules/Content';
 import Center from './modules/Center';
 import Fill from './modules/Fill';
@@ -116,9 +116,10 @@ const HueSlider = React.createClass({
 
 const ColorPin = React.createClass({
   render () {
-    const {saturation, lightness} = this.props;
+    const {saturation, lightness, color} = this.props;
     return (
       <div style={{
+        backgroundColor: color,
         pointerEvents: 'none',
         width: 10,
         height: 10,
@@ -161,7 +162,9 @@ const Swatch = ({hex, onSelect, onRemove}) => (
       border
     }} />
   <div style={{display: 'flex', justifyContent: 'space-between'}}>
-      {hex}
+      <span className="selectable">
+        {hex}
+      </span>
       {' '}
       <a className="fa fa-remove" style={{color: g.danger(.5)}} onClick={onRemove} />
     </div>
@@ -171,7 +174,7 @@ const Swatch = ({hex, onSelect, onRemove}) => (
 const ColorPicker = React.createClass({
   getInitialState () {
     return {
-      hslProxy: huslFunc,
+      hslProxy: hclFunc,
       hue: 50,
       saturation: 50,
       lightness: 50,
@@ -204,7 +207,15 @@ const ColorPicker = React.createClass({
                 height: boxSize
               }}
             />
-            <ColorPin ref="colorPin" saturation={saturation} lightness={lightness} />
+            <ColorPin ref="colorPin" saturation={saturation} lightness={lightness} color={hslProxy.toHex(hue, saturation, lightness)} />
+            <div style={{opacity: 0.5}}>
+              {swatches.map(swatch => {
+                const {saturation, lightness} = hslProxy.fromHex(swatch);
+                return (
+                  <ColorPin ref="colorPin" saturation={saturation} lightness={lightness} color={swatch} />
+                );
+              })}
+            </div>
           </div>
           <HueSlider
             hslProxy={hslProxy}
