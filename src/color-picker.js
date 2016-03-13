@@ -198,7 +198,17 @@ const ColorPicker = React.createClass({
       swatches: ['#2603FB']
     };
   },
+  handleAddColorToSwatches (e) {
+    e.preventDefault();
+    const {hue, saturation, lightness, hslProxy, swatches} = this.state;
+    this.setState({
+      swatches: _.unique(
+        swatches.slice().concat(hslProxy.toHex(hue, saturation, lightness))
+      )
+    });
+  },
   render () {
+    const handleAddColorToSwatches = this.handleAddColorToSwatches;
     const {hue, saturation, lightness, hslProxy, swatches} = this.state;
     // console.log(saturationMaxLine);
     // console.log(line(saturationMaxLine));
@@ -235,26 +245,30 @@ const ColorPicker = React.createClass({
                 width: boxSize,
                 height: boxSize
               }}>
-                <path
-                  d={svgPathForLightnessSaturationFromHue(hue)}
-                  style={{
-                    stroke: g.base(1),
-                    strokeWidth: 2,
-                    fill: 'none'
-                  }}
-                />
                 {
                   (hslProxy === luvFunc || hslProxy === huslFunc || hslProxy === huslpFunc) &&
-                  swatches.map(swatch =>
+                  <g>
                     <path
-                      d={svgPathForLightnessSaturationFromHue(hslProxy.fromHex(swatch).hue)}
+                      d={svgPathForLightnessSaturationFromHue(hue)}
                       style={{
-                        stroke: swatch,
+                        stroke: g.base(1),
                         strokeWidth: 2,
                         fill: 'none'
                       }}
                     />
-                  )
+                    {
+                      swatches.map(swatch =>
+                        <path
+                          d={svgPathForLightnessSaturationFromHue(hslProxy.fromHex(swatch).hue)}
+                          style={{
+                            stroke: swatch,
+                            strokeWidth: 2,
+                            fill: 'none'
+                          }}
+                        />
+                      )
+                    }
+                  </g>
                 }
               </svg>
               <ColorPin
@@ -309,38 +323,45 @@ const ColorPicker = React.createClass({
             hue={hue}
             lightness={lightness}
             saturation={saturation}
-            onChange={hue => this.setState({hue})}
+            onChange={hue => this.setState({hue, inputColor: hslProxy.toHex(hue, saturation, lightness)})}
           />
           <HueSlider
             hslProxy={hslProxy}
             hue={hue}
             lightness={60}
             saturation={hslProxy.referenceSaturation}
-            onChange={hue => this.setState({hue})}
+            onChange={hue => this.setState({hue, inputColor: hslProxy.toHex(hue, saturation, lightness)})}
           />
-          <VGroup>
-            <div style={{
-              backgroundColor: hslProxy.toHex(hue, saturation, lightness),
-              width: 200,
-              height: 200,
-              border
-            }} />
-            <div className="selectable" style={{textTransform: 'uppercase'}}>
-              {hslProxy.toHex(hue, saturation, lightness)}
-            </div>
-            <Button onClick={() =>
-              this.setState({
-                swatches: _.unique(swatches.slice().concat(hslProxy.toHex(hue, saturation, lightness)))
-              })
-            }>
-              Add Swatch
-            </Button>
-          </VGroup>
+        <form onSubmit={handleAddColorToSwatches}>
+            <VGroup>
+              <div style={{
+                backgroundColor: hslProxy.toHex(hue, saturation, lightness),
+                width: 200,
+                height: 200,
+                border
+              }} />
+              <input
+                className="selectable"
+                value={this.state.inputColor}
+                onChange={e => {
+                  const color = hslProxy.fromHex(e.target.value)
+                  this.setState({inputColor: e.target.value, ...color});
+                }}
+                style={{
+                  textTransform: 'uppercase',
+                  background: g.base(0),
+                  padding: ms.spacing(0),
+                  border
+                }} />
+              <Button type="submit" onClick={handleAddColorToSwatches}>Add Swatch</Button>
+            </VGroup>
+          </form>
         </HGroup>
         <HGroup>
           <Button g={g} onClick={() =>
             this.setState({
               hslProxy: hsvFunc,
+              inputColor: hslProxy.toHex(hue, saturation, lightness),
               ...(hsvFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
             })
           }>
@@ -349,6 +370,7 @@ const ColorPicker = React.createClass({
           <Button g={g} onClick={() =>
             this.setState({
               hslProxy: hslFunc,
+              inputColor: hslProxy.toHex(hue, saturation, lightness),
               ...(hslFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
             })
           }>
@@ -357,6 +379,7 @@ const ColorPicker = React.createClass({
           <Button g={g} onClick={() =>
             this.setState({
               hslProxy: hclFunc,
+              inputColor: hslProxy.toHex(hue, saturation, lightness),
               ...(hclFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
             })
           }>
@@ -365,6 +388,7 @@ const ColorPicker = React.createClass({
           <Button g={g} onClick={() =>
             this.setState({
               hslProxy: hclExtendedFunc,
+              inputColor: hslProxy.toHex(hue, saturation, lightness),
               ...(hclExtendedFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
             })
           }>
@@ -373,6 +397,7 @@ const ColorPicker = React.createClass({
           <Button g={g} onClick={() =>
             this.setState({
               hslProxy: luvFunc,
+              inputColor: hslProxy.toHex(hue, saturation, lightness),
               ...(luvFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
             })
           }>
@@ -381,6 +406,7 @@ const ColorPicker = React.createClass({
           <Button g={g} onClick={() =>
             this.setState({
               hslProxy: huslFunc,
+              inputColor: hslProxy.toHex(hue, saturation, lightness),
               ...(huslFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
             })
           }>
@@ -389,6 +415,7 @@ const ColorPicker = React.createClass({
           <Button g={g} onClick={() =>
             this.setState({
               hslProxy: huslpFunc,
+              inputColor: hslProxy.toHex(hue, saturation, lightness),
               ...(huslpFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
             })
           }>
@@ -406,7 +433,7 @@ const ColorPicker = React.createClass({
                   <Swatch
                     key={hex}
                     hex={hex}
-                    onSelect={hex => this.setState(hslProxy.fromHex(hex))}
+                    onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}
                     onRemove={() => this.setState({swatches: _.without(swatches, hex)})}
                   />
                 )
@@ -435,7 +462,8 @@ const ColorPicker = React.createClass({
     this.setState({
       hue: newHue,
       saturation: newSaturation,
-      lightness: newLightness
+      lightness: newLightness,
+      inputColor: this.state.hslProxy.toHex(newHue, newSaturation, newLightness)
     });
   },
   drawCanvas () {
