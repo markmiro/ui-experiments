@@ -117,7 +117,7 @@ const HueSlider = React.createClass({
 
 const ColorPin = React.createClass({
   render () {
-    const size = this.props.size || 10;
+    const size = this.props.size || 12;
     const {saturation, lightness, color} = this.props;
     return (
       <div style={{
@@ -236,7 +236,26 @@ const ColorPicker = React.createClass({
                 height: boxSize
               }}
             />
-            <div style={{opacity: 0.5}}>
+            <div style={{opacity: 1}}>
+              <ColorPin
+                ref="colorPin"
+                size={20}
+                saturation={saturation}
+                lightness={lightness}
+                color={hslProxy.toHex(hue, saturation, lightness)}
+              />
+              {swatches.map(swatch => {
+                const {saturation, lightness} = hslProxy.fromHex(swatch);
+                return (
+                  <ColorPin
+                    key={swatch}
+                    ref="colorPin"
+                    saturation={saturation}
+                    lightness={lightness}
+                    color={swatch}
+                  />
+                );
+              })}
               <svg style={{
                 position: 'absolute',
                 pointerEvents: 'none',
@@ -271,25 +290,6 @@ const ColorPicker = React.createClass({
                   </g>
                 }
               </svg>
-              <ColorPin
-                ref="colorPin"
-                size={20}
-                saturation={saturation}
-                lightness={lightness}
-                color={hslProxy.toHex(hue, saturation, lightness)}
-              />
-              {swatches.map(swatch => {
-                const {saturation, lightness} = hslProxy.fromHex(swatch);
-                return (
-                  <ColorPin
-                    key={swatch}
-                    ref="colorPin"
-                    saturation={saturation}
-                    lightness={lightness}
-                    color={swatch}
-                  />
-                );
-              })}
               <div style={{
                 // vertical line
                 pointerEvents: 'none',
