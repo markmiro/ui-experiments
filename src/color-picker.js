@@ -229,6 +229,50 @@ const Swatch = ({hex, onSelect, onRemove}) => (
   </VGroup>
 );
 
+const ColorMode = ({value, onChange}) => {
+  var modes = [
+    {
+      name: 'HSV',
+      func: hsvFunc
+    },
+    {
+      name: 'HSL',
+      func: hslFunc
+    },
+    // {
+    //   name: 'HCL',
+    //   func: hclFunc
+    // },
+    // {
+    //   name: 'HCL Extended',
+    //   func: hclExtendedFunc
+    // },
+    {
+      name: 'LUV',
+      func: luvFunc
+    },
+    {
+      name: 'HUSL',
+      func: huslFunc
+    },
+    {
+      name: 'HUSLp',
+      func: huslpFunc
+    }
+  ];
+  return (
+    <HGroup>
+      {
+        modes.map(({name, func}) =>
+          <Button color={func === value ? g.base(1) : g.base(.5)} onClick={() => onChange(func)}>
+            {name}
+          </Button>
+        )
+      }
+    </HGroup>
+  );
+};
+
 const points = 200;
 const xSaturation = d3.scale.linear().domain([0, 100 * 1.80]).range([0, boxSize]);
 const yLightness = d3.scale.linear().domain([points, 0]).range([0, boxSize]);
@@ -401,7 +445,7 @@ const ColorPicker = React.createClass({
                 className="selectable"
                 value={this.state.inputColor}
                 onChange={e => {
-                  const value = (e.target.value[0] === '#' ? '' : '#' ) + e.target.value ;
+                  const value = (e.target.value[0] === '#' ? '' : '#' ) + e.target.value;
                   const color = hslProxy.fromHex(value);
                   this.setState({inputColor: value, ...color});
                 }}
@@ -415,71 +459,13 @@ const ColorPicker = React.createClass({
             </VGroup>
           </form>
         </HGroup>
-        <HGroup>
-          <Button g={g} onClick={() =>
-            this.setState({
-              hslProxy: hsvFunc,
-              inputColor: hslProxy.toHex(hue, saturation, lightness),
-              ...(hsvFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
-            })
-          }>
-            HSV
-          </Button>
-          <Button g={g} onClick={() =>
-            this.setState({
-              hslProxy: hslFunc,
-              inputColor: hslProxy.toHex(hue, saturation, lightness),
-              ...(hslFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
-            })
-          }>
-            HSL
-          </Button>
-          {/*<Button g={g} onClick={() =>
-            this.setState({
-              hslProxy: hclFunc,
-              inputColor: hslProxy.toHex(hue, saturation, lightness),
-              ...(hclFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
-            })
-          }>
-            HCL
-          </Button>
-          <Button g={g} onClick={() =>
-            this.setState({
-              hslProxy: hclExtendedFunc,
-              inputColor: hslProxy.toHex(hue, saturation, lightness),
-              ...(hclExtendedFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
-            })
-          }>
-            HCL Extended
-          </Button>*/}
-          <Button g={g} onClick={() =>
-            this.setState({
-              hslProxy: luvFunc,
-              inputColor: hslProxy.toHex(hue, saturation, lightness),
-              ...(luvFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
-            })
-          }>
-            LUV
-          </Button>
-          <Button g={g} onClick={() =>
-            this.setState({
-              hslProxy: huslFunc,
-              inputColor: hslProxy.toHex(hue, saturation, lightness),
-              ...(huslFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
-            })
-          }>
-            HUSL
-          </Button>
-          <Button g={g} onClick={() =>
-            this.setState({
-              hslProxy: huslpFunc,
-              inputColor: hslProxy.toHex(hue, saturation, lightness),
-              ...(huslpFunc.fromHex(hslProxy.toHex(hue, saturation, lightness)))
-            })
-          }>
-            HUSLp
-          </Button>
-        </HGroup>
+        <ColorMode value={hslProxy} onChange={newProxy =>
+          this.setState({
+            hslProxy: newProxy,
+            inputColor: hslProxy.toHex(hue, saturation, lightness),
+            ...(newProxy.fromHex(hslProxy.toHex(hue, saturation, lightness)))
+          })
+        } />
         {
           swatches.length > 0 &&
           <VGroup>
