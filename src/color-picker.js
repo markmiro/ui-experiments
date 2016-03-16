@@ -146,6 +146,62 @@ const VGroup = props => (
   <SpacedFlexbox spacing={ms.spacing(0)} {...props} style={{flexDirection: 'column', ...props.style}} />
 );
 
+const ColorScheme = ({active, name, colors}) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    border,
+    ...(active && {
+      color: g.base(0),
+      borderColor: g.base(1),
+      backgroundColor: g.base(1)
+    })
+  }}>
+    <span style={{minWidth: '15%', padding: ms.spacing(2)}}>
+      {name || 'Untitled'}
+    </span>
+    <span style={{
+      display: 'flex',
+      // flexDirection: 'column',
+      flexGrow: 1,
+      // borderTopWidth: 20,
+      // borderBottomWidth: 20,
+      // borderStyle: 'solid',
+      // borderTopColor: 'white',
+      // borderBottomColor: 'black',
+      // outline: '1px solid ' + g.base(1)
+    }}>
+      {
+        colors.map(color =>
+          <div key={color} style={{
+            // padding: ms.spacing(0),
+            flexGrow: 1,
+          }}>
+            <div style={{padding: ms.spacing(2), backgroundColor: color}}>
+              <span style={{color: 'black', paddingRight: 4, borderRight: '1px solid black'}}>B</span>
+              {' '}
+              <span style={{color: 'white', paddingRight: 4, borderRight: '1px solid white'}}>W</span>
+            </div>
+            <div style={{display: 'flex'}}>
+              <div style={{backgroundColor: 'black', flexGrow: 1, height: 42}} />
+              <div style={{backgroundColor: 'white', flexGrow: 1, height: 42}} />
+              {
+                colors.filter(c => c !== color).map(color =>
+                  <div key={color} style={{
+                    height: 42,
+                    flexGrow: 1,
+                    backgroundColor: color
+                  }} />
+                )
+              }
+            </div>
+          </div>
+        )
+      }
+    </span>
+  </div>
+);
+
 const HR = () => (
   <hr style={{
       borderBottom: border,
@@ -338,16 +394,16 @@ const ColorPicker = React.createClass({
             <VGroup>
               <div style={{
                 backgroundColor: hslProxy.toHex(hue, saturation, lightness),
-                width: 200,
-                height: 200,
+                height: 120,
                 border
               }} />
               <input
                 className="selectable"
                 value={this.state.inputColor}
                 onChange={e => {
-                  const color = hslProxy.fromHex(e.target.value)
-                  this.setState({inputColor: e.target.value, ...color});
+                  const value = (e.target.value[0] === '#' ? '' : '#' ) + e.target.value ;
+                  const color = hslProxy.fromHex(value);
+                  this.setState({inputColor: value, ...color});
                 }}
                 style={{
                   textTransform: 'uppercase',
@@ -594,6 +650,14 @@ const App = React.createClass({
             <ColorPicker />
           </Content>
         </Center>
+        <VGroup>
+          <HR />
+          <div>Schemes</div>
+          <ColorScheme active name="Zetta" colors={['#2581E2', '#32D2BE', '#F5DE69', '#CE126E', '#F7F7F7', '#E3E3E3', '#606060']} />
+          <ColorScheme name="Microsoft" colors={['#7CBB00', '#00A1F1', '#FFBB00', '#F65314']} />
+          <ColorScheme name="NBC" colors={['#E1AC26', '#DC380F', '#9F0812', '#6347B2', '#368DD5', '#70AF1E', '#7E887A']} />
+          <ColorScheme name="Dribbble" colors={['#444444', '#EA4C89', '#8ABA56', '#FF8833', '#00B6E3', '#9BA5A8']} />
+        </VGroup>
       </Fill>
     );
   }

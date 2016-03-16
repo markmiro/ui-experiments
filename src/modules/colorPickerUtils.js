@@ -104,7 +104,7 @@ const huslpFunc = {
 // Actually this is just the HUSL implementation of HCL which we assume is based off of LUV rather than LAB
 const luvFunc = {
   resolution: 40,
-  referenceSaturation: 33.9 / 1.80,
+  referenceSaturation: 100 / 1.80,
   toRGB (hue, saturation, lightness) {
     saturation = saturation * 1.80;
     const maxSaturation = husl._maxChromaForLH(lightness, hue);
