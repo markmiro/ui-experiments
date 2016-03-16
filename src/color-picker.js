@@ -705,15 +705,11 @@ const App = React.createClass({
       <Fill style={{
         padding: ms.spacing(8)
       }}>
-        <Center>
-          <Content style={{maxWidth: 900}}>
-            <h1 style={{marginBottom: ms.spacing(0)}}>
-              Color Picker
-            </h1>
-            <ColorPicker />
-          </Content>
-        </Center>
         <VGroup>
+          <h1 style={{marginBottom: ms.spacing(0)}}>
+            Color Picker
+          </h1>
+          <ColorPicker />
           <HR />
           <div>Schemes</div>
           <ColorSchemes id={this.state.colorSchemeId} onIdChange={id => this.setState({colorSchemeId: id})} />
