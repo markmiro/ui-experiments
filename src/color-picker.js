@@ -26,6 +26,29 @@ import {
   mousePositionElement
 } from './modules/colorPickerUtils';
 
+const colorSchemes = [
+  {
+    id: 0,
+    name: 'Zetta',
+    colors: ['#2581E2', '#32D2BE', '#F5DE69', '#CE126E', '#F7F7F7', '#E3E3E3', '#606060']
+  },
+  {
+    id: 1,
+    name: 'Microsoft',
+    colors: ['#7CBB00', '#00A1F1', '#FFBB00', '#F65314']
+  },
+  {
+    id: 2,
+    name: 'NBC',
+    colors: ['#E1AC26', '#DC380F', '#9F0812', '#6347B2', '#368DD5', '#70AF1E', '#7E887A']
+  },
+  {
+    id: 3,
+    name: 'Dribbble',
+    colors: ['#444444', '#EA4C89', '#8ABA56', '#FF8833', '#00B6E3', '#9BA5A8']
+  }
+];
+
 const w = 100;
 const h = 100;
 const boxSize = 500;
@@ -146,8 +169,75 @@ const VGroup = props => (
   <SpacedFlexbox spacing={ms.spacing(0)} {...props} style={{flexDirection: 'column', ...props.style}} />
 );
 
-const ColorScheme = ({active, name, colors}) => (
-  <div style={{
+const ColorSchemeAdvanced = ({colors}) => (
+  <span style={{
+    display: 'flex',
+    // flexDirection: 'column',
+    flexGrow: 1,
+    // borderTopWidth: 20,
+    // borderBottomWidth: 20,
+    // borderStyle: 'solid',
+    // borderTopColor: 'white',
+    // borderBottomColor: 'black',
+    // outline: '1px solid ' + g.base(1)
+  }}>
+    {
+      colors.map(color =>
+        <div key={color} style={{
+          // padding: ms.spacing(0),
+          flexGrow: 1,
+        }}>
+          <div style={{padding: ms.spacing(2), backgroundColor: color}}>
+            <span style={{color: 'black', paddingRight: 4, borderRight: '1px solid black'}}>B</span>
+            {' '}
+            <span style={{color: 'white', paddingRight: 4, borderRight: '1px solid white'}}>W</span>
+          </div>
+          <div style={{display: 'flex'}}>
+            <div style={{backgroundColor: 'black', flexGrow: 1, height: 42}} />
+            <div style={{backgroundColor: 'white', flexGrow: 1, height: 42}} />
+            {
+              colors.filter(c => c !== color).map(color =>
+                <div key={color} style={{
+                  height: 42,
+                  flexGrow: 1,
+                  backgroundColor: color
+                }} />
+              )
+            }
+          </div>
+        </div>
+      )
+    }
+  </span>
+);
+
+const ColorSchemeSimple = ({colors}) => (
+  <span style={{
+    display: 'flex',
+    // flexDirection: 'column',
+    flexGrow: 1,
+    borderTopWidth: 10,
+    borderBottomWidth: 10,
+    borderStyle: 'solid',
+    borderTopColor: 'white',
+    borderBottomColor: 'black',
+  }}>
+    {
+      colors.map(color =>
+        <div key={color} style={{
+          // padding: ms.spacing(0),
+          flexGrow: 1,
+        }}>
+          <div style={{height: 64, backgroundColor: color}} />
+        </div>
+      )
+    }
+  </span>
+);
+
+const ColorSchemeNamedWrapper = ({active, name, colors, onClick}) => (
+
+  <div onClick={onClick} style={{
     display: 'flex',
     alignItems: 'center',
     border,
@@ -160,46 +250,28 @@ const ColorScheme = ({active, name, colors}) => (
     <span style={{minWidth: '15%', padding: ms.spacing(2)}}>
       {name || 'Untitled'}
     </span>
-    <span style={{
-      display: 'flex',
-      // flexDirection: 'column',
-      flexGrow: 1,
-      // borderTopWidth: 20,
-      // borderBottomWidth: 20,
-      // borderStyle: 'solid',
-      // borderTopColor: 'white',
-      // borderBottomColor: 'black',
-      // outline: '1px solid ' + g.base(1)
-    }}>
-      {
-        colors.map(color =>
-          <div key={color} style={{
-            // padding: ms.spacing(0),
-            flexGrow: 1,
-          }}>
-            <div style={{padding: ms.spacing(2), backgroundColor: color}}>
-              <span style={{color: 'black', paddingRight: 4, borderRight: '1px solid black'}}>B</span>
-              {' '}
-              <span style={{color: 'white', paddingRight: 4, borderRight: '1px solid white'}}>W</span>
-            </div>
-            <div style={{display: 'flex'}}>
-              <div style={{backgroundColor: 'black', flexGrow: 1, height: 42}} />
-              <div style={{backgroundColor: 'white', flexGrow: 1, height: 42}} />
-              {
-                colors.filter(c => c !== color).map(color =>
-                  <div key={color} style={{
-                    height: 42,
-                    flexGrow: 1,
-                    backgroundColor: color
-                  }} />
-                )
-              }
-            </div>
-          </div>
-        )
-      }
-    </span>
+    {
+      active
+        ? <ColorSchemeAdvanced colors={colors} />
+        : <ColorSchemeSimple colors={colors} />
+    }
   </div>
+);
+
+const ColorSchemes = ({id, onIdChange}) => (
+  <VGroup>
+    {
+      colorSchemes.map(scheme =>
+        <ColorSchemeNamedWrapper
+          key={scheme.id}
+          active={id === scheme.id}
+          name={scheme.name}
+          colors={scheme.colors}
+          onClick={() => onIdChange(scheme.id)}
+        />
+      )
+    }
+  </VGroup>
 );
 
 const HR = () => (
@@ -264,7 +336,7 @@ const ColorMode = ({value, onChange}) => {
     <HGroup>
       {
         modes.map(({name, func}) =>
-          <Button color={func === value ? g.base(1) : g.base(.5)} onClick={() => onChange(func)}>
+          <Button key={name} color={func === value ? g.base(1) : g.base(.5)} onClick={() => onChange(func)}>
             {name}
           </Button>
         )
@@ -623,6 +695,11 @@ const ColorPicker = React.createClass({
 });
 
 const App = React.createClass({
+  getInitialState () {
+    return {
+      colorSchemeId: 1
+    }
+  },
   render () {
     return (
       <Fill style={{
@@ -639,10 +716,7 @@ const App = React.createClass({
         <VGroup>
           <HR />
           <div>Schemes</div>
-          <ColorScheme active name="Zetta" colors={['#2581E2', '#32D2BE', '#F5DE69', '#CE126E', '#F7F7F7', '#E3E3E3', '#606060']} />
-          <ColorScheme name="Microsoft" colors={['#7CBB00', '#00A1F1', '#FFBB00', '#F65314']} />
-          <ColorScheme name="NBC" colors={['#E1AC26', '#DC380F', '#9F0812', '#6347B2', '#368DD5', '#70AF1E', '#7E887A']} />
-          <ColorScheme name="Dribbble" colors={['#444444', '#EA4C89', '#8ABA56', '#FF8833', '#00B6E3', '#9BA5A8']} />
+          <ColorSchemes id={this.state.colorSchemeId} onIdChange={id => this.setState({colorSchemeId: id})} />
         </VGroup>
       </Fill>
     );
