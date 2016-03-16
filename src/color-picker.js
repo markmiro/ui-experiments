@@ -345,6 +345,113 @@ const ColorMode = ({value, onChange}) => {
   );
 };
 
+const ColorSchemeEditor = ({swatches, onSwatchesChange, onSelect, hslProxy}) => (
+  <VGroup>
+    <HR />
+    Swatches
+    <HGroup>
+      {
+        swatches.map(hex =>
+          <Swatch
+            key={hex}
+            hex={hex}
+            onSelect={onSelect}
+            onRemove={() => onSwatchesChange(_.without(swatches, hex))}
+          />
+        )
+      }
+    </HGroup>
+    {
+      swatches.length > 0 &&
+      <HGroup>
+        <Button g={Gradient.create(g.start, g.danger(.5))} onClick={() => onSwatchesChange([])}>Clear Swatches</Button>
+        <Button onClick={() =>
+            onSwatchesChange(swatches.map(hex => {
+              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+              return hslProxy.toHex(hue, saturation - 5, lightness);
+            }))
+        }>
+          Remove Saturation
+        </Button>
+        <Button onClick={() =>
+            onSwatchesChange(swatches.map(hex => {
+              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+              return hslProxy.toHex(hue, saturation + 5, lightness);
+            }))
+        }>
+          Add Saturation
+        </Button>
+        <Button onClick={() => {
+            const minSaturation = swatches.reduce((lowestSaturation, hex) => {
+              const saturation = hslProxy.fromHex(hex).saturation;
+              return saturation < lowestSaturation ? saturation : lowestSaturation;
+            }, 300);
+            console.log(minSaturation);
+            onSwatchesChange(swatches.map(hex => {
+              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+              return hslProxy.toHex(hue, minSaturation, lightness);
+            }))
+        }}>
+          Match Min Saturation
+        </Button>
+        <Button onClick={() => {
+            const highestSaturation = swatches.reduce((highestSaturation, hex) => {
+              const saturation = hslProxy.fromHex(hex).saturation;
+              return saturation > highestSaturation ? saturation : highestSaturation;
+            }, 300);
+            onSwatchesChange(swatches.map(hex => {
+              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+              return hslProxy.toHex(hue, highestSaturation, lightness);
+            }))
+        }}>
+          Match Max Saturation
+        </Button>
+
+        <Button onClick={() =>
+            onSwatchesChange(swatches.map(hex => {
+              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+              return hslProxy.toHex(hue, saturation, lightness - 5);
+            }))
+        }>
+          Remove Lightness
+        </Button>
+        <Button onClick={() =>
+            onSwatchesChange(swatches.map(hex => {
+              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+              return hslProxy.toHex(hue, saturation, lightness + 5);
+            }))
+        }>
+          Add Lightness
+        </Button>
+        <Button onClick={() => {
+            const minLightness = swatches.reduce((lowestLightness, hex) => {
+              const lightness = hslProxy.fromHex(hex).lightness;
+              return lightness < lowestLightness ? lightness : lowestLightness;
+            }, 300);
+            onSwatchesChange(swatches.map(hex => {
+              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+              return hslProxy.toHex(hue, saturation, minLightness);
+            }))
+        }}>
+          Match Min Lightness
+        </Button>
+        <Button onClick={() => {
+            const maxLightness = swatches.reduce((highestLightness, hex) => {
+              const lightness = hslProxy.fromHex(hex).lightness;
+              return lightness > highestLightness ? lightness : highestLightness;
+            }, 0);
+            onSwatchesChange(swatches.map(hex => {
+              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+              return hslProxy.toHex(hue, saturation, maxLightness);
+            }))
+        }}>
+          Match Max Lightness
+        </Button>
+      </HGroup>
+    }
+  </VGroup>
+)
+
 const points = 200;
 const xSaturation = d3.scale.linear().domain([0, 100 * 1.80]).range([0, boxSize]);
 const yLightness = d3.scale.linear().domain([points, 0]).range([0, boxSize]);
@@ -367,7 +474,7 @@ const ColorPicker = React.createClass({
       hue: 50,
       saturation: 50,
       lightness: 50,
-      swatches: ['#2603FB']
+      swatches: ['#0000ff']
     };
   },
   handleAddColorToSwatches (e) {
@@ -538,113 +645,12 @@ const ColorPicker = React.createClass({
             ...(newProxy.fromHex(hslProxy.toHex(hue, saturation, lightness)))
           })
         } />
-        {
-          swatches.length > 0 &&
-          <VGroup>
-            <HR />
-            Swatches
-            <HGroup>
-              {
-                swatches.map(hex =>
-                  <Swatch
-                    key={hex}
-                    hex={hex}
-                    onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}
-                    onRemove={() => this.setState({swatches: _.without(swatches, hex)})}
-                  />
-                )
-              }
-            </HGroup>
-            {
-              swatches.length > 0 &&
-              <HGroup>
-                <Button g={Gradient.create(g.start, g.danger(.5))} onClick={() => this.setState({swatches: []})}>Clear Swatches</Button>
-                <Button onClick={() =>
-                    this.setState({swatches: swatches.map(hex => {
-                      const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-                      return hslProxy.toHex(hue, saturation - 5, lightness);
-                    })})
-                }>
-                  Remove Saturation
-                </Button>
-                <Button onClick={() =>
-                    this.setState({swatches: swatches.map(hex => {
-                      const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-                      return hslProxy.toHex(hue, saturation + 5, lightness);
-                    })})
-                }>
-                  Add Saturation
-                </Button>
-                <Button onClick={() => {
-                    const minSaturation = swatches.reduce((lowestSaturation, hex) => {
-                      const saturation = hslProxy.fromHex(hex).saturation;
-                      return saturation < lowestSaturation ? saturation : lowestSaturation;
-                    }, 300);
-                    console.log(minSaturation);
-                    this.setState({swatches: swatches.map(hex => {
-                      const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-                      return hslProxy.toHex(hue, minSaturation, lightness);
-                    })})
-                }}>
-                  Match Min Saturation
-                </Button>
-                <Button onClick={() => {
-                    const highestSaturation = swatches.reduce((highestSaturation, hex) => {
-                      const saturation = hslProxy.fromHex(hex).saturation;
-                      return saturation > highestSaturation ? saturation : highestSaturation;
-                    }, 300);
-                    this.setState({swatches: swatches.map(hex => {
-                      const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-                      return hslProxy.toHex(hue, highestSaturation, lightness);
-                    })})
-                }}>
-                  Match Max Saturation
-                </Button>
-
-                <Button onClick={() =>
-                    this.setState({swatches: swatches.map(hex => {
-                      const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-                      return hslProxy.toHex(hue, saturation, lightness - 5);
-                    })})
-                }>
-                  Remove Lightness
-                </Button>
-                <Button onClick={() =>
-                    this.setState({swatches: swatches.map(hex => {
-                      const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-                      return hslProxy.toHex(hue, saturation, lightness + 5);
-                    })})
-                }>
-                  Add Lightness
-                </Button>
-                <Button onClick={() => {
-                    const minLightness = swatches.reduce((lowestLightness, hex) => {
-                      const lightness = hslProxy.fromHex(hex).lightness;
-                      return lightness < lowestLightness ? lightness : lowestLightness;
-                    }, 300);
-                    this.setState({swatches: swatches.map(hex => {
-                      const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-                      return hslProxy.toHex(hue, saturation, minLightness);
-                    })})
-                }}>
-                  Match Min Lightness
-                </Button>
-                <Button onClick={() => {
-                    const maxLightness = swatches.reduce((highestLightness, hex) => {
-                      const lightness = hslProxy.fromHex(hex).lightness;
-                      return lightness > highestLightness ? lightness : highestLightness;
-                    }, 0);
-                    this.setState({swatches: swatches.map(hex => {
-                      const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-                      return hslProxy.toHex(hue, saturation, maxLightness);
-                    })})
-                }}>
-                  Match Max Lightness
-                </Button>
-              </HGroup>
-            }
-          </VGroup>
-        }
+        <ColorSchemeEditor
+          hslProxy={hslProxy}
+          swatches={swatches}
+          onSwatchesChange={swatches => this.setState({swatches})}
+          onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}
+        />
       </VGroup>
     );
   },
