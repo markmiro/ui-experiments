@@ -516,7 +516,7 @@ const ColorPicker = React.createClass({
     return {
       hue: 50,
       saturation: 50,
-      lightness: 50,
+      lightness: 50
     };
   },
   handleAddColor (e) {
@@ -750,7 +750,7 @@ const App = React.createClass({
           </div>
           {/*onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}*/}
           <HR />
-          <div>Schemes</div>
+          <div>Color Schemes</div>
           <ColorSchemes
             id={this.state.colorSchemeId}
             onIdChange={id =>
