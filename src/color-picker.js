@@ -46,6 +46,34 @@ const colorSchemes = [
     id: 3,
     name: 'Dribbble',
     colors: ['#444444', '#EA4C89', '#8ABA56', '#FF8833', '#00B6E3', '#9BA5A8']
+  },
+  {
+    id: 4,
+    name: 'iOS',
+    colors: [
+      '#5FC9F8', '#FECB2E', '#FD9426', '#FC3158', '#147EFB', '#53D769', '#FC3D39', '#8E8E93'
+    ]
+  },
+  {
+    id: 5,
+    name: 'McDonald\'s',
+    colors: [
+      '#BF0C0C', '#E76A05', '#FFC600', '#47BC00', '#05007B', '#9748A8', '#2BB3F3', '#865200'
+    ]
+  },
+  {
+    id: 6,
+    name: 'MapBox',
+    colors: [
+      '#3BB2D0', '#3887BE', '#8A8ACB', '#56B881', '#50667F', '#41AFA5', '#F9886C', '#E55E5E', '#ED6498', '#FBB03B', '#28353D', '#142736'
+    ]
+  },
+  {
+    id: 7,
+    name: 'Hyatt',
+    colors: [
+      '#6D6E71', '#BF5B20', '#006E96', '#8C8700', '#AD5F7D', '#D79100'
+    ]
   }
 ];
 
@@ -161,6 +189,29 @@ const ColorPin = React.createClass({
   }
 });
 
+const ColorBar = React.createClass({
+  render () {
+    const size = this.props.size || 4;
+    const {saturation, lightness, color} = this.props;
+    return (
+      <div style={{
+        background: `linear-gradient(90deg, transparent, ${color})`,
+        pointerEvents: 'none',
+        width: size,
+        height: size,
+        position: 'absolute',
+        transform: 'translate(0, -50%)',
+        boxShadow: '2px 2px ' + g.base(0),
+        left: 0,
+        // top: 0,
+        width: boxSize * (saturation / 100),
+        top: boxSize * ((100 - lightness) / 100),
+        // border
+      }}/>
+    );
+  }
+});
+
 const HGroup = props => (
   <SpacedFlexbox spacing={ms.spacing(0)} {...props} />
 );
@@ -250,11 +301,7 @@ const ColorSchemeNamedWrapper = ({active, name, colors, onClick}) => (
     <span style={{minWidth: '15%', padding: ms.spacing(2)}}>
       {name || 'Untitled'}
     </span>
-    {
-      active
-        ? <ColorSchemeAdvanced colors={colors} />
-        : <ColorSchemeSimple colors={colors} />
-    }
+    <ColorSchemeSimple colors={colors} />
   </div>
 );
 
@@ -362,7 +409,8 @@ const ColorSchemeEditor = ({colors, onColorsChange, onSelect, hslProxy}) => (
         left: 0,
         top: 0,
         width: boxSize,
-        height: boxSize
+        height: boxSize,
+        opacity: 0.2
       }}>
         {
           hslProxy === luvFunc &&
@@ -372,13 +420,26 @@ const ColorSchemeEditor = ({colors, onColorsChange, onSelect, hslProxy}) => (
               d={svgPathForLightnessSaturationFromHue(hslProxy.fromHex(color).hue)}
               style={{
                 stroke: color,
-                strokeWidth: 2,
+                strokeWidth: 4,
                 fill: 'none'
               }}
             />
           )
         }
       </svg>
+      {
+        colors.map(color => {
+          const {saturation, lightness} = hslProxy.fromHex(color);
+          return (
+            <ColorBar
+              key={color}
+              saturation={saturation}
+              lightness={lightness}
+              color={color}
+            />
+          );
+        })
+      }
       {
         colors.map(color => {
           const {saturation, lightness} = hslProxy.fromHex(color);
@@ -393,6 +454,8 @@ const ColorSchemeEditor = ({colors, onColorsChange, onSelect, hslProxy}) => (
         })
       }
     </div>
+    <ColorSchemeSimple colors={colors} />
+    <ColorSchemeAdvanced colors={colors} />
     <HGroup>
       {
         colors.map(hex =>
