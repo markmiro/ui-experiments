@@ -13,6 +13,12 @@
     "deploy": "npm run build && node deploy.js",
     "lint": "eslint src"
   },
+  "ava": {
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/markmiro/ui-experiments.git"

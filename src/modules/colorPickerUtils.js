@@ -1,5 +1,5 @@
 import husl from 'husl';
-import d3 from 'd3-color';
+import {hcl, rgb, hsl} from 'd3-color';
 import chroma from 'chroma-js';
 
 const hueClip = h => Math.min(360, Math.max(0, h));
@@ -23,18 +23,18 @@ const hclFunc = {
   resolution: 150,
   referenceSaturation: 33.9 / 1.35,
   toRGB (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation * 1.35, lightness);
+    const color = hcl(hue, saturation * 1.35, lightness);
     if (!color.displayable()) return [0, 0, 0];
     const {r, g, b} = color.rgb();
     return [r / 255, g / 255, b / 255];
   },
   toHex (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation * 1.35, lightness);
+    const color = hcl(hue, saturation * 1.35, lightness);
     if (!color.displayable()) return '#000';
     return color.toString();
   },
   fromHex (hex) {
-    const color = d3.hcl(hex);
+    const color = hcl(hex);
     return {
       hue: color.h,
       saturation: color.c / 1.35,
@@ -46,16 +46,16 @@ const hclExtendedFunc = {
   resolution: 150,
   referenceSaturation: 100,
   toRGB (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation * 1.35, lightness);
+    const color = hcl(hue, saturation * 1.35, lightness);
     const {r, g, b} = color.rgb();
     return [r / 255, g / 255, b / 255];
   },
   toHex (hue, saturation, lightness) {
-    const color = d3.hcl(hue, saturation * 1.35, lightness);
+    const color = hcl(hue, saturation * 1.35, lightness);
     return color.toString();
   },
   fromHex (hex) {
-    const color = d3.hcl(hex);
+    const color = hcl(hex);
     return {
       hue: color.h,
       saturation: color.c / 1.35,
@@ -140,13 +140,13 @@ const luvFunc = {
     //   // return huslFunc.toHex(hue, saturation, lightness);
     //   return [0, 0, 0];
     // };
-    return d3.rgb(color[0] * 255, color[1] * 255, color[2] * 255).toString();
+    return rgb(color[0] * 255, color[1] * 255, color[2] * 255).toString();
   },
   fromHex (hex) {
-    const color = d3.rgb(hex); // returns array with range 1-255 for each index
+    const color = rgb(hex); // returns array with range 1-255 for each index
     const {r, g, b} = color.rgb();
     const [lightness, saturation, hue] = husl._conv.rgb.lch([r / 255, g / 255, b / 255]);
-    // const color = d3.hcl(hex);
+    // const color = hcl(hex);
     return {hue, saturation: saturation / 1.80, lightness};
   }
 };
@@ -154,18 +154,18 @@ const hslFunc = {
   resolution: 100,
   referenceSaturation: 100,
   toRGB (hue, saturation, lightness) {
-    const color = d3.hsl(hue, saturation / 100, lightness / 100);
+    const color = hsl(hue, saturation / 100, lightness / 100);
     // if (!color.displayable()) return [0, 0, 0];
     const {r, g, b} = color.rgb();
     return [r / 255, g / 255, b / 255];
   },
   toHex (hue, saturation, lightness) {
-    const color = d3.hsl(hue, saturation / 100, lightness / 100);
+    const color = hsl(hue, saturation / 100, lightness / 100);
     // if (!color.displayable()) return '#000';
     return color.toString();
   },
   fromHex (hex) {
-    const color = d3.hsl(hex);
+    const color = hsl(hex);
     return {
       hue: color.h,
       saturation: color.s * 100,
