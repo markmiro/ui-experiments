@@ -82,12 +82,21 @@ const h = 100;
 const boxSize = 500;
 const border = '2px solid ' + g.base(1);
 const defaultG = g;
-// const hslProxy = husl;
 
-// This type of func can be set to use HSL, HCL, HUSL, and HUSLp
-// const hslProxy = hclFunc;
-// window.hslProxy = hslProxy;
-// window.husl = husl;
+const points = 200;
+const xSaturation = d3.scale.linear().domain([0, 100 * 1.80]).range([0, boxSize]);
+const yLightness = d3.scale.linear().domain([points, 0]).range([0, boxSize]);
+const line = d3.svg.line()
+  .x((d, i) => xSaturation(d))
+  .y((d, i) => yLightness(i));
+
+function svgPathForLightnessSaturationFromHue(hue) {
+  let saturationMaxLine = [0]; // contains the max saturation values for a given hue and lightness
+  for (var i = 1; i < points+1; i++) {
+    saturationMaxLine.push(husl._maxChromaForLH(i/points * 100, hue));
+  }
+  return line(saturationMaxLine);
+}
 
 const HueSlider = React.createClass({
   getInitialState () {
@@ -557,22 +566,7 @@ const ColorSchemeEditor = ({colors, onColorsChange, onSelect, hslProxy}) => (
       </HGroup>
     }
   </VGroup>
-)
-
-const points = 200;
-const xSaturation = d3.scale.linear().domain([0, 100 * 1.80]).range([0, boxSize]);
-const yLightness = d3.scale.linear().domain([points, 0]).range([0, boxSize]);
-const line = d3.svg.line()
-  .x((d, i) => xSaturation(d))
-  .y((d, i) => yLightness(i));
-
-function svgPathForLightnessSaturationFromHue(hue) {
-  let saturationMaxLine = [0]; // contains the max saturation values for a given hue and lightness
-  for (var i = 1; i < points+1; i++) {
-    saturationMaxLine.push(husl._maxChromaForLH(i/points * 100, hue));
-  }
-  return line(saturationMaxLine);
-}
+);
 
 const ColorPicker = React.createClass({
   getInitialState () {
