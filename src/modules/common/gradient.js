@@ -1,6 +1,7 @@
 import Gradient from '../Gradient';
-const g = Gradient.create('#545A66').invert();
-// const g = Gradient.create('#2B2B2B', '#CCC');
+// const g = Gradient.create('#545A66').invert();
+const g = Gradient.create('#EEE', '#888');
+// const g = Gradient.create('#000', '#888');
 // const g = Gradient.create('#F6F5D4', '#8F00D2');
 // const g = Gradient.create('white', 'black');
 // const g = Gradient.create('white', 'black').invert();
