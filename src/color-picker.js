@@ -611,7 +611,10 @@ const ColorSchemeEditor = React.createClass({
                 id={id}
                 isSelected={selectedColorId === id}
                 onSelectColorId={onSelectColorId}
-                onRemoveColorId={() => onColorsChange(_.without(colors, id))}
+                onRemoveColorId={() => {
+                  selectedColorId !== id &&
+                  onColorsChange(colors.filter(c => c.id !== id))
+                }}
               />
             )
           }
@@ -752,11 +755,6 @@ const ColorPicker = React.createClass({
     e.preventDefault();
     const {hue, saturation, lightness} = this.state;
     this.props.onAddColor(this.props.hslProxy.toHex(hue, saturation, lightness));
-    // this.setState({
-    //   colors: _.unique(
-    //     colors.slice().concat(this.props.hslProxy.toHex(hue, saturation, lightness))
-    //   )
-    // });
   },
   render () {
     const handleAddColor = this.handleAddColor;
@@ -967,9 +965,19 @@ const App = React.createClass({
           <ColorPicker
             hslProxy={hslProxy}
             onChangeHslProxy={newProxy => this.setState({hslProxy: newProxy})}
-            onAddColor={hex => console.log('adding color', hex)}
+            onAddColor={hex =>
+              this.setState({
+                colors: [...colors, {
+                  id: Math.round(Math.random() * 100000),
+                  hex
+                }]
+              })
+            }
             style={{flexShrink: 0}}
-            onColorChange={() => {}}
+            color={colors.find(c => c.id === selectedColorId).hex}
+            onColorChange={hex => {
+              // colors.find(c => c.id === selectedColorId).hex = hex
+            }}
           />
           <span style={{width: ms.spacing(10)}} />
           <ColorSchemeEditor
@@ -985,7 +993,11 @@ const App = React.createClass({
           <ColorSchemes
             id={this.state.colorSchemeId}
             onIdChange={id =>
-              this.setState({colorSchemeId: id, colors: colorSchemes[id].colors})
+              this.setState({
+                colorSchemeId: id,
+                colors: colorSchemes[id].colors,
+                selectedColorId: colorSchemes[id].colors[0].id
+              })
             }
           />
         </VGroup>
