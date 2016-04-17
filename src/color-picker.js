@@ -3,6 +3,7 @@ import {render} from 'react-dom';
 import d3 from 'd3';
 import husl from 'husl';
 import _ from 'underscore';
+import wcagContrast from 'wcag-contrast';
 
 import ms from './modules/common/ms';
 import g from './modules/common/gradient';
@@ -48,6 +49,101 @@ function svgPathForLightnessSaturationFromHue(hue) {
     saturationMaxLine.push(husl._maxChromaForLH(i/points * 100, hue));
   }
   return line(saturationMaxLine);
+}
+
+const hex_to_luv = hex =>
+  husl._conv.xyz.luv(
+    husl._conv.rgb.xyz(
+      husl._conv.hex.rgb(hex)
+    )
+  );
+
+function delta (c1, c2) {
+  const [l1, u1, v1] = hex_to_luv(c1); // return arr
+  const [l2, u2, v2] = hex_to_luv(c2); // return arr
+  const deltaL = (l1 - l2);
+  const deltaU = u1 - u2;
+  const deltaV = v1 - v2;
+  const distance = Math.sqrt(deltaL * deltaL);
+  return distance;
+}
+
+function deltaLCH (cA, cB) {
+  const [l1, c1, h1] = husl._conv.luv.lch(hex_to_luv(cA)); // return arr
+  const [l2, c2, h2] = husl._conv.luv.lch(hex_to_luv(cB)); // return arr
+  const deltaL = l1 - l2;
+  const deltaC = c1 - c2;
+  const deltaH = h1 - h2;
+  const distance = Math.sqrt(deltaL * deltaL + deltaC * deltaC + deltaH * deltaH);
+  return distance;
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+function deltaE (pair1, pair2) {
+  const pair1Delta = delta(pair1[0], pair1[1]);
+  const pair2Delta = delta(pair2[0], pair2[1]);
+  if (pair1Delta === pair2Delta) return 0;
+  return (pair1Delta > pair2Delta) ? -1 : 1;
+}
+
+function deltaL (c1, c2) {
+  const l1 = hex_to_luv(c1)[0]; // return arr
+  const l2 = hex_to_luv(c2)[0]; // return arr
+  const distance = Math.abs(l1 - l2);
+  return distance;
+}
+
+function deltaHUSL (cA, cB) {
+  const [h1, s1, l1] = husl.fromHex(cA); // return arr
+  const [h2, s2, l2] = husl.fromHex(cB); // return arr
+  const deltaH = h1 - h2;
+  const deltaS = (s1 - s2)/5;
+  const deltaL = l1 - l2;
+  const distance = Math.sqrt(deltaS * deltaS + deltaL * deltaL);
+  return distance;
+}
+
+function deltaLAB (c1, c2) {
+  const l1 = d3.lab(c1).l; // return arr
+  const l2 = d3.lab(c2).l; // return arr
+  const distance = Math.abs(l1 - l2);
+  return distance;
+}
+
+function deltaPairL(pair1, pair2) {
+  const pair1DeltaL = deltaL(pair1[0], pair1[1]);
+  const pair2DeltaL = deltaL(pair2[0], pair2[1]);
+  if (pair1DeltaL === pair2DeltaL) return 0;
+  return (pair1DeltaL > pair2DeltaL) ? -1 : 1;
+}
+
+// function textContrast (c1, c2) {
+//   return wcagContrast.hex(c1, c2);
+// }
+
+function textContrast (c1, c2) {
+  return deltaL(c1, c2);
+}
+
+function textContrastSort (pair1, pair2) {
+  const pair1Contrast = textContrast(pair1[0], pair1[1]);
+  const pair2Contrast = textContrast(pair2[0], pair2[1]);
+  if (pair1Contrast === pair2Contrast) return 0;
+  return pair1Contrast > pair2Contrast ? -1 : 1;
+}
+
+function lightnessSort (c1, c2) {
+  const l1 = hex_to_luv(c1)[0]; // return arr
+  const l2 = hex_to_luv(c2)[0]; // return arr
+  if (l1 === l2) return 0;
+  return l1 > l2 ? -1 : 1;
+}
+
+function hueSort (c1, c2) {
+  const h1 = husl._conv.luv.lch(hex_to_luv(c1))[2]; // return arr
+  const h2 = husl._conv.luv.lch(hex_to_luv(c2))[2]; // return arr
+  if (h1 === h2) return lightnessSort(c1, c2);
+  return h1 > h2 ? -1 : 1;
 }
 
 const HueSlider = React.createClass({
@@ -274,7 +370,7 @@ const ColorSchemes = ({id, onIdChange}) => (
           key={scheme.id}
           active={id === scheme.id}
           name={scheme.name}
-          colors={scheme.colors}
+          colors={scheme.colors.map(c => c.hex)}
           onClick={() => onIdChange(scheme.id)}
         />
       )
@@ -291,9 +387,13 @@ const HR = () => (
   }} />
 );
 
-const Swatch = ({hex, onSelect, onRemove}) => (
-  <VGroup className="selectable" style={{textTransform: 'uppercase'}}>
-    <div onClick={() => onSelect(hex)} style={{
+const Swatch = ({hex, id, onSelectColorId, onRemoveColorId, isSelected}) => (
+  <VGroup className="selectable" style={{
+    textTransform: 'uppercase',
+    backgroundColor: isSelected ? g.base(1) : null,
+    color: isSelected ? g.base(0) : null
+  }}>
+    <div onClick={() => onSelectColorId(id)} style={{
       width: 120,
       height: 42,
       backgroundColor: hex,
@@ -304,7 +404,7 @@ const Swatch = ({hex, onSelect, onRemove}) => (
         {hex}
       </span>
       {' '}
-      <a className="fa fa-remove" style={{color: g.danger(.5)}} onClick={onRemove} />
+      <a className="fa fa-remove" style={{color: g.danger(.5)}} onClick={onRemoveColorId} />
     </div>
   </VGroup>
 );
@@ -353,172 +453,292 @@ const ColorMode = ({value, onChange}) => {
   );
 };
 
-const ColorSchemeEditor = ({colors, onColorsChange, onSelect, hslProxy}) => (
-  <VGroup>
-    <h1 style={{marginBottom: ms.spacing(0)}}>
-      Color Scheme Editor
-    </h1>
-    <div style={{
-      position: 'relative',
+const ColorGrid = ({colors, bg, fg, onChange}) => (
+  <div style={{display: 'flex'}}>
+    {
+      [...colors].sort(lightnessSort).map(c1 =>
+        <div key={c1} style={{
+          // padding: ms.spacing(1),
+          // flexGrow: 1,
+          // color: 'white',
+          // backgroundColor: c1
+        }}>
+          {
+            [...colors].sort(lightnessSort).map(c2 =>
+              <div
+                key={c2}
+                onClick={() => c1 !== c2 && onChange({
+                  bg: c1,
+                  fg: c2
+                })}
+                style={{
+                  padding: ms.spacing(3),
+                  flexGrow: 1,
+                  color: c2,
+                  backgroundColor: c1,
+                  borderBottom: '1px solid ' + c2,
+                  borderRight: '1px solid ' + c2,
+                  outline: (c1 === bg && c2 === fg) ? '2px solid ' + c2 : null,
+                  outlineOffset: -8
+                  // fontWeight: 300,
+                  // fontSize: ms.tx(5)
+                }}
+              >
+                Aa
+              </div>
+            )
+          }
+        </div>
+        // [...colors, '#ffffff'].filter(c => c !== c1).map(c2 => [c1, c2])
+      )
+    }
+  </div>
+);
+
+const ColorPreview = ({fg, bg}) => (
+  <div style={{display: 'flex'}}>
+    {
+      [100, 300, 500, 700, 900].map(weight =>
+        <div key={weight} style={{display: 'flex', flexDirection: 'column'}}>
+          {
+            _.range(-1, 7).map(i =>
+              <span key={i} style={{
+                color: fg,
+                backgroundColor: bg,
+                padding: ms.spacing(1),
+                fontSize: ms.tx(i * 2),
+                fontWeight: weight,
+                borderRight: (weight / 100) + 'px solid'
+              }}>
+                Aa
+              </span>
+            )
+          }
+        </div>
+      )
+    }
+  </div>
+);
+
+const ColorRelationships = ({hslProxy, colors}) => (
+  <div style={{
+    position: 'relative',
+    width: boxSize,
+    height: boxSize,
+    border
+  }}>
+    <svg style={{
+      position: 'absolute',
+      pointerEvents: 'none',
+      left: 0,
+      top: 0,
       width: boxSize,
       height: boxSize,
-      border
+      opacity: 0.2
     }}>
-      <svg style={{
-        position: 'absolute',
-        pointerEvents: 'none',
-        left: 0,
-        top: 0,
-        width: boxSize,
-        height: boxSize,
-        opacity: 0.2
-      }}>
-        {
-          hslProxy === luvFunc &&
-          colors.filter(color => hslProxy.fromHex(color).saturation > 0.001).map(color =>
-            <path
-              key={color}
-              d={svgPathForLightnessSaturationFromHue(hslProxy.fromHex(color).hue)}
-              style={{
-                stroke: color,
-                strokeWidth: 4,
-                fill: 'none'
-              }}
-            />
-          )
-        }
-      </svg>
       {
-        colors.map(color => {
-          const {saturation, lightness} = hslProxy.fromHex(color);
-          return (
-            <ColorBar
-              key={color}
-              saturation={saturation}
-              lightness={lightness}
-              color={color}
-            />
-          );
-        })
-      }
-      {
-        colors.map(color => {
-          const {saturation, lightness} = hslProxy.fromHex(color);
-          return (
-            <ColorPin
-              key={color}
-              saturation={saturation}
-              lightness={lightness}
-              color={color}
-            />
-          );
-        })
-      }
-    </div>
-    <ColorSchemeSimple colors={colors} />
-    <ColorSchemeAdvanced colors={colors} />
-    <HGroup>
-      {
-        colors.map(hex =>
-          <Swatch
-            key={hex}
-            hex={hex}
-            onSelect={onSelect}
-            onRemove={() => onColorsChange(_.without(colors, hex))}
+        // Draw the saturation bounds for the given color
+        hslProxy === luvFunc &&
+        colors.map(c => c.hex).filter(color => hslProxy.fromHex(color).saturation > 0.001).map(color =>
+          <path
+            key={color}
+            d={svgPathForLightnessSaturationFromHue(hslProxy.fromHex(color).hue)}
+            style={{
+              stroke: color,
+              strokeWidth: 4,
+              fill: 'none'
+            }}
           />
         )
       }
-    </HGroup>
+    </svg>
     {
-      colors.length > 0 &&
-      <HGroup>
-        <Button g={Gradient.create(g.start, g.danger(.5))} onClick={() => onColorsChange([])}>Clear Swatches</Button>
-        <Button onClick={() =>
-            onColorsChange(colors.map(hex => {
-              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-              return hslProxy.toHex(hue, saturation - 5, lightness);
-            }))
-        }>
-          Remove Saturation
-        </Button>
-        <Button onClick={() =>
-            onColorsChange(colors.map(hex => {
-              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-              return hslProxy.toHex(hue, saturation + 5, lightness);
-            }))
-        }>
-          Add Saturation
-        </Button>
-        <Button onClick={() => {
-            const minSaturation = colors.reduce((lowestSaturation, hex) => {
-              const saturation = hslProxy.fromHex(hex).saturation;
-              return saturation < lowestSaturation ? saturation : lowestSaturation;
-            }, 300);
-            console.log(minSaturation);
-            onColorsChange(colors.map(hex => {
-              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-              return hslProxy.toHex(hue, minSaturation, lightness);
-            }))
-        }}>
-          Match Min Saturation
-        </Button>
-        <Button onClick={() => {
-            const highestSaturation = colors.reduce((highestSaturation, hex) => {
-              const saturation = hslProxy.fromHex(hex).saturation;
-              return saturation > highestSaturation ? saturation : highestSaturation;
-            }, 300);
-            onColorsChange(colors.map(hex => {
-              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-              return hslProxy.toHex(hue, highestSaturation, lightness);
-            }))
-        }}>
-          Match Max Saturation
-        </Button>
-
-        <Button onClick={() =>
-            onColorsChange(colors.map(hex => {
-              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-              return hslProxy.toHex(hue, saturation, lightness - 5);
-            }))
-        }>
-          Remove Lightness
-        </Button>
-        <Button onClick={() =>
-            onColorsChange(colors.map(hex => {
-              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-              return hslProxy.toHex(hue, saturation, lightness + 5);
-            }))
-        }>
-          Add Lightness
-        </Button>
-        <Button onClick={() => {
-            const minLightness = colors.reduce((lowestLightness, hex) => {
-              const lightness = hslProxy.fromHex(hex).lightness;
-              return lightness < lowestLightness ? lightness : lowestLightness;
-            }, 300);
-            onColorsChange(colors.map(hex => {
-              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-              return hslProxy.toHex(hue, saturation, minLightness);
-            }))
-        }}>
-          Match Min Lightness
-        </Button>
-        <Button onClick={() => {
-            const maxLightness = colors.reduce((highestLightness, hex) => {
-              const lightness = hslProxy.fromHex(hex).lightness;
-              return lightness > highestLightness ? lightness : highestLightness;
-            }, 0);
-            onColorsChange(colors.map(hex => {
-              const {hue, saturation, lightness} = hslProxy.fromHex(hex);
-              return hslProxy.toHex(hue, saturation, maxLightness);
-            }))
-        }}>
-          Match Max Lightness
-        </Button>
-      </HGroup>
+      // Draw the color bar
+      colors.map(c => c.hex).map(color => {
+        const {saturation, lightness} = hslProxy.fromHex(color);
+        return (
+          <ColorBar
+            key={color}
+            saturation={saturation}
+            lightness={lightness}
+            color={color}
+          />
+        );
+      })
     }
-  </VGroup>
+    {
+      // Draw the color pin
+      colors.map(c => c.hex).map(color => {
+        const {saturation, lightness} = hslProxy.fromHex(color);
+        return (
+          <ColorPin
+            key={color}
+            saturation={saturation}
+            lightness={lightness}
+            color={color}
+          />
+        );
+      })
+    }
+  </div>
 );
+
+const ColorSchemeEditor = React.createClass({
+  getInitialState () {
+    return {
+      bg: this.props.colors[0],
+      fg: this.props.colors[1]
+    };
+  },
+  render () {
+    const {fg, bg} = this.state;
+    const {colors, onColorsChange, hslProxy, selectedColorId, onSelectColorId} = this.props;
+    const justColors = colors.map(c => c.hex);
+    return (
+      <VGroup>
+        <h1 style={{marginBottom: ms.spacing(0)}}>
+          Color Scheme Editor
+        </h1>
+        <ColorRelationships hslProxy={hslProxy} colors={colors} />
+        {/*<ColorSchemeSimple colors={colors} />
+        <ColorSchemeAdvanced colors={colors} />*/}
+        <HGroup>
+          {
+            colors.map(({id, hex}) =>
+              <Swatch
+                key={id}
+                hex={hex}
+                id={id}
+                isSelected={selectedColorId === id}
+                onSelectColorId={onSelectColorId}
+                onRemoveColorId={() => onColorsChange(_.without(colors, id))}
+              />
+            )
+          }
+        </HGroup>
+        <HGroup>
+          <ColorGrid
+            colors={justColors}
+            fg={fg}
+            bg={bg}
+            onChange={fgBg => this.setState(fgBg)}
+          />
+        <ColorPreview fg={fg} bg={bg} />
+        </HGroup>
+        {/*<VGroup>
+          {
+            // console.log(
+              _.flatten(
+                [...colors, '#ffffff', '#000000'].map(c1 =>
+                  [...colors, '#ffffff'].filter(c => c !== c1).map(c2 => [c1, c2])
+                )
+              , true)
+              // .filter(([c1, c2]) => textContrast(c1, c2) > 20)
+              .sort(textContrastSort)
+              .map(([c1, c2]) =>
+                <div key={c1 + c2} style={{
+                  color: c1,
+                  backgroundColor: c2,
+                  padding: ms.spacing(1)
+                }}>
+                  {textContrast(c1, c2)} Lorem
+                </div>
+              )
+            // )
+          }
+        </VGroup>*/}
+        {
+          colors.length > 0 &&
+          <HGroup>
+            <Button g={Gradient.create(g.start, g.danger(.5))} onClick={() => onColorsChange([])}>Clear Swatches</Button>
+            <Button onClick={() =>
+                onColorsChange(justColors.map(hex => {
+                  const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+                  return hslProxy.toHex(hue, saturation - 5, lightness);
+                }))
+            }>
+              Remove Saturation
+            </Button>
+            <Button onClick={() =>
+                onColorsChange(justColors.map(hex => {
+                  const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+                  return hslProxy.toHex(hue, saturation + 5, lightness);
+                }))
+            }>
+              Add Saturation
+            </Button>
+            <Button onClick={() => {
+                const minSaturation = justColors.reduce((lowestSaturation, hex) => {
+                  const saturation = hslProxy.fromHex(hex).saturation;
+                  return saturation < lowestSaturation ? saturation : lowestSaturation;
+                }, 300);
+                console.log(minSaturation);
+                onColorsChange(justColors.map(hex => {
+                  const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+                  return hslProxy.toHex(hue, minSaturation, lightness);
+                }))
+            }}>
+              Match Min Saturation
+            </Button>
+            <Button onClick={() => {
+                const highestSaturation = justColors.reduce((highestSaturation, hex) => {
+                  const saturation = hslProxy.fromHex(hex).saturation;
+                  return saturation > highestSaturation ? saturation : highestSaturation;
+                }, 300);
+                onColorsChange(justColors.map(hex => {
+                  const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+                  return hslProxy.toHex(hue, highestSaturation, lightness);
+                }))
+            }}>
+              Match Max Saturation
+            </Button>
+
+            <Button onClick={() =>
+                onColorsChange(justColors.map(hex => {
+                  const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+                  return hslProxy.toHex(hue, saturation, lightness - 5);
+                }))
+            }>
+              Remove Lightness
+            </Button>
+            <Button onClick={() =>
+                onColorsChange(justColors.map(hex => {
+                  const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+                  return hslProxy.toHex(hue, saturation, lightness + 5);
+                }))
+            }>
+              Add Lightness
+            </Button>
+            <Button onClick={() => {
+                const minLightness = justColors.reduce((lowestLightness, hex) => {
+                  const lightness = hslProxy.fromHex(hex).lightness;
+                  return lightness < lowestLightness ? lightness : lowestLightness;
+                }, 300);
+                onColorsChange(justColors.map(hex => {
+                  const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+                  return hslProxy.toHex(hue, saturation, minLightness);
+                }))
+            }}>
+              Match Min Lightness
+            </Button>
+            <Button onClick={() => {
+                const maxLightness = justColors.reduce((highestLightness, hex) => {
+                  const lightness = hslProxy.fromHex(hex).lightness;
+                  return lightness > highestLightness ? lightness : highestLightness;
+                }, 0);
+                onColorsChange(justColors.map(hex => {
+                  const {hue, saturation, lightness} = hslProxy.fromHex(hex);
+                  return hslProxy.toHex(hue, saturation, maxLightness);
+                }))
+            }}>
+              Match Max Lightness
+            </Button>
+          </HGroup>
+        }
+      </VGroup>
+    );
+  }
+});
 
 const ColorPicker = React.createClass({
   getInitialState () {
@@ -690,12 +910,14 @@ const ColorPicker = React.createClass({
     const newHue = hueClip(this.state.hue);
     const newSaturation = saturationClip((x / boxSize) * 100);
     const newLightness = lightnessClip(100 - (y / boxSize) * 100);
+    const newHex = this.props.hslProxy.toHex(newHue, newSaturation, newLightness);
     this.setState({
       hue: newHue,
       saturation: newSaturation,
       lightness: newLightness,
-      inputColor: this.props.hslProxy.toHex(newHue, newSaturation, newLightness)
+      inputColor: newHex
     });
+    this.props.onColorChange(newHex);
   },
   drawCanvas () {
     var canvas = this.refs.canvas;
@@ -729,34 +951,34 @@ const ColorPicker = React.createClass({
 const App = React.createClass({
   getInitialState () {
     return {
-      colorSchemeId: 1,
+      colorSchemeId: 0,
       hslProxy: luvFunc,
-      colors: colorSchemes[0].colors
+      colors: colorSchemes[0].colors,
+      selectedColorId: colorSchemes[0].colors[0].id
     }
   },
   render () {
-    const {hslProxy, colorSchemeId, colors} = this.state;
+    const {hslProxy, colorSchemeId, colors, selectedColorId} = this.state;
     return (
       <Fill style={{
         padding: ms.spacing(8)
       }}>
         <VGroup>
-          <div style={{
-            display: 'flex'
-          }}>
-            <ColorPicker
-              hslProxy={hslProxy}
-              onChangeHslProxy={newProxy => this.setState({hslProxy: newProxy})}
-              onAddColor={hex => console.log('adding color', hex)}
-              style={{flexShrink: 0}}
-            />
-            <span style={{width: ms.spacing(10)}} />
-            <ColorSchemeEditor
-              hslProxy={hslProxy}
-              colors={colors}
-              onColorsChange={colors => this.setState({colors})}
-            />
-          </div>
+          <ColorPicker
+            hslProxy={hslProxy}
+            onChangeHslProxy={newProxy => this.setState({hslProxy: newProxy})}
+            onAddColor={hex => console.log('adding color', hex)}
+            style={{flexShrink: 0}}
+            onColorChange={() => {}}
+          />
+          <span style={{width: ms.spacing(10)}} />
+          <ColorSchemeEditor
+            hslProxy={hslProxy}
+            colors={colors}
+            selectedColorId={selectedColorId}
+            onSelectColorId={selectedColorId => this.setState({selectedColorId})}
+            onColorsChange={colors => this.setState({colors})}
+          />
           {/*onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}*/}
           <HR />
           <div>Color Schemes</div>
