@@ -618,7 +618,7 @@ const ColorSchemeEditor = React.createClass({
         </HGroup>
         <HGroup>
           <ColorGrid
-            colors={justColors}
+            colors={[...justColors, '#ffffff', '#000000']}
             fg={fg}
             bg={bg}
             onChange={fgBg => this.setState(fgBg)}

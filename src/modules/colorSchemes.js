@@ -44,20 +44,9 @@ let colorSchemes = [
 colorSchemes = colorSchemes.map((scheme, i) => {
   const newScheme = scheme;
   newScheme.id = i;
-  const wrappedSchemeColors = scheme.colors.map(
+  newScheme.colors = scheme.colors.map(
     (c, i) => ({id: i, hex: c})
   );
-  newScheme.colors = [
-    {
-      id: 'white',
-      hex: '#ffffff'
-    },
-    {
-      id: 'black',
-      hex: '#000000'
-    },
-    ...wrappedSchemeColors,
-  ];
   return newScheme;
 });
 
