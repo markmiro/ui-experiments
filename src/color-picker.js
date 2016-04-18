@@ -744,13 +744,6 @@ const ColorSchemeEditor = React.createClass({
 });
 
 const ColorPicker = React.createClass({
-  getInitialState () {
-    return {
-      hue: 50,
-      saturation: 50,
-      lightness: 50
-    };
-  },
   handleAddColor (e) {
     e.preventDefault();
     const {hue, saturation, lightness} = this.state;
@@ -758,8 +751,8 @@ const ColorPicker = React.createClass({
   },
   render () {
     const handleAddColor = this.handleAddColor;
-    const {hslProxy, onChangeHslProxy, style} = this.props;
-    const {hue, saturation, lightness} = this.state;
+    const {hslProxy, onChangeHslProxy, style, hex, onColorChange} = this.props;
+    const {hue, saturation, lightness} = hslProxy.fromHex(hex);
     // console.log(saturationMaxLine);
     // console.log(line(saturationMaxLine));
     return (
@@ -796,7 +789,7 @@ const ColorPicker = React.createClass({
                 size={20}
                 saturation={saturation}
                 lightness={lightness}
-                color={hslProxy.toHex(hue, saturation, lightness)}
+                color={hex}
               />
               <svg style={{
                 position: 'absolute',
@@ -853,29 +846,28 @@ const ColorPicker = React.createClass({
             hue={hue}
             lightness={lightness}
             saturation={saturation}
-            onChange={hue => this.setState({hue, inputColor: hslProxy.toHex(hue, saturation, lightness)})}
+            onChange={hue => onColorChange(hslProxy.toHex(hue, saturation, lightness))}
           />
           <HueSlider
             hslProxy={hslProxy}
             hue={hue}
             lightness={60}
             saturation={hslProxy.referenceSaturation}
-            onChange={hue => this.setState({hue, inputColor: hslProxy.toHex(hue, saturation, lightness)})}
+            onChange={hue => onColorChange(hslProxy.toHex(hue, saturation, lightness))}
           />
         <form onSubmit={handleAddColor}>
             <VGroup>
               <div style={{
-                backgroundColor: hslProxy.toHex(hue, saturation, lightness),
+                backgroundColor: hex,
                 height: 120,
                 border
               }} />
               <input
                 className="selectable"
-                value={this.state.inputColor}
+                value={hex}
                 onChange={e => {
                   const value = (e.target.value[0] === '#' ? '' : '#' ) + e.target.value;
-                  const color = hslProxy.fromHex(value);
-                  this.setState({inputColor: value, ...color});
+                  onColorChange(value);
                 }}
                 style={{
                   textTransform: 'uppercase',
@@ -887,13 +879,7 @@ const ColorPicker = React.createClass({
             </VGroup>
           </form>
         </HGroup>
-        <ColorMode value={hslProxy} onChange={newProxy => {
-          onChangeHslProxy(newProxy);
-          this.setState({
-            inputColor: hslProxy.toHex(hue, saturation, lightness),
-            ...(newProxy.fromHex(hslProxy.toHex(hue, saturation, lightness)))
-          })
-        }} />
+        <ColorMode value={hslProxy} onChange={newProxy => onChangeHslProxy(newProxy)} />
       </VGroup>
     );
   },
@@ -905,16 +891,10 @@ const ColorPicker = React.createClass({
   },
   updateColor (e) {
     const {x, y} = mousePositionElement(e);
-    const newHue = hueClip(this.state.hue);
+    const newHue = hueClip(this.props.hslProxy.fromHex(this.props.hex).hue);
     const newSaturation = saturationClip((x / boxSize) * 100);
     const newLightness = lightnessClip(100 - (y / boxSize) * 100);
     const newHex = this.props.hslProxy.toHex(newHue, newSaturation, newLightness);
-    this.setState({
-      hue: newHue,
-      saturation: newSaturation,
-      lightness: newLightness,
-      inputColor: newHex
-    });
     this.props.onColorChange(newHex);
   },
   drawCanvas () {
@@ -926,8 +906,8 @@ const ColorPicker = React.createClass({
     var imageData = ctx.createImageData(canvas.width, canvas.height);
     var data = imageData.data;
 
-    const {hslProxy} = this.props;
-    const {hue} = this.state;
+    const {hslProxy, hex} = this.props;
+    const {hue} = hslProxy.fromHex(hex);
     let i = 0;
     for (let y = 0; y < hslProxy.resolution; y++) {
       for (let x = 0; x < hslProxy.resolution; x++) {
@@ -974,9 +954,10 @@ const App = React.createClass({
               })
             }
             style={{flexShrink: 0}}
-            color={colors.find(c => c.id === selectedColorId).hex}
+            hex={colors.find(c => c.id === selectedColorId).hex}
             onColorChange={hex => {
-              // colors.find(c => c.id === selectedColorId).hex = hex
+              colors.find(c => c.id === selectedColorId).hex = hex;
+              this.setState({colors});
             }}
           />
           <span style={{width: ms.spacing(10)}} />
