@@ -362,21 +362,26 @@ const ColorSchemeNamedWrapper = ({active, name, colors, onClick}) => (
   </div>
 );
 
-const ColorSchemes = ({id, onIdChange}) => (
-  <VGroup>
-    {
-      colorSchemes.map(scheme =>
-        <ColorSchemeNamedWrapper
-          key={scheme.id}
-          active={id === scheme.id}
-          name={scheme.name}
-          colors={scheme.colors.map(c => c.hex)}
-          onClick={() => onIdChange(scheme.id)}
-        />
-      )
-    }
-  </VGroup>
-);
+const ColorSchemes = React.createClass({
+  render () {
+    const {colorSchemes, id, onIdChange} = this.props;
+    return (
+      <VGroup>
+        {
+          colorSchemes.map(scheme =>
+            <ColorSchemeNamedWrapper
+              key={scheme.id}
+              active={id === scheme.id}
+              name={scheme.name}
+              colors={scheme.colors.map(c => c.hex)}
+              onClick={() => onIdChange(scheme.id)}
+            />
+          )
+        }
+      </VGroup>
+    )
+  }
+});
 
 const HR = () => (
   <hr style={{
@@ -937,14 +942,15 @@ const ColorPicker = React.createClass({
 const App = React.createClass({
   getInitialState () {
     return {
-      colorSchemeId: 0,
       hslProxy: luvFunc,
-      colors: colorSchemes[0].colors,
-      selectedColorId: colorSchemes[0].colors[0].id
+      colorSchemes: this.props.initialColorSchemes,
+      selectedColorSchemeId: this.props.initialColorSchemes[0].id,
+      selectedColorId: this.props.initialColorSchemes[0].colors[0].id
     }
   },
   render () {
-    const {hslProxy, colorSchemeId, colors, selectedColorId} = this.state;
+    const {hslProxy, selectedColorSchemeId, selectedColorId, colorSchemes} = this.state;
+    const colors = colorSchemes.find(scheme => scheme.id === selectedColorSchemeId).colors;
     return (
       <Fill style={{
         padding: ms.spacing(8)
@@ -952,26 +958,29 @@ const App = React.createClass({
         <VGroup>
           <div>Color Schemes</div>
           <ColorSchemes
-            id={this.state.colorSchemeId}
+            colorSchemes={colorSchemes}
+            id={this.state.selectedColorSchemeId}
             onIdChange={id =>
               this.setState({
-                colorSchemeId: id,
-                colors: colorSchemes[id].colors,
+                selectedColorSchemeId: id,
                 selectedColorId: colorSchemes[id].colors[0].id
               })
             }
           />
-        <HR />
+          <HR />
           <ColorPicker
             hslProxy={hslProxy}
             onChangeHslProxy={newProxy => this.setState({hslProxy: newProxy})}
             onAddColor={hex => {
               const id = Math.round(Math.random() * 100000);
+              const nextColorSchemes = colorSchemes;
+              const nextScheme = nextColorSchemes.find(scheme => scheme.id === selectedColorSchemeId);
+              nextScheme.colors = [...(nextScheme.colors), {
+                id,
+                hex
+              }];
               this.setState({
-                colors: [...colors, {
-                  id,
-                  hex
-                }],
+                colorSchemes: nextColorSchemes,
                 selectedColorId: id
               });
             }}
@@ -988,7 +997,10 @@ const App = React.createClass({
             colors={colors}
             selectedColorId={selectedColorId}
             onSelectColorId={selectedColorId => this.setState({selectedColorId})}
-            onColorsChange={colors => this.setState({colors})}
+            onColorsChange={colors => {
+              colorSchemes.find(scheme => scheme.id === selectedColorSchemeId).colors = colors;
+              this.setState({colorSchemes});
+            }}
           />
           {/*onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}*/}
         </VGroup>
@@ -997,4 +1009,4 @@ const App = React.createClass({
   }
 });
 
-render(<App />, document.getElementById('root'));
+render(<App initialColorSchemes={colorSchemes} />, document.getElementById('root'));
