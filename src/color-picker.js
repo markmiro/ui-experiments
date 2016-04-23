@@ -979,7 +979,7 @@ const App = React.createClass({
         padding: ms.spacing(8)
       }}>
         <VGroup>
-          <div>Color Schemes</div>
+          <div>Color Scheme</div>
           <ColorSchemes
             colorSchemes={colorSchemes}
             id={this.state.selectedColorSchemeId}
