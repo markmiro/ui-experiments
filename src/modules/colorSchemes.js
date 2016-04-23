@@ -8,6 +8,10 @@ let colorSchemes = [
     colors: ['#7CBB00', '#00A1F1', '#FFBB00', '#F65314']
   },
   {
+    name: 'Microsoft 2',
+    colors: ['#84D12C', '#00A9FD', '#F9D331', '#E75738']
+  },
+  {
     name: 'NBC',
     colors: ['#E1AC26', '#DC380F', '#9F0812', '#6347B2', '#368DD5', '#70AF1E', '#7E887A']
   },
@@ -37,6 +41,12 @@ let colorSchemes = [
     name: 'Hyatt',
     colors: [
       '#6D6E71', '#BF5B20', '#006E96', '#8C8700', '#AD5F7D', '#D79100'
+    ]
+  },
+  {
+    name: 'Just Colors',
+    colors: [
+      '#00C35D', '#2F8CFF', '#F0C637', '#DA284C', '#712CD6', '#2B2B2B', '#E1E7F7'
     ]
   }
 ];
