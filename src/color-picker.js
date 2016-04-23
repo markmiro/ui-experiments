@@ -14,6 +14,7 @@ import Fill from './modules/Fill';
 import SpacedFlexbox from './modules/SpacedFlexbox';
 import Button from './modules/Button';
 import colorSchemes from './modules/colorSchemes.js';
+import {PortalSource, Modal} from './modules/PortalUsers';
 import {
   luvFunc,
   huslFunc,
@@ -363,22 +364,44 @@ const ColorSchemeNamedWrapper = ({active, name, colors, onClick}) => (
 );
 
 const ColorSchemes = React.createClass({
+  getInitialState () {
+    return {
+      isOpen: false
+    };
+  },
   render () {
     const {colorSchemes, id, onIdChange} = this.props;
+    const scheme = colorSchemes[id];
     return (
-      <VGroup>
-        {
-          colorSchemes.map(scheme =>
-            <ColorSchemeNamedWrapper
-              key={scheme.id}
-              active={id === scheme.id}
-              name={scheme.name}
-              colors={scheme.colors.map(c => c.hex)}
-              onClick={() => onIdChange(scheme.id)}
-            />
-          )
-        }
-      </VGroup>
+      <div>
+        <ColorSchemeNamedWrapper
+          key={scheme.id}
+          active={id === scheme.id}
+          name={scheme.name}
+          colors={scheme.colors.map(c => c.hex)}
+          onClick={() => this.setState({isOpen: true})}
+        />
+        <PortalSource isOpen={this.state.isOpen}>
+          <Modal key='sdf' onClose={() => this.setState({isOpen: false})}>
+            <VGroup>
+              {
+                colorSchemes.map(scheme =>
+                  <ColorSchemeNamedWrapper
+                    key={scheme.id}
+                    active={id === scheme.id}
+                    name={scheme.name}
+                    colors={scheme.colors.map(c => c.hex)}
+                    onClick={() => {
+                      onIdChange(scheme.id);
+                      this.setState({isOpen: false});
+                    }}
+                  />
+                )
+              }
+            </VGroup>
+          </Modal>
+        </PortalSource>
+      </div>
     )
   }
 });
