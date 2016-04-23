@@ -45,7 +45,7 @@ const line = d3.svg.line()
 
 function svgPathForLightnessSaturationFromHue(hue) {
   let saturationMaxLine = [0]; // contains the max saturation values for a given hue and lightness
-  for (var i = 1; i < points+1; i++) {
+  for (let i = 1; i < points+1; i++) {
     saturationMaxLine.push(husl._maxChromaForLH(i/points * 100, hue));
   }
   return line(saturationMaxLine);
@@ -202,12 +202,12 @@ const HueSlider = React.createClass({
     this.props.onChange(newHue);
   },
   drawCanvas () {
-    var canvas = this.refs.canvas;
+    const canvas = this.refs.canvas;
     if (!canvas.getContext) return;
 
-    var ctx = canvas.getContext('2d');
-    var imageData = ctx.createImageData(1, canvas.height);
-    var data = imageData.data;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(1, canvas.height);
+    const data = imageData.data;
 
     for (let y = 0, i = -1; y < this.props.hslProxy.resolution; ++y) {
       const hue = (y  / this.props.hslProxy.resolution) * 360;
@@ -410,7 +410,7 @@ const Swatch = ({hex, id, onSelectColorId, onRemoveColorId, isSelected}) => (
 );
 
 const ColorMode = ({value, onChange}) => {
-  var modes = [
+  const modes = [
     {
       name: 'HSV',
       func: hsvFunc
@@ -453,32 +453,37 @@ const ColorMode = ({value, onChange}) => {
   );
 };
 
-const ColorGrid = ({colors, bg, fg, onChange}) => (
+const ColorGrid = ({colors, bgLevel, fgLevel, onChange}) => (
   <div style={{display: 'flex'}}>
     {
-      [...colors].sort(lightnessSort).map(c1 =>
-        <div key={c1} style={{
+      colors.map((bg, bgIndex) =>
+        <div key={bg} style={{
           // padding: ms.spacing(1),
           // flexGrow: 1,
           // color: 'white',
-          // backgroundColor: c1
+          // backgroundColor: bg
         }}>
           {
-            [...colors].sort(lightnessSort).map(c2 =>
+            colors.map((fg, fgIndex) =>
               <div
-                key={c2}
-                onClick={() => c1 !== c2 && onChange({
-                  bg: c1,
-                  fg: c2
+                key={fg}
+                onClick={() => bg !== fg && onChange({
+                  bgLevel: bgIndex / (colors.length - 1),
+                  fgLevel: fgIndex / (colors.length - 1)
                 })}
                 style={{
                   padding: ms.spacing(3),
                   flexGrow: 1,
-                  color: c2,
-                  backgroundColor: c1,
-                  borderBottom: '1px solid ' + c2,
-                  borderRight: '1px solid ' + c2,
-                  outline: (c1 === bg && c2 === fg) ? '2px solid ' + c2 : null,
+                  color: fg,
+                  backgroundColor: bg,
+                  // borderBottom: '1px solid ' + fg,
+                  // borderRight: '1px solid ' + fg,
+                  outline: (
+                    bgIndex === Math.round(bgLevel * (colors.length - 1)) &&
+                    fgIndex === Math.round(fgLevel * (colors.length - 1))
+                  )
+                    ? '2px solid ' + fg
+                    : null,
                   outlineOffset: -8
                   // fontWeight: 300,
                   // fontSize: ms.tx(5)
@@ -586,14 +591,18 @@ const ColorRelationships = ({hslProxy, colors}) => (
 const ColorSchemeEditor = React.createClass({
   getInitialState () {
     return {
-      bg: this.props.colors[0],
-      fg: this.props.colors[1]
+      bgLevel: .25,
+      fgLevel: .75
     };
   },
   render () {
-    const {fg, bg} = this.state;
+    const {fgLevel, bgLevel} = this.state;
     const {colors, onColorsChange, hslProxy, selectedColorId, onSelectColorId} = this.props;
     const justColors = colors.map(c => c.hex);
+    const justColorsOrdered = [...justColors, '#ffffff', '#000000'].sort(lightnessSort);
+    const levelToColor = level => justColorsOrdered[Math.round(level * (justColorsOrdered.length - 1))];
+    const fg = levelToColor(fgLevel);
+    const bg = levelToColor(bgLevel);
     return (
       <VGroup>
         <h1 style={{marginBottom: ms.spacing(0)}}>
@@ -612,8 +621,8 @@ const ColorSchemeEditor = React.createClass({
                 isSelected={selectedColorId === id}
                 onSelectColorId={onSelectColorId}
                 onRemoveColorId={() => {
-                  selectedColorId !== id &&
-                  onColorsChange(colors.filter(c => c.id !== id))
+                  onColorsChange(colors.filter(c => c.id !== id));
+                  onSelectColorId(colors[0].id);
                 }}
               />
             )
@@ -621,10 +630,10 @@ const ColorSchemeEditor = React.createClass({
         </HGroup>
         <HGroup>
           <ColorGrid
-            colors={[...justColors, '#ffffff', '#000000']}
-            fg={fg}
-            bg={bg}
-            onChange={fgBg => this.setState(fgBg)}
+            colors={justColorsOrdered}
+            fgLevel={fgLevel}
+            bgLevel={bgLevel}
+            onChange={fgBgLevels => this.setState({...fgBgLevels})}
           />
         <ColorPreview fg={fg} bg={bg} />
         </HGroup>
@@ -746,8 +755,7 @@ const ColorSchemeEditor = React.createClass({
 const ColorPicker = React.createClass({
   handleAddColor (e) {
     e.preventDefault();
-    const {hue, saturation, lightness} = this.state;
-    this.props.onAddColor(this.props.hslProxy.toHex(hue, saturation, lightness));
+    this.props.onAddColor(this.props.hex);
   },
   render () {
     const handleAddColor = this.handleAddColor;
@@ -898,13 +906,13 @@ const ColorPicker = React.createClass({
     this.props.onColorChange(newHex);
   },
   drawCanvas () {
-    var canvas = this.refs.canvas;
+    const canvas = this.refs.canvas;
     if (!canvas.getContext) return;
 
-    var ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
     // debugger;
-    var imageData = ctx.createImageData(canvas.width, canvas.height);
-    var data = imageData.data;
+    const imageData = ctx.createImageData(canvas.width, canvas.height);
+    const data = imageData.data;
 
     const {hslProxy, hex} = this.props;
     const {hue} = hslProxy.fromHex(hex);
@@ -942,17 +950,31 @@ const App = React.createClass({
         padding: ms.spacing(8)
       }}>
         <VGroup>
+          <div>Color Schemes</div>
+          <ColorSchemes
+            id={this.state.colorSchemeId}
+            onIdChange={id =>
+              this.setState({
+                colorSchemeId: id,
+                colors: colorSchemes[id].colors,
+                selectedColorId: colorSchemes[id].colors[0].id
+              })
+            }
+          />
+        <HR />
           <ColorPicker
             hslProxy={hslProxy}
             onChangeHslProxy={newProxy => this.setState({hslProxy: newProxy})}
-            onAddColor={hex =>
+            onAddColor={hex => {
+              const id = Math.round(Math.random() * 100000);
               this.setState({
                 colors: [...colors, {
-                  id: Math.round(Math.random() * 100000),
+                  id,
                   hex
-                }]
-              })
-            }
+                }],
+                selectedColorId: id
+              });
+            }}
             style={{flexShrink: 0}}
             hex={colors.find(c => c.id === selectedColorId).hex}
             onColorChange={hex => {
@@ -969,18 +991,6 @@ const App = React.createClass({
             onColorsChange={colors => this.setState({colors})}
           />
           {/*onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}*/}
-          <HR />
-          <div>Color Schemes</div>
-          <ColorSchemes
-            id={this.state.colorSchemeId}
-            onIdChange={id =>
-              this.setState({
-                colorSchemeId: id,
-                colors: colorSchemes[id].colors,
-                selectedColorId: colorSchemes[id].colors[0].id
-              })
-            }
-          />
         </VGroup>
       </Fill>
     );

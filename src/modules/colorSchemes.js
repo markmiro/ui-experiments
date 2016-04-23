@@ -46,7 +46,7 @@ let colorSchemes = [
   {
     name: 'Just Colors',
     colors: [
-      '#00C35D', '#2F8CFF', '#F0C637', '#DA284C', '#712CD6', '#2B2B2B', '#E1E7F7'
+      '#00C35D', '#2F8CFF', '#F0C637', '#DA284C', '#712CD6', '#E1E7F7', '#424255', '#2D2D40'
     ]
   }
 ];
