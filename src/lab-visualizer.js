@@ -6,6 +6,7 @@ import R from 'ramda';
 import chroma from 'chroma-js';
 
 import ms from './modules/ms';
+import {xyToRadiusAngle} from './modules/colorPickerUtils';
 
 window.d3 = d3;
 window.scale = scale;
@@ -77,24 +78,18 @@ let App = React.createClass({
 });
 
 // l in lab color
-let layerToL = scale.linear().range([0, 150]).domain([layers, 0]);
+let layerToL = scale.scaleLinear().range([0, 150]).domain([layers, 0]);
 // a in lab color
-let xToA = scale.linear().range([-100, 100]).domain([0, w]);
+let xToA = scale.scaleLinear().range([-100, 100]).domain([0, w]);
 // b in lab color
-let yToB = scale.linear().range([-100, 100]).domain([0, h]);
+let yToB = scale.scaleLinear().range([-100, 100]).domain([0, h]);
 
 // l in hcl color
-// let layerToL = scale.linear().range([0, 150]).domain([layers, 0]);
+// let layerToL = scale.scaleLinear().range([0, 150]).domain([layers, 0]);
 // c in hcl color
-let xToC = scale.linear().range([0, 150]).domain([0, w]);
+let xToC = scale.scaleLinear().range([0, 150]).domain([0, w]);
 // h in hcl color
-let yToH = scale.linear().range([0, 360]).domain([0, h]);
-
-function xyToRadiusAngle (x, y) {
-  let radius = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-  let angle = Math.atan2(y, x);
-  return { radius, angle };
-}
+let yToH = scale.scaleLinear().range([0, 360]).domain([0, h]);
 
 function render () {
   ReactDOM.render(<App />, document.getElementById('root'));
@@ -124,8 +119,8 @@ function render () {
             data[0 + i * 4] = color.r;
             data[1 + i * 4] = color.g;
             data[2 + i * 4] = color.b;
-            data[3 + i * 4] = color.displayable() ? (Math.round(radius/2) === 60 ? 255 : 10) : 0;
-            // data[3 + i * 4] = (color.displayable() && (angleDegrees > 45)) ? 255 : 2;
+            // data[3 + i * 4] = color.displayable() ? (Math.round(radius/2) === 60 ? 255 : 10) : 0;
+            data[3 + i * 4] = (color.displayable() && (angleDegrees > 45)) ? 255 : 2;
             // data[3 + i * 4] = color.displayable() ? 255 : (color2.displayable() ? 20 : 0);
             i++;
           }

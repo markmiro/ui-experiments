@@ -85,7 +85,8 @@ const Modal = React.createClass({
           top: 0,
           right: 0,
           bottom: 0,
-          left: 0
+          left: 0,
+          overflowY: 'scroll'
       }}>
         <div onClick={this.props.onClose} style={{
           position: 'fixed',

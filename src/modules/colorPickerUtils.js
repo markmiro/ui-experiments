@@ -1,6 +1,7 @@
 import husl from 'husl';
 import {hcl, rgb, hsl} from 'd3-color';
 import chroma from 'chroma-js';
+import _ from 'underscore';
 
 const hueClip = h => Math.min(360, Math.max(0, h));
 const saturationClip = s => Math.min(100, Math.max(0, s));
@@ -192,74 +193,6 @@ const hsvFunc = {
   }
 };
 
-
-
-
-// https://gist.github.com/electricg/4435259
-// Which HTML element is the target of the event
-function mouseTarget(e) {
-	var targ;
-	if (!e) var e = window.event;
-	if (e.target) targ = e.target;
-	else if (e.srcElement) targ = e.srcElement;
-	if (targ.nodeType == 3) // defeat Safari bug
-		targ = targ.parentNode;
-	return targ;
-}
-
-// Mouse position relative to the document
-// From http://www.quirksmode.org/js/events_properties.html
-function mousePositionDocument(e) {
-	var posx = 0;
-	var posy = 0;
-	if (!e) {
-		var e = window.event;
-	}
-	if (e.pageX || e.pageY) {
-		posx = e.pageX;
-		posy = e.pageY;
-	}
-	else if (e.clientX || e.clientY) {
-		posx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-		posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-	}
-	return {
-		x : posx,
-		y : posy
-	};
-}
-
-// Find out where an element is on the page
-// From http://www.quirksmode.org/js/findpos.html
-function findPos(obj) {
-	var curleft = 0;
-  var curtop = 0;
-	if (obj.offsetParent) {
-		do {
-			curleft += obj.offsetLeft;
-			curtop += obj.offsetTop;
-		} while (obj = obj.offsetParent);
-	}
-	return {
-		left : curleft,
-		top : curtop
-	};
-}
-
-// Mouse position relative to the element
-// not working on IE7 and below
-function mousePositionElement(e) {
-	var mousePosDoc = mousePositionDocument(e);
-	var target = mouseTarget(e);
-	var targetPos = findPos(target);
-	var posx = mousePosDoc.x - targetPos.left;
-	var posy = mousePosDoc.y - targetPos.top;
-	return {
-		x : posx,
-		y : posy
-	};
-}
-
 // https://gist.github.com/xpansive/1337890
 function hsl2hsv (h, s, l) {
   h /= 360;
@@ -292,6 +225,17 @@ function hsv2hsl (hue,sat,val) {
   ]
 }
 
+function xyToRadiusAngle (x, y) {
+  let radius = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  let angle = Math.atan2(y, x);
+  return { radius, angle };
+}
+
+function radiusAngleToXY (x, y) {
+  let radius = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  let angle = Math.atan2(y, x);
+  return { radius, angle };
+}
 
 export {
   luvFunc,
@@ -305,5 +249,5 @@ export {
   hueClip,
   saturationClip,
   lightnessClip,
-  mousePositionElement
+  xyToRadiusAngle
 };
