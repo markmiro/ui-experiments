@@ -20,10 +20,10 @@ export default function ChromaChart (props) {
   let h = 200;
   let startC = chroma(g.base(0)).get('hcl.c');
   let endC = chroma(g.base(1)).get('hcl.c');
-  let scaleC = d3.linear().domain([0, 150]).range([h, 0]);
+  let scaleC = d3.scaleLinear().domain([0, 150]).range([h, 0]);
   let colorAmount = 20;
   let scaleColors = g.colors(colorAmount);
-  let x = d3.linear([0, colorAmount]).range([0, w/(colorAmount - 1)]);
+  let x = d3.scaleLinear([0, colorAmount]).range([0, w/(colorAmount - 1)]);
 
   return (
     <svg width={w+pad*2} height={h+pad*2} style={{
