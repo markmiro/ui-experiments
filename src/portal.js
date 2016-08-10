@@ -5,7 +5,7 @@ import g from './modules/common/gradient';
 import {PortalSource, Alert, Modal, Tooltipped} from './modules/PortalUsers';
 import Button from './modules/Button';
 import ms from './modules/ms';
-import SpacedFlexbox from './modules/SpacedFlexbox';
+import {SpacedFlexbox} from './modules/layouts';
 
 const App = React.createClass({
   getInitialState () {

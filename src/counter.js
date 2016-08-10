@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ms from './modules/ms';
 import Gradient from './modules/Gradient';
-import SpacedFlexbox from './modules/SpacedFlexbox';
+import {SpacedFlexbox} from './modules/layouts';
 import Button from './modules/Button';
 import {createStore, applyMiddleware} from 'redux';
 

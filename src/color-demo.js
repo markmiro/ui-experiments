@@ -7,7 +7,7 @@ import {padding, margin} from './modules/cssUtils';
 import Gradient from './modules/Gradient';
 import GradientContainer from './modules/GradientContainer';
 import Todos from './modules/Todos';
-import SpacedFlexbox from './modules/SpacedFlexbox';
+import {SpacedFlexbox} from './modules/layouts';
 import Slider from './modules/Slider';
 import Button from './modules/Button';
 

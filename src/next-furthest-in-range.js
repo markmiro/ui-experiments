@@ -7,14 +7,7 @@ import chroma from 'chroma-js';
 import ms from './modules/common/ms';
 import g from './modules/common/gradient';
 
-import Fill from './modules/Fill';
-import Content from './modules/Content';
-import Center from './modules/Center';
-import SpacedFlexbox from './modules/SpacedFlexbox';
-
-const VGroup = props => (
-  <SpacedFlexbox spacing={ms.spacing(0)} {...props} style={{flexDirection: 'column', ...props.style}} />
-);
+import {Fill, Content, Center, SpacedFlexbox, VGroup} from './modules/layouts';
 
 const Print = ({out}) => {
   console.log(out);

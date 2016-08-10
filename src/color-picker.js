@@ -12,10 +12,7 @@ import Card from './modules/Card';
 import ms from './modules/common/ms';
 import g from './modules/common/gradient';
 import Gradient from './modules/Gradient';
-import Content from './modules/Content';
-import Center from './modules/Center';
-import Fill from './modules/Fill';
-import SpacedFlexbox from './modules/SpacedFlexbox';
+import {Content, Center, Fill, SpacedFlexbox, VGroup, HGroup} from './modules/layouts';
 import Button from './modules/Button';
 import colorSchemes from './modules/colorSchemes.js';
 import hexPairsOrderedEmpirically from './modules/hexPairsOrderedEmpirically.js';
@@ -416,14 +413,6 @@ const ColorBar = React.createClass({
     );
   }
 });
-
-const HGroup = props => (
-  <SpacedFlexbox spacing={ms.spacing(0)} {...props} />
-);
-
-const VGroup = props => (
-  <SpacedFlexbox spacing={ms.spacing(0)} {...props} style={{flexDirection: 'column', ...props.style}} />
-);
 
 const ColorSchemeAdvanced = ({colors}) => (
   <span style={{

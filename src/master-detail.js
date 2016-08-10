@@ -3,7 +3,7 @@ import {render} from 'react-dom';
 
 import ms from './modules/common/ms';
 import g from './modules/common/gradient';
-import Fill from './modules/Fill';
+import {Fill} from './modules/layouts';
 
 const countries = [
   {

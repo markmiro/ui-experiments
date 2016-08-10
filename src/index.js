@@ -1,12 +1,9 @@
 import React from 'react';
 import {render} from 'react-dom';
 import FitText from 'react-fittext';
-import Fill from './modules/Fill';
 import g from './modules/common/gradient';
 import ms from './modules/common/ms';
-import SpacedFlexbox from './modules/SpacedFlexbox';
-import Content from './modules/Content';
-import Center from './modules/Center';
+import {SpacedFlexbox, Content, Center, Fill} from './modules/layouts';
 
 const {border, spacing, tx, heading} = ms;
 const defaultG = g;
@@ -322,7 +319,7 @@ const Option = ActiveDecorator(ListItem, props => ({
 const App = React.createClass({
   getInitialState () {
     return {
-      value: "1"
+      value: '1'
     };
   },
   render () {

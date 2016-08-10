@@ -3,7 +3,7 @@ import ms from './ms';
 import {padding, margin} from './cssUtils';
 import Gradient from './Gradient';
 import GradientContainer from './GradientContainer';
-import SpacedFlexbox from './SpacedFlexbox';
+import {SpacedFlexbox} from './layouts';
 import Button from './Button';
 
 let TodoIconButton = ({children, g, style, icon, type}) => (

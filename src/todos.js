@@ -2,7 +2,7 @@ import React from 'react';
 import {render} from 'react-dom';
 
 import Gradient from './modules/Gradient';
-import Fill from './modules/Fill';
+import {Fill} from './modules/layouts';
 import Todos from './modules/Todos';
 
 const pluckRandom = arr => {

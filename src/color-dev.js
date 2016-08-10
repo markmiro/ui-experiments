@@ -5,7 +5,7 @@ import throttle from 'throttle-function';
 import themeColorScales from './modules/ThemeColorScales';
 // import {size, tx, heading} from './modules/Size';
 import ms from './modules/ms';
-import {Layout} from './modules/Layout';
+import {Layout} from './modules/layouts';
 import {Checkbox} from './modules/Checkbox';
 import {Dropdown} from './modules/Dropdown';
 import {Toggle} from './modules/Toggle';
