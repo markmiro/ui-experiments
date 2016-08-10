@@ -7,7 +7,7 @@ import chroma from 'chroma-js';
 import ms from './modules/common/ms';
 import g from './modules/common/gradient';
 
-import {Fill, Content, Center, SpacedFlexbox, VGroup} from './modules/layouts';
+import {Fill, Content, Center, VGroup} from './modules/layouts';
 
 const Print = ({out}) => {
   console.log(out);

@@ -97,7 +97,7 @@ const SpacedFlexbox = React.createClass({
     return (
       <ul style={{
         // defaults
-        flexWrap: 'wrap',
+        flexFlow: 'row wrap',
         // overrides
         ...this.props.style,
         // required
@@ -111,11 +111,22 @@ const SpacedFlexbox = React.createClass({
 });
 
 const HGroup = props => (
-  <SpacedFlexbox spacing={ms.spacing(0)} {...props} />
+  <SpacedFlexbox
+    spacing={ms.spacing(0)}
+    {...props}
+  />
 );
 
 const VGroup = props => (
-  <SpacedFlexbox spacing={ms.spacing(0)} {...props} style={{flexDirection: 'column', ...props.style}} />
+  <SpacedFlexbox
+    spacing={ms.spacing(0)}
+    {...props}
+    style={{
+      flexDirection: 'column',
+      flexFlow: null,
+      ...props.style
+    }}
+  />
 );
 
 export {

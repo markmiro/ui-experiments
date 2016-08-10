@@ -3,7 +3,7 @@ import {render} from 'react-dom';
 import FitText from 'react-fittext';
 import g from './modules/common/gradient';
 import ms from './modules/common/ms';
-import {SpacedFlexbox, Content, Center, Fill} from './modules/layouts';
+import {SpacedFlexbox, VGroup, Content, Center, Fill} from './modules/layouts';
 
 const {border, spacing, tx, heading} = ms;
 const defaultG = g;
@@ -195,7 +195,7 @@ const Article = () => (
       padding: spacing(8),
       paddingBottom: vmin(10)
     }}>
-      <SpacedFlexbox spacing={spacing(5)} style={{flexDirection: 'column'}}>
+      <VGroup spacing={spacing(5)}>
         <Heading>
           Why?
         </Heading>
@@ -283,7 +283,7 @@ const Article = () => (
           backgroundColor: g.base(0.1),
           padding: spacing(10)
         }}>
-          <SpacedFlexbox spacing={spacing(5)} style={{justifyContent: 'center'}}>
+          <VGroup spacing={spacing(5)} style={{justifyContent: 'center'}}>
             <P style={{backgroundColor: g.base(0.3)}}>
               Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </P>
@@ -293,9 +293,9 @@ const Article = () => (
             <P style={{backgroundColor: g.base(0.3)}}>
               Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </P>
-          </SpacedFlexbox>
+          </VGroup>
         </div>
-      </SpacedFlexbox>
+      </VGroup>
     </Content>
   </Center>
 );
