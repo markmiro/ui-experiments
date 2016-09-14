@@ -45,7 +45,7 @@ class Layout extends React.Component {
 }
 
 // A compoent designed to take up the available space, and colored and sized correctly and everything.
-const Fill = ({children, style, g = defaultG}) => (
+const Fill = ({children, style}, {g, ms}) => (
   <div style={{
     fontSize: ms.tx(0),
     backgroundColor: g.base(0),
@@ -59,8 +59,12 @@ const Fill = ({children, style, g = defaultG}) => (
     {children}
   </div>
 );
+Fill.contextTypes = {
+  ms: React.PropTypes.any,
+  g: React.PropTypes.any,
+};
 
-const Center = ({children, style, g = defaultG}) => (
+const Center = ({children, style}, {g}) => (
   <span style={{
     color: g.base(1),
     backgroundColor: g.base(0),
@@ -73,8 +77,11 @@ const Center = ({children, style, g = defaultG}) => (
     {children}
   </span>
 );
+Center.contextTypes = {
+  g: React.PropTypes.any,
+};
 
-const Content = ({children, style, g = defaultG}) => (
+const Content = ({children, style}, {g}) => (
   <div style={{
     color: g.base(1),
     backgroundColor: g.base(0),
@@ -85,6 +92,9 @@ const Content = ({children, style, g = defaultG}) => (
     {children}
   </div>
 );
+Content.contextTypes = {
+  g: React.PropTypes.any,
+};
 
 const SpacedFlexbox = React.createClass({
   render () {

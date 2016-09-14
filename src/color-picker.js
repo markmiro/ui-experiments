@@ -8,6 +8,7 @@ import wcagContrast from 'wcag-contrast';
 import {DragDropContext} from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 
+import ThemeContext from './modules/ThemeContext';
 import Card from './modules/Card';
 import ms from './modules/common/ms';
 import g from './modules/common/gradient';
@@ -96,6 +97,8 @@ const hex_to_lch = hex =>
   husl._conv.rgb.lch(
     husl._conv.hex.rgb(hex)
   );
+
+const hex_to_rgb = hex => husl._conv.hex.rgb(hex);
 
 function delta (c1, c2) {
   const [l1, u1, v1] = hex_to_luv(c1); // return arr
@@ -214,16 +217,40 @@ function hueContrast (c1, c2) {
   return contrast;
 }
 
+// http://www.seas.upenn.edu/~cse400/CSE400_2012_2013/reports/01_report.pdf
+const deltaUPenn = (c1, c2) => {
+  // foreground
+  const [r1, g1, b1] = hex_to_rgb(c1);
+  // background
+  const [r2, g2, b2] = hex_to_rgb(c2);
+
+  const maxComponent = 255;
+  const deltaR = (r1 - r2) * maxComponent;
+  const deltaG = (g1 - g2) * maxComponent;
+  const deltaB = (b1 - b2) * maxComponent;
+  return (
+      1.0 * Math.pow(10, -1) * Math.abs(deltaR) + 5.7 * Math.pow(10, -1) * Math.abs(deltaG)
+    + 8.6 * Math.pow(10, -2) * Math.abs(deltaB) - 1.1 * Math.pow(10, -2) * deltaB
+    - 1.1 * Math.pow(10, -3) * deltaG * deltaG  - 1.5 * Math.pow(10, -4) * deltaB * deltaB
+    - 3.6
+  );
+}
+
 
 // function textContrast (c1, c2) {
 //   return wcagContrast.hex(c1, c2);
 // }
 
+const myContrast = (c1, c2) => {
+  return deltaL(c1, c2) - deltaUV(c1, c2)/10;
+}
+
 const textContrast = (c1, c2) => {
   // let lightnessDiff = deltaL(c1, c2);
   // if (lightnessDiff < 10) lightnessDiff = 0;
 
-  return deltaL(c1, c2) - deltaUV(c1, c2)/10;
+  return deltaUPenn(c1, c2);
+  // return deltaL(c1, c2) - deltaUV(c1, c2)/10;
 
   // return deltaChroma(c1, c2);
   // return deltaL(c1, c2) - hueAngleContrast(c1, c2)*5 - 7;
@@ -237,9 +264,9 @@ const textContrast = (c1, c2) => {
   // return deltaLAB(c1, c2) + hueContrast(c1, c2);
 };
 
-const textContrastSort = (pair1, pair2) => {
-  const pair1Contrast = textContrast(pair1[0], pair1[1]);
-  const pair2Contrast = textContrast(pair2[0], pair2[1]);
+const textContrastSortMaker = (sorter) => (pair1, pair2) => {
+  const pair1Contrast = sorter(pair1[0], pair1[1]);
+  const pair2Contrast = sorter(pair2[0], pair2[1]);
   if (pair1Contrast === pair2Contrast) {
     return hex_to_luv(pair1[0])[0] < hex_to_luv(pair1[1])[0] ? -1 : 1;
   }
@@ -254,7 +281,7 @@ function lightnessSort (c1, c2) {
   return l1 > l2 ? -1 : 1;
 }
 
-const orderFormulaicallyAsHexPairs = _.throttle((hexes) => (
+const orderFormulaicallyAsHexPairs = (hexes, sorter) => (
   _.flatten(
     hexes.map((c1, c1Index) =>
       hexes
@@ -266,8 +293,8 @@ const orderFormulaicallyAsHexPairs = _.throttle((hexes) => (
     )
   , true)
   // .filter(([c1, c2]) => textContrast(c1, c2) === 0)
-  .sort(textContrastSort)
-), 200);
+  .sort(textContrastSortMaker(sorter))
+);
 
 function hueSort (c1, c2) {
   const h1 = husl._conv.luv.lch(hex_to_luv(c1))[2]; // return arr
@@ -628,39 +655,37 @@ const ColorGrid = React.createClass({
           colors.map((bg, bgIndex) =>
             <div key={bgIndex}>
               {
-                colors.map((fg, fgIndex) => {
-                  return (
-                    <div
-                      key={fgIndex}
-                      onClick={() => bg !== fg && onChange({
-                        bgLevel: bgIndex / (colors.length - 1),
-                        fgLevel: fgIndex / (colors.length - 1)
-                      })}
-                      style={{
-                        fontSize: ms.tx(5),
-                        // opacity: textContrast(fg, bg) > 0 ? 1 : 0.2,
-                        padding: ms.spacing(9),
-                        flexGrow: 1,
-                        color: fg,
-                        backgroundColor: bg,
-                        // borderBottom: '2px solid ' + fg,
-                        // borderRight: '2px solid ' + fg,
-                        outline: (
-                          bgIndex === Math.round(bgLevel * (colors.length - 1)) &&
-                          fgIndex === Math.round(fgLevel * (colors.length - 1))
-                        )
-                          ? '2px solid ' + fg
-                          : null,
-                        outlineOffset: -8,
-                        transform: `scale(${Math.max(deltaUV(fg, bg)/200, 0)})`
-                        // fontWeight: 300,
-                        // fontSize: ms.tx(5)
-                      }}
-                    >
-                      Aa
-                    </div>
-                  );
-                })
+                colors.map((fg, fgIndex) =>
+                  <div
+                    key={fgIndex}
+                    onClick={() => bg !== fg && onChange({
+                      bgLevel: bgIndex / (colors.length - 1),
+                      fgLevel: fgIndex / (colors.length - 1)
+                    })}
+                    style={{
+                      fontSize: ms.tx(5),
+                      // opacity: textContrast(fg, bg) > 0 ? 1 : 0.2,
+                      padding: ms.spacing(9),
+                      flexGrow: 1,
+                      color: fg,
+                      backgroundColor: bg,
+                      // borderBottom: '2px solid ' + fg,
+                      // borderRight: '2px solid ' + fg,
+                      outline: (
+                        bgIndex === Math.round(bgLevel * (colors.length - 1)) &&
+                        fgIndex === Math.round(fgLevel * (colors.length - 1))
+                      )
+                        ? '2px solid ' + fg
+                        : null,
+                      outlineOffset: -8,
+                      transform: `scale(${Math.max(deltaUV(fg, bg)/200, 0)})`
+                      // fontWeight: 300,
+                      // fontSize: ms.tx(5)
+                    }}
+                  >
+                    Aa
+                  </div>
+                )
               }
             </div>
           )
@@ -1142,16 +1167,79 @@ SortableContrast = DragDropContext(HTML5Backend)(SortableContrast)
 //   }
 // })
 
-const ColorSchemeEditor = React.createClass({
+const arePairsEqual = ([fg1, bg1], [fg2, bg2]) => (
+  fg1 === fg2 && bg1 === bg2 || fg1 === bg2 && bg1 === fg2
+);
+
+const CompareContrastFunctions = React.createClass({
   getInitialState () {
     return {
-      bgLevel: .25,
-      fgLevel: .75,
       expandContrastPreview: false
     };
   },
   render () {
-    const {fgLevel, bgLevel, expandContrastPreview} = this.state;
+    const {expandContrastPreview} = this.state;
+    const {hexes, functions, selectedPair, onSelectedPairChange} = this.props;
+    return (
+      <div>
+        <div style={{
+          flexShrink: 0,
+          display: 'flex',
+          background: g.base(0),
+          flexDirection: 'column',
+          ...(
+            expandContrastPreview
+              ? {
+                position: 'fixed',
+                top: 0,
+                right: 0,
+                height: '100%'
+              }
+              : {
+                height: 600
+              }
+          )
+        }}>
+          <div style={{overflowY: 'scroll'}}>
+            <HGroup>
+              {functions.map(sorter =>
+                  <div>
+                    {orderFormulaicallyAsHexPairs(hexes, sorter).map(([fgFromPair, bgFromPair], i) =>
+                      <TextContrastPreview
+                        fg={fgFromPair}
+                        bg={bgFromPair}
+                        isSelected={arePairsEqual(selectedPair, [fgFromPair, bgFromPair])}
+                        onSelect={(fg, bg) => onSelectedPairChange([fg, bg])}
+                      />
+                    )}
+                  </div>
+              )}
+            </HGroup>
+          </div>
+          <Button
+            style={{flexShrink: 0}}
+            onClick={() => this.setState({expandContrastPreview: !expandContrastPreview})}
+          >
+            Toggle Expanded
+          </Button>
+        </div>
+        <span>
+          {/*Diff: {diffBetweenOrders}*/}
+        </span>
+      </div>
+    );
+  }
+})
+
+const ColorSchemeEditor = React.createClass({
+  getInitialState () {
+    return {
+      bgLevel: .25,
+      fgLevel: .75
+    };
+  },
+  render () {
+    const {fgLevel, bgLevel} = this.state;
     const {colors, onColorsChange, hslProxy, selectedColorId, onSelectColorId} = this.props;
     const hexes = colors.map(c => c.hex);
     const hexesOrdered = hexes.sort(lightnessSort);
@@ -1162,7 +1250,7 @@ const ColorSchemeEditor = React.createClass({
     const fg = levelToColor(fgLevel);
     const bg = levelToColor(bgLevel);
 
-    const hexPairsOrderedFormulaically = orderFormulaicallyAsHexPairs(hexes);
+    // const hexPairsOrderedFormulaically = orderFormulaicallyAsHexPairs(hexes);
 
     // const hexPairsOrderedEmpiricallyAsStrings = hexPairsOrderedEmpirically.map(([fg, bg]) => fg + '|' + bg);
     // const hexPairsOrderedFormulaicallyAsStrings = hexPairsOrderedFormulaically.map(([fg, bg]) => fg + '|' + bg);
@@ -1237,49 +1325,16 @@ const ColorSchemeEditor = React.createClass({
               <ColorPreview fg={fg} bg={bg} />
             </HGroup>
           </VGroup>
-          <div style={{
-            flexShrink: 0,
-            display: 'flex',
-            background: g.base(0),
-            flexDirection: 'column',
-            ...(
-              expandContrastPreview
-                ? {
-                  position: 'fixed',
-                  top: 0,
-                  right: 0,
-                  height: '100%'
-                }
-                : {
-                  height: 600
-                }
-            )
-          }}>
-            <div style={{overflowY: 'scroll'}}>
-              {hexPairsOrderedFormulaically.filter(([c1, c2]) => textContrast(c1, c2) > 0).map(([fgFromPair, bgFromPair], i) =>
-                <TextContrastPreview
-                  fg={fgFromPair}
-                  bg={bgFromPair}
-                  isSelected={fgFromPair === fg && bgFromPair === bg || fgFromPair === bg && bgFromPair === fg}
-                  onSelect={(fg, bg) =>
-                    this.setState({
-                      fgLevel: colorToLevel(fg),
-                      bgLevel: colorToLevel(bg)
-                    })
-                  }
-                />
-              )}
-            </div>
-            <Button style={{flexShrink: 0}} onClick={() => this.setState({expandContrastPreview: !expandContrastPreview})}>Toggle Expanded</Button>
-          </div>
+          <CompareContrastFunctions
+            selectedPair={[fg, bg]}
+            onSelectedChange={([fg, bg]) => this.setState({
+              fgLevel: colorToLevel(fg),
+              bgLevel: colorToLevel(bg),
+            })}
+            hexes={hexes}
+            functions={[deltaUPenn, myContrast]}
+          />
         </div>
-        <span>
-          {/*Diff: {diffBetweenOrders}*/}
-        </span>
-        <HGroup>
-          {/*<SortableContrast initialColorPairs={hexPairsOrderedFormulaically} />*/}
-          {/*<SortableContrast initialColorPairs={hexPairsOrderedEmpiricallyMinusThoseWeDontCareAbout} />*/}
-        </HGroup>
         <HR />
         {
           colors.length > 0 &&
@@ -1571,59 +1626,61 @@ const App = React.createClass({
     const {hslProxy, selectedColorSchemeId, selectedColorId, colorSchemes} = this.state;
     const colors = colorSchemes.find(scheme => scheme.id === selectedColorSchemeId).colors;
     return (
-      <Fill style={{
-        padding: ms.spacing(8)
-      }}>
-        <VGroup>
-          <div>Color Scheme</div>
-          <ColorSchemes
-            colorSchemes={colorSchemes}
-            id={this.state.selectedColorSchemeId}
-            onIdChange={id =>
-              this.setState({
-                selectedColorSchemeId: id,
-                selectedColorId: colorSchemes[id].colors[0].id
-              })
-            }
-          />
-          <HR />
-          <ColorPicker
-            hslProxy={hslProxy}
-            onChangeHslProxy={newProxy => this.setState({hslProxy: newProxy})}
-            onAddColor={hex => {
-              const id = Math.round(Math.random() * 100000);
-              const nextColorSchemes = colorSchemes;
-              const nextScheme = nextColorSchemes.find(scheme => scheme.id === selectedColorSchemeId);
-              nextScheme.colors = [...(nextScheme.colors), {
-                id,
-                hex
-              }];
-              this.setState({
-                colorSchemes: nextColorSchemes,
-                selectedColorId: id
-              });
-            }}
-            style={{flexShrink: 0}}
-            hex={colors.find(c => c.id === selectedColorId).hex}
-            onColorChange={hex => {
-              colors.find(c => c.id === selectedColorId).hex = hex;
-              this.setState({colors});
-            }}
-          />
-          <span style={{width: ms.spacing(10)}} />
-          <ColorSchemeEditor
-            hslProxy={hslProxy}
-            colors={colors}
-            selectedColorId={selectedColorId}
-            onSelectColorId={selectedColorId => this.setState({selectedColorId})}
-            onColorsChange={colors => {
-              colorSchemes.find(scheme => scheme.id === selectedColorSchemeId).colors = colors;
-              this.setState({colorSchemes});
-            }}
-          />
-          {/*onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}*/}
-        </VGroup>
-      </Fill>
+      <ThemeContext g={Gradient.create('black', 'white')}>
+        <Fill style={{
+          padding: ms.spacing(8)
+        }}>
+          <VGroup>
+            <div>Color Scheme</div>
+            <ColorSchemes
+              colorSchemes={colorSchemes}
+              id={this.state.selectedColorSchemeId}
+              onIdChange={id =>
+                this.setState({
+                  selectedColorSchemeId: id,
+                  selectedColorId: colorSchemes[id].colors[0].id
+                })
+              }
+            />
+            <HR />
+            <ColorPicker
+              hslProxy={hslProxy}
+              onChangeHslProxy={newProxy => this.setState({hslProxy: newProxy})}
+              onAddColor={hex => {
+                const id = Math.round(Math.random() * 100000);
+                const nextColorSchemes = colorSchemes;
+                const nextScheme = nextColorSchemes.find(scheme => scheme.id === selectedColorSchemeId);
+                nextScheme.colors = [...(nextScheme.colors), {
+                  id,
+                  hex
+                }];
+                this.setState({
+                  colorSchemes: nextColorSchemes,
+                  selectedColorId: id
+                });
+              }}
+              style={{flexShrink: 0}}
+              hex={colors.find(c => c.id === selectedColorId).hex}
+              onColorChange={hex => {
+                colors.find(c => c.id === selectedColorId).hex = hex;
+                this.setState({colors});
+              }}
+            />
+            <span style={{width: ms.spacing(10)}} />
+            <ColorSchemeEditor
+              hslProxy={hslProxy}
+              colors={colors}
+              selectedColorId={selectedColorId}
+              onSelectColorId={selectedColorId => this.setState({selectedColorId})}
+              onColorsChange={colors => {
+                colorSchemes.find(scheme => scheme.id === selectedColorSchemeId).colors = colors;
+                this.setState({colorSchemes});
+              }}
+            />
+            {/*onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}*/}
+          </VGroup>
+        </Fill>
+      </ThemeContext>
     );
   }
 });

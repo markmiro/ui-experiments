@@ -1,9 +1,9 @@
 import React from 'react';
-import ms from './common/ms';
-import g from './common/gradient';
+import msDefault from './common/ms';
+import gDefault from './common/gradient';
 import {padding, margin} from './cssUtils';
 
-let Button = props => (
+let Button = (props, {g = gDefault, ms = msDefault }) => (
   <a {...props} style={{
     display: 'inline-block',
     color: props.color || (props.g ? props.g.base(1) : g.base(1)),
@@ -24,6 +24,10 @@ let Button = props => (
     {props.children}
   </a>
 );
+Button.contextTypes = {
+  ms: React.PropTypes.any,
+  g: React.PropTypes.any,
+};
 
 Button.Link = props => (
   <a href="#0" {...props} style={{

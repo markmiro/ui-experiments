@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import R from 'ramda';
 
-import ms from './modules/ms';
+import ms from './modules/common/ms';
 import {padding, margin} from './modules/cssUtils';
 import Gradient from './modules/Gradient';
 import GradientContainer from './modules/GradientContainer';
