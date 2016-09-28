@@ -13,6 +13,7 @@ const Tooltip = ({children, top, left}) => (
     backgroundColor: g.base(1),
     color: g.base(0),
     transform: 'translate(-50%, -140%)',
+    transitionDuration: '0s',
   }}>
     {children}
     <div style={{
@@ -44,14 +45,14 @@ const Tooltipped = React.createClass({
     };
   },
   render () {
-    let timeout = null;
+    // let timeout = null;
     return React.cloneElement(React.Children.only(this.props.children), {
       onMouseEnter: ({target}) => {
         const boundingRect = target.getBoundingClientRect();
-        clearTimeout(timeout);
+        // clearTimeout(timeout);
         this.state.content = (
           <Tooltip
-            key="1"
+            key={this.props.key}
             left={boundingRect.left + boundingRect.width / 2}
             top={boundingRect.top}
           >
@@ -63,7 +64,8 @@ const Tooltipped = React.createClass({
       },
       onMouseLeave: () => {
         // console.log('mouse leave');
-        timeout = window.setTimeout(() => portal.remove(this.state.content), 200);
+        portal.remove(this.state.content);
+        // timeout = window.setTimeout(() => portal.remove(this.state.content), 200);
       }
     });
   }
