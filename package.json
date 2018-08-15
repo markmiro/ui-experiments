@@ -31,6 +31,7 @@
     "color",
     "hcl",
     "husl",
+    "hsluv",
     "huslp",
     "chroma",
     "ui"
@@ -43,6 +44,7 @@
   "homepage": "https://github.com/markmiro/ui-experiments",
   "devDependencies": {
     "ava": "sindresorhus/ava",
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.3.15",
     "babel-eslint": "^5.0.0-beta4",
     "babel-loader": "^6.2.0",
@@ -71,14 +73,14 @@
   },
   "dependencies": {
     "chroma-js": "^1.1.1",
-    "d3": "^4.2.4",
+    "d3": "4.10.0",
     "d3-color": "^0.2.5",
     "d3-force": "^1.0.2",
     "d3-scale": "^0.7.0",
     "d3-shape": "^1.0.3",
     "deep-freeze": "0.0.1",
     "highlight.js": "^9.6.0",
-    "husl": "^6.0.1",
+    "husl": "github:hsluv/hsluv#a26b60a",
     "radium": "^0.16.6",
     "ramda": "^0.18.0",
     "react": "^0.14.3",
