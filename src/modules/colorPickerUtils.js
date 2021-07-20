@@ -1,5 +1,6 @@
 import husl from 'husl';
 import {hcl, rgb, hsl} from 'd3-color';
+import {scaleLinear} from 'd3-scale';
 import chroma from 'chroma-js';
 import _ from 'underscore';
 
@@ -427,9 +428,9 @@ const deltaUPenn = (c1, c2) => {
 }
 
 
-// function textContrast (c1, c2) {
-//   return wcagContrast.hex(c1, c2);
-// }
+function wcagContrast (c1, c2) {
+  return wcagContrast.hex(c1, c2);
+}
 
 const myContrastOld = (c1, c2) => {
   return deltaLOld(c1, c2) - deltaUV(c1, c2)/10;
@@ -502,6 +503,14 @@ function hueSort (c1, c2) {
   return h1 > h2 ? -1 : 1;
 }
 
+function normalizeFunctionFromRange (func, from, to) {
+  return (...args) => Math.round(scaleLinear().domain([from, to]).range([0, 1000])(func(...args)));
+}
+
+function normalizeRange (number, from, to) {
+  return Math.round(scaleLinear().domain([from, to]).range([0, 1000])(number));
+}
+
 export {
   luvFunc,
   huslFunc,
@@ -526,4 +535,7 @@ export {
   deltaUV,
   textContrast,
   textContrastSortMaker,
+
+  normalizeRange,
+  normalizeFunctionFromRange,
 };

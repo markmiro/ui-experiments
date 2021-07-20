@@ -7,6 +7,7 @@ import husl from 'husl';
 import _ from 'underscore';
 import {DragDropContext} from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
+import wcagContrast from 'wcag-contrast';
 
 import ThemeContext from './modules/ThemeContext';
 import Card from './modules/Card';
@@ -38,6 +39,7 @@ import {
   deltaL,
   textContrast,
   textContrastSortMaker,
+  normalizeRange,
 } from './modules/colorPickerUtils';
 
 var mod = (a, n) => a - Math.floor(a/n) * n;
@@ -56,9 +58,9 @@ var dotproduct = function (vectorA, vectorB) {
   // return result / (doStuff(vectorA) * doStuff(vectorB));
 };
 
-const monoBrightness = hex => dotproduct([.299, .587, .114], husl._conv.hex.rgb(hex));
+const monoBrightness = (hex) => dotproduct([.299, .587, .114], husl._conv.hex.rgb(hex));
 
-const monoVersion = hex => `hsl(0, 0%, ${brightness(hex) * 100}%)`;
+const monoVersion = (hex) => `hsl(0, 0%, ${brightness(hex) * 100}%)`;
 
 window.husl = husl;
 
@@ -75,7 +77,7 @@ const lineInstance = line()
   .x((d, i) => xSaturation(d))
   .y((d, i) => yLightness(i));
 
-const svgPathForLightnessSaturationFromHue = _.memoize(hue => {
+const svgPathForLightnessSaturationFromHue = _.memoize((hue) => {
   let saturationMaxLine = [0]; // contains the max saturation values for a given hue and lightness
   for (let i = 1; i < points+1; i++) {
     saturationMaxLine.push(husl._maxChromaForLH(i/points * 100, hue));
@@ -84,7 +86,7 @@ const svgPathForLightnessSaturationFromHue = _.memoize(hue => {
 });
 
 
-const throttledBoundingRect = _.throttle(domElement => domElement.getBoundingClientRect(), 500);
+const throttledBoundingRect = _.throttle((domElement) => domElement.getBoundingClientRect(), 500);
 
 const mousePositionElement = (e, domElement) => {
   const boundingRect = throttledBoundingRect(domElement);
@@ -109,10 +111,10 @@ const HueSlider = React.createClass({
           ref="canvas"
           width={1}
           height={this.props.hslProxy.resolution}
-          onMouseDown={e => {
+          onMouseDown={(e) => {
             this.propogateChange(e);
             let moveListener = this.propogateChange;
-            let upListener = e => {
+            let upListener = (e) => {
               document.removeEventListener('mouseup', upListener, false);
               document.removeEventListener('mousemove', moveListener, false);
             };
@@ -246,7 +248,7 @@ const ColorSchemeAdvanced = ({colors}) => (
     // outline: '1px solid ' + g.base(1)
   }}>
     {
-      colors.map(color =>
+      colors.map((color) =>
         <div key={color} style={{
           // padding: ms.spacing(0),
           flexGrow: 1,
@@ -260,7 +262,7 @@ const ColorSchemeAdvanced = ({colors}) => (
             <div style={{backgroundColor: 'black', flexGrow: 1, height: 42}} />
             <div style={{backgroundColor: 'white', flexGrow: 1, height: 42}} />
             {
-              colors.filter(c => c !== color).map(color =>
+              colors.filter((c) => c !== color).map((color) =>
                 <div key={color} style={{
                   height: 42,
                   flexGrow: 1,
@@ -287,7 +289,7 @@ const ColorSchemeSimple = ({colors}) => (
     borderBottomColor: 'black',
   }}>
     {
-      colors.map(color =>
+      colors.map((color) =>
         <div key={color} style={{
           // padding: ms.spacing(0),
           flexGrow: 1,
@@ -333,7 +335,7 @@ const ColorSchemes = React.createClass({
           key={scheme.id}
           active={id === scheme.id}
           name={scheme.name}
-          colors={scheme.colors.map(c => c.hex)}
+          colors={scheme.colors.map((c) => c.hex)}
           onClick={() => this.setState({isOpen: true})}
         />
         <PortalSource isOpen={this.state.isOpen}>
@@ -341,12 +343,12 @@ const ColorSchemes = React.createClass({
             <Modal key='sdf' onClose={() => this.setState({isOpen: false})}>
               <VGroup>
                 {
-                  colorSchemes.map(scheme =>
+                  colorSchemes.map((scheme) =>
                     <ColorSchemeNamedWrapper
                       key={scheme.id}
                       active={id === scheme.id}
                       name={scheme.name}
-                      colors={scheme.colors.map(c => c.hex)}
+                      colors={scheme.colors.map((c) => c.hex)}
                       onClick={() => {
                         onIdChange(scheme.id);
                         this.setState({isOpen: false});
@@ -490,7 +492,7 @@ const ColorGrid = React.createClass({
 function perceptualLegibilityBucketNumber (colorPair) {
   // return 0;
   // Find where the color pair is in the emperically ordered color pair constast list
-  const index = hexPairsOrderedEmpirically.findIndex(pair => pair[0] === colorPair[0] && pair[1] === colorPair[1])
+  const index = hexPairsOrderedEmpirically.findIndex((pair) => pair[0] === colorPair[0] && pair[1] === colorPair[1])
   // Figure out which bucket it goes into
   var bucketsForIndexes = [36, 96, 165, 184];
   // for (let i = 0; i < bucketsForIndexes.length; i++) {
@@ -544,10 +546,10 @@ const ColorTriangle = React.createClass({
 const ColorPreview = ({fg, bg}) => (
   <div style={{display: 'flex'}}>
     {
-      [100, 300, 500, 700, 900].map(weight =>
+      [100, 300, 500, 700, 900].map((weight) =>
         <div key={weight} style={{display: 'flex', flexDirection: 'column'}}>
           {
-            _.range(-1, 7).map(i =>
+            _.range(-1, 7).map((i) =>
               <span key={i} style={{
                 color: fg,
                 backgroundColor: bg,
@@ -577,10 +579,10 @@ const DraggingSurface = React.createClass({
     return (
       <div
         ref="draggingSurface"
-        onMouseDown={e => {
+        onMouseDown={(e) => {
           this.onDrag(e);
           const moveListener = this.onDrag;
-          const upListener = e => {
+          const upListener = (e) => {
             document.removeEventListener('mouseup', upListener, false);
             document.removeEventListener('mousemove', moveListener, false);
             this.props.onDragStop();
@@ -609,7 +611,7 @@ const SaturationLightnessColorRelationships = React.createClass({
     return (
       <div
         ref="canvas"
-        onMouseMove={e => {
+        onMouseMove={(e) => {
           if (!this.state.draggingId) return;
           const {mouseX, mouseY} = mousePositionElement(e, this.refs.canvas);
           const saturation = mouseX / boxSize * 100;
@@ -618,7 +620,7 @@ const SaturationLightnessColorRelationships = React.createClass({
             mouseSaturation: saturation,
             mouseLightness: lightness
           });
-          this.props.onColorsChange(this.props.colors.map(color =>
+          this.props.onColorsChange(this.props.colors.map((color) =>
             color.id === this.state.draggingId
               ? {
                 id: color.id,
@@ -631,7 +633,7 @@ const SaturationLightnessColorRelationships = React.createClass({
               : color
           ));
         }}
-        onMouseUp={e => {
+        onMouseUp={(e) => {
           this.setState({draggingId: null});
         }}
         style={{
@@ -652,7 +654,7 @@ const SaturationLightnessColorRelationships = React.createClass({
           {
             // Draw the saturation bounds for the given color
             hslProxy === luvFunc &&
-            colors.filter(color => hslProxy.fromHex(color.hex).saturation > 0.001).map(color =>
+            colors.filter((color) => hslProxy.fromHex(color.hex).saturation > 0.001).map((color) =>
               <path
                 key={color.id}
                 d={svgPathForLightnessSaturationFromHue(hslProxy.fromHex(color.hex).hue)}
@@ -668,7 +670,7 @@ const SaturationLightnessColorRelationships = React.createClass({
         </svg>
         {
           // Draw the color bar
-          colors.map(color => {
+          colors.map((color) => {
             const {saturation, lightness} = hslProxy.fromHex(color.hex);
             return (
               <ColorBar
@@ -683,7 +685,7 @@ const SaturationLightnessColorRelationships = React.createClass({
         }
         {
           // Draw the color pin
-          colors.map(color => {
+          colors.map((color) => {
             const {saturation, lightness} = hslProxy.fromHex(color.hex);
             return (
               <SaturationLightnessColorPin
@@ -748,7 +750,7 @@ const SaturationHueColorRadialRelationships = React.createClass({
             const angleDegrees = angle * (180 / Math.PI); // Add 180 so range is between 0 and 360,
             const hue = angleDegrees;
             const saturation = (radius / (boxSize / 2)) * 100;
-            onColorsChange(colors.map(color =>
+            onColorsChange(colors.map((color) =>
               color.id === this.state.draggingId
                 ? {
                   id: color.id,
@@ -775,7 +777,7 @@ const SaturationHueColorRadialRelationships = React.createClass({
           />
           {
             // Draw the color pin
-            colors.map(color => {
+            colors.map((color) => {
               const {saturation, hue} = hslProxy.fromHex(color.hex);
               return (
                 <SaturationHueRadialColorPin
@@ -953,12 +955,12 @@ const ColorSchemeEditor = React.createClass({
   render () {
     const {fgLevel, bgLevel} = this.state;
     const {colors, onColorsChange, hslProxy, selectedColorId, onSelectColorId} = this.props;
-    const hexes = colors.map(c => c.hex);
+    const hexes = colors.map((c) => c.hex);
     // const hexesOrdered = hexes.sort(lightnessSort);
     // const hexes = [...colors.map(c => c.hex), '#ffffff', '#000000'].sort(lightnessSort);
     const hexesOrdered = hexes;
-    const levelToColor = level => hexesOrdered[Math.round(level * (hexesOrdered.length - 1))];
-    const colorToLevel = color => hexesOrdered.indexOf(color) / (hexesOrdered.length - 1);
+    const levelToColor = (level) => hexesOrdered[Math.round(level * (hexesOrdered.length - 1))];
+    const colorToLevel = (color) => hexesOrdered.indexOf(color) / (hexesOrdered.length - 1);
     const fg = levelToColor(fgLevel);
     const bg = levelToColor(bgLevel);
 
@@ -1003,7 +1005,7 @@ const ColorSchemeEditor = React.createClass({
                     isSelected={selectedColorId === id}
                     onSelectColorId={onSelectColorId}
                     onRemoveColorId={() => {
-                      onColorsChange(colors.filter(c => c.id !== id));
+                      onColorsChange(colors.filter((c) => c.id !== id));
                       onSelectColorId(colors[0].id);
                     }}
                   />
@@ -1032,7 +1034,7 @@ const ColorSchemeEditor = React.createClass({
                 colors={hexesOrdered}
                 fgLevel={fgLevel}
                 bgLevel={bgLevel}
-                onChange={fgBgLevels => this.setState({...fgBgLevels})}
+                onChange={(fgBgLevels) => this.setState({...fgBgLevels})}
               />
               <ColorPreview fg={fg} bg={bg} />
             </HGroup>
@@ -1044,7 +1046,7 @@ const ColorSchemeEditor = React.createClass({
           <HGroup>
             <Button g={Gradient.create(g.start, g.danger(.5))} onClick={() => onColorsChange([])}>Clear Swatches</Button>
             <Button onClick={() =>
-                onColorsChange(hexes.map(hex => {
+                onColorsChange(hexes.map((hex) => {
                   const {hue, saturation, lightness} = hslProxy.fromHex(hex);
                   return hslProxy.toHex(hue, saturation - 5, lightness);
                 }))
@@ -1052,7 +1054,7 @@ const ColorSchemeEditor = React.createClass({
               Remove Saturation
             </Button>
             <Button onClick={() =>
-                onColorsChange(hexes.map(hex => {
+                onColorsChange(hexes.map((hex) => {
                   const {hue, saturation, lightness} = hslProxy.fromHex(hex);
                   return hslProxy.toHex(hue, saturation + 5, lightness);
                 }))
@@ -1065,7 +1067,7 @@ const ColorSchemeEditor = React.createClass({
                   return saturation < lowestSaturation ? saturation : lowestSaturation;
                 }, 300);
                 console.log(minSaturation);
-                onColorsChange(hexes.map(hex => {
+                onColorsChange(hexes.map((hex) => {
                   const {hue, saturation, lightness} = hslProxy.fromHex(hex);
                   return hslProxy.toHex(hue, minSaturation, lightness);
                 }))
@@ -1077,7 +1079,7 @@ const ColorSchemeEditor = React.createClass({
                   const saturation = hslProxy.fromHex(hex).saturation;
                   return saturation > highestSaturation ? saturation : highestSaturation;
                 }, 300);
-                onColorsChange(hexes.map(hex => {
+                onColorsChange(hexes.map((hex) => {
                   const {hue, saturation, lightness} = hslProxy.fromHex(hex);
                   return hslProxy.toHex(hue, highestSaturation, lightness);
                 }))
@@ -1086,7 +1088,7 @@ const ColorSchemeEditor = React.createClass({
             </Button>
 
             <Button onClick={() =>
-                onColorsChange(hexes.map(hex => {
+                onColorsChange(hexes.map((hex) => {
                   const {hue, saturation, lightness} = hslProxy.fromHex(hex);
                   return hslProxy.toHex(hue, saturation, lightness - 5);
                 }))
@@ -1094,7 +1096,7 @@ const ColorSchemeEditor = React.createClass({
               Remove Lightness
             </Button>
             <Button onClick={() =>
-                onColorsChange(hexes.map(hex => {
+                onColorsChange(hexes.map((hex) => {
                   const {hue, saturation, lightness} = hslProxy.fromHex(hex);
                   return hslProxy.toHex(hue, saturation, lightness + 5);
                 }))
@@ -1106,7 +1108,7 @@ const ColorSchemeEditor = React.createClass({
                   const lightness = hslProxy.fromHex(hex).lightness;
                   return lightness < lowestLightness ? lightness : lowestLightness;
                 }, 300);
-                onColorsChange(hexes.map(hex => {
+                onColorsChange(hexes.map((hex) => {
                   const {hue, saturation, lightness} = hslProxy.fromHex(hex);
                   return hslProxy.toHex(hue, saturation, minLightness);
                 }))
@@ -1118,7 +1120,7 @@ const ColorSchemeEditor = React.createClass({
                   const lightness = hslProxy.fromHex(hex).lightness;
                   return lightness > highestLightness ? lightness : highestLightness;
                 }, 0);
-                onColorsChange(hexes.map(hex => {
+                onColorsChange(hexes.map((hex) => {
                   const {hue, saturation, lightness} = hslProxy.fromHex(hex);
                   return hslProxy.toHex(hue, saturation, maxLightness);
                 }))
@@ -1152,10 +1154,10 @@ const ColorPicker = React.createClass({
           <div style={{position: 'relative', border}}>
             <canvas
               ref="canvas"
-              onMouseDown={e => {
+              onMouseDown={(e) => {
                 this.updateColor(e);
                 let moveListener = this.updateColor;
-                let upListener = e => {
+                let upListener = (e) => {
                   document.removeEventListener('mouseup', upListener, false);
                   document.removeEventListener('mousemove', moveListener, false);
                 };
@@ -1235,14 +1237,14 @@ const ColorPicker = React.createClass({
             hue={hue}
             lightness={lightness}
             saturation={saturation}
-            onChange={hue => onColorChange(hslProxy.toHex(hue, saturation, lightness))}
+            onChange={(hue) => onColorChange(hslProxy.toHex(hue, saturation, lightness))}
           />
           <HueSlider
             hslProxy={hslProxy}
             hue={hue}
             lightness={60}
             saturation={hslProxy.referenceSaturation}
-            onChange={hue => onColorChange(hslProxy.toHex(hue, saturation, lightness))}
+            onChange={(hue) => onColorChange(hslProxy.toHex(hue, saturation, lightness))}
           />
         <form onSubmit={handleAddColor}>
             <VGroup>
@@ -1254,7 +1256,7 @@ const ColorPicker = React.createClass({
               <input
                 className="selectable"
                 value={hex}
-                onChange={e => {
+                onChange={(e) => {
                   const value = (e.target.value[0] === '#' ? '' : '#' ) + e.target.value;
                   onColorChange(value);
                 }}
@@ -1268,7 +1270,7 @@ const ColorPicker = React.createClass({
             </VGroup>
           </form>
         </HGroup>
-        <ColorMode value={hslProxy} onChange={newProxy => onChangeHslProxy(newProxy)} />
+        <ColorMode value={hslProxy} onChange={(newProxy) => onChangeHslProxy(newProxy)} />
       </VGroup>
     );
   },
@@ -1327,7 +1329,7 @@ const App = React.createClass({
   },
   render () {
     const {hslProxy, selectedColorSchemeId, selectedColorId, colorSchemes} = this.state;
-    const colors = colorSchemes.find(scheme => scheme.id === selectedColorSchemeId).colors;
+    const colors = colorSchemes.find((scheme) => scheme.id === selectedColorSchemeId).colors;
     return (
       <ThemeContext g={Gradient.create('black', 'white')}>
         <Fill style={{
@@ -1338,7 +1340,7 @@ const App = React.createClass({
             <ColorSchemes
               colorSchemes={colorSchemes}
               id={this.state.selectedColorSchemeId}
-              onIdChange={id =>
+              onIdChange={(id) =>
                 this.setState({
                   selectedColorSchemeId: id,
                   selectedColorId: colorSchemes[id].colors[0].id
@@ -1348,11 +1350,11 @@ const App = React.createClass({
             <HR />
             <ColorPicker
               hslProxy={hslProxy}
-              onChangeHslProxy={newProxy => this.setState({hslProxy: newProxy})}
-              onAddColor={hex => {
+              onChangeHslProxy={(newProxy) => this.setState({hslProxy: newProxy})}
+              onAddColor={(hex) => {
                 const id = Math.round(Math.random() * 100000);
                 const nextColorSchemes = colorSchemes;
-                const nextScheme = nextColorSchemes.find(scheme => scheme.id === selectedColorSchemeId);
+                const nextScheme = nextColorSchemes.find((scheme) => scheme.id === selectedColorSchemeId);
                 nextScheme.colors = [...(nextScheme.colors), {
                   id,
                   hex
@@ -1363,9 +1365,9 @@ const App = React.createClass({
                 });
               }}
               style={{flexShrink: 0}}
-              hex={colors.find(c => c.id === selectedColorId).hex}
-              onColorChange={hex => {
-                colors.find(c => c.id === selectedColorId).hex = hex;
+              hex={colors.find((c) => c.id === selectedColorId).hex}
+              onColorChange={(hex) => {
+                colors.find((c) => c.id === selectedColorId).hex = hex;
                 this.setState({colors});
               }}
             />
@@ -1374,37 +1376,57 @@ const App = React.createClass({
               hslProxy={hslProxy}
               colors={colors}
               selectedColorId={selectedColorId}
-              onSelectColorId={selectedColorId => this.setState({selectedColorId})}
-              onColorsChange={colors => {
-                colorSchemes.find(scheme => scheme.id === selectedColorSchemeId).colors = colors;
+              onSelectColorId={(selectedColorId) => this.setState({selectedColorId})}
+              onColorsChange={(colors) => {
+                colorSchemes.find((scheme) => scheme.id === selectedColorSchemeId).colors = colors;
                 this.setState({colorSchemes});
               }}
             />
             {/*onSelect={hex => this.setState({inputColor: hex, ...hslProxy.fromHex(hex)})}*/}
-            <div>
-              {
-                _.flatten(colors.map(fg => colors.map(bg => [fg.hex, bg.hex])), true)
-                  .sort(textContrastSortMaker(myContrast))
-                  .map(([fgHex, bgHex]) =>
-                    <div style={{
-                      color: fgHex,
-                      backgroundColor: bgHex,
-                      padding: ms.spacing(1),
-                      fontWeight: 300,
-                    }}>
-                      The quick brown fox jumped over the lazy dog
-                      {' '}
-                      <span style={{ color: 'white', backgroundColor: 'rgba(0,0,0,0.1)', fontFamily: 'monospace' }}>
-                        C:{myContrast(fgHex, bgHex).toFixed(3)}
+            <HGroup>
+              <div>
+                {
+                  _.flatten(colors.map((fg) => colors.map((bg) => [fg.hex, bg.hex])), true)
+                    .sort(textContrastSortMaker(myContrast))
+                    .map(([fgHex, bgHex]) =>
+                      <div style={{
+                        color: fgHex,
+                        backgroundColor: bgHex,
+                        padding: ms.spacing(1),
+                      }}>
+                        The quick brown fox jumped over the lazy dog
                         {' '}
-                        ∆L:{deltaL(fgHex, bgHex).toFixed(3)}
+                        <span style={{ color: 'white', backgroundColor: 'rgba(0,0,0,0.1)', fontFamily: 'monospace' }}>
+                          C:{myContrast(fgHex, bgHex).toFixed(3)}
+                          {' '}
+                          ∆L:{deltaL(fgHex, bgHex).toFixed(3)}
+                          {' '}
+                          ∆UV:{deltaUV(fgHex, bgHex).toFixed(3)}
+                        </span>
+                      </div>
+                    )
+                }
+              </div>
+              <div>
+                {
+                  _.flatten(colors.map((fg) => colors.map((bg) => [fg.hex, bg.hex])), true)
+                    .sort(textContrastSortMaker(wcagContrast.hex))
+                    .map(([fgHex, bgHex]) =>
+                      <div style={{
+                        color: fgHex,
+                        backgroundColor: bgHex,
+                        padding: ms.spacing(1),
+                      }}>
+                        The quick brown fox jumped over the lazy dog
                         {' '}
-                        ∆UV:{deltaUV(fgHex, bgHex).toFixed(3)}
-                      </span>
-                    </div>
-                  )
-              }
-            </div>
+                        <span style={{ color: 'white', backgroundColor: 'rgba(0,0,0,0.3)', fontFamily: 'monospace' }}>
+                          {normalizeRange(wcagContrast.hex(fgHex, bgHex), 1, 21)}
+                        </span>
+                      </div>
+                    )
+                }
+              </div>
+            </HGroup>
           </VGroup>
         </Fill>
       </ThemeContext>

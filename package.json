@@ -92,6 +92,7 @@
     "redux": "^3.3.1",
     "reset": "^0.1.0",
     "throttle-function": "^0.1.0",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "wcag-contrast": "^0.1.0"
   }
 }

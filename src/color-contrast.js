@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import { range, flatten, unique, random } from 'underscore';
 import husl from 'husl';
 import { forceSimulation, forceX, forceY, forceCollide } from 'd3-force';
+import wcagContrast from 'wcag-contrast';
 
 import ms from './modules/common/ms';
 import Gradient from './modules/Gradient';
@@ -10,7 +11,7 @@ import { Fill, Center, Content, VGroup, HGroup } from './modules/layouts';
 import Button from './modules/Button';
 import {Tooltipped} from './modules/PortalUsers';
 import ThemeContext from './modules/ThemeContext';
-import {delta, deltaUV, deltaL, luvFunc, deltaUPenn, myContrast, myContrastOld, orderFormulaicallyAsHexPairs, textContrast, textContrastSortMaker} from './modules/colorPickerUtils';
+import {normalizeFunctionFromRange, delta, deltaUV, deltaL, luvFunc, deltaUPenn, myContrast, myContrastOld, orderFormulaicallyAsHexPairs, textContrast, textContrastSortMaker} from './modules/colorPickerUtils';
 
 import {DeltaLVsDeltaUV, CompareContrastFunctions} from './modules/ColorContrast';
 
@@ -218,7 +219,7 @@ const App = React.createClass({
                 selectedPair={[null, null]}
                 onSelectedChange={null}
                 pairs={combos}
-                functions={[delta, deltaUPenn, myContrastOld, myContrast]}
+                functions={[delta, deltaUPenn, normalizeFunctionFromRange(wcagContrast.hex, 1, 21), normalizeFunctionFromRange(myContrast, 0, 12.328)]}
               />
             </VGroup>
           </Center>
